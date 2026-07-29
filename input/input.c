@@ -4,6 +4,7 @@
 
 #define _DEFAULT_SOURCE
 #define _POSIX_C_SOURCE 200809L
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,7 +77,18 @@ void rdp_handle_keyboard(struct server *s, uint16_t flags, uint8_t keycode) {
 
     struct input_event ev = {
         .type = INPUT_KEY,
-        .key = { .keycode = keycode, .pressed = pressed }
+        .key = { .rune = keycode, .pressed = pressed }
     };
     input_queue_push(&s->input_queue, &ev);
+}
+
+
+void *mouse_thread_func(void *arg) {
+    (void)arg;
+    return NULL;
+}
+
+void *kbd_thread_func(void *arg) {
+    (void)arg;
+    return NULL;
 }

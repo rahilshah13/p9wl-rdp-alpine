@@ -589,6 +589,3 @@ static inline int focus_logical_to_phys(int logical, float scale) {
 }
 
 #endif /* FOCUS_MANAGER_H */
-```
-
-

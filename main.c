@@ -1,11 +1,19 @@
 /* 
- * main.c - p9wl application entry point (p9wl-rdp-alpine)
+ * main.c - Standalone Wayland-to-RDP Compositor Entry Point
  *
- * Argument parsing, 9P connection setup with optional TLS,
- * wlroots initialization, FreeRDP streaming backend startup, and main event loop.
+ * Headless wlroots initialization, FreeRDP streaming backend startup,
+ * and main event loop without external 9P dependencies.
  */
 
 #define _POSIX_C_SOURCE 200809L
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#include <winpr/wlog.h>
+#include <winpr/winpr.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,11 +51,8 @@
 
 #include <freerdp/freerdp.h>
 #include <freerdp/listener.h>
-#include <winpr/wlog.h>
 
 #include "types.h"
-#include "p9/p9.h"
-#include "p9/p9_tls.h"
 #include "input/input.h"
 #include "input/clipboard.h"
 #include "draw/draw.h"
@@ -56,47 +61,38 @@
 
 #define TAG FREERDP_TAG("p9wl.main")
 
+#define DEFAULT_WIDTH 1280
+#define DEFAULT_HEIGHT 800
+
 static void print_usage(const char *prog) {
-    fprintf(stderr, "Usage: %s [options] <plan9-ip>[:<port>] [command [args...]]\n", prog);
-    fprintf(stderr, "\nConnection options:\n");
-    fprintf(stderr, "  -c <cert>      Path to server certificate (PEM format)\n");
-    fprintf(stderr, "  -f <fp>        SHA256 fingerprint of server certificate (hex)\n");
-    fprintf(stderr, "  -k             Insecure mode: skip certificate verification\n");
-    fprintf(stderr, "  -u <user>      9P username (default: $P9USER, $USER, or 'glenda')\n");
+    fprintf(stderr, "Usage: %s [options] [command [args...]]\n", prog);
     fprintf(stderr, "\nDisplay options:\n");
+    fprintf(stderr, "  -w <width>     Output screen width (default: %d)\n", DEFAULT_WIDTH);
+    fprintf(stderr, "  -h <height>    Output screen height (default: %d)\n", DEFAULT_HEIGHT);
     fprintf(stderr, "  -S <scale>     Output scale factor (1.0-4.0, default: 1.0)\n");
     fprintf(stderr, "\nLogging options:\n");
     fprintf(stderr, "  -q             Quiet mode (errors only, default)\n");
     fprintf(stderr, "  -v             Verbose mode (info + errors)\n");
     fprintf(stderr, "  -d             Debug mode (all messages)\n");
-    fprintf(stderr, "\nDefault port is %d for plaintext, %d for TLS.\n", P9_PORT, P9_TLS_PORT);
 }
 
-static int parse_args(int argc, char *argv[], const char **host, int *port,
-                      const char **uname, float *scale,
-                      enum wlr_log_importance *log_level,
-                      struct tls_config *tls_cfg,  
+static int parse_args(int argc, char *argv[], int *width, int *height,
+                      float *scale, enum wlr_log_importance *log_level,
                       char ***exec_argv, int *exec_argc) {
-    static char host_buf[256];
-
-    *host = NULL;
-    *port = -1;
-    *uname = NULL;
+    *width = DEFAULT_WIDTH;
+    *height = DEFAULT_HEIGHT;
     *scale = 1.0f;
     *log_level = WLR_ERROR;
-    memset(tls_cfg, 0, sizeof(*tls_cfg));
     *exec_argv = NULL;
     *exec_argc = 0;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
-            tls_cfg->cert_file = argv[++i];
-        } else if (strcmp(argv[i], "-f") == 0 && i + 1 < argc) {
-            tls_cfg->cert_fingerprint = argv[++i];
-        } else if (strcmp(argv[i], "-k") == 0) {
-            tls_cfg->insecure = 1;
-        } else if (strcmp(argv[i], "-u") == 0 && i + 1 < argc) {
-            *uname = argv[++i];
+        if (strcmp(argv[i], "-w") == 0 && i + 1 < argc) {
+            *width = atoi(argv[++i]);
+            if (*width < 640) *width = 640;
+        } else if (strcmp(argv[i], "-h") == 0 && i + 1 < argc) {
+            *height = atoi(argv[++i]);
+            if (*height < 480) *height = 480;
         } else if (strcmp(argv[i], "-S") == 0 && i + 1 < argc) {
             *scale = strtof(argv[++i], NULL);
             if (*scale < 1.0f) *scale = 1.0f;
@@ -107,53 +103,15 @@ static int parse_args(int argc, char *argv[], const char **host, int *port,
             *log_level = WLR_INFO;
         } else if (strcmp(argv[i], "-d") == 0) {
             *log_level = WLR_DEBUG;
-        } else if (strcmp(argv[i], "-h") == 0) {
+        } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0) {
             return -1;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             return -1;
-        } else if (!*host) {
-            *host = argv[i];
-            char *colon = strchr(argv[i], ':');
-            if (colon) {
-                *port = atoi(colon + 1);
-                size_t len = colon - argv[i];
-                if (len >= sizeof(host_buf)) len = sizeof(host_buf) - 1;
-                memcpy(host_buf, argv[i], len);
-                host_buf[len] = '\0';
-                *host = host_buf;
-            }
         } else {
             *exec_argv = &argv[i];
             *exec_argc = argc - i;
             break;
-        }
-    }
-
-    if (!*host)
-        return -1;
-
-    if (*port < 0)
-        *port = (tls_cfg->cert_file || tls_cfg->cert_fingerprint || tls_cfg->insecure)
-                ? P9_TLS_PORT : P9_PORT;
-
-    return 0;
-}
-
-static int connect_9p_sessions(struct server *s, struct tls_config *tls_cfg) {
-    struct p9conn *conns[] = {
-        &s->p9_draw, &s->p9_relookup, &s->p9_mouse, &s->p9_kbd, &s->p9_wctl, &s->p9_snarf
-    };
-    const char *names[] = { "draw", "relookup", "mouse", "kbd", "wctl", "snarf" };
-    int n = sizeof(conns) / sizeof(conns[0]);
-
-    for (int i = 0; i < n; i++) {
-        if (p9_connect(conns[i], s->host, s->port, tls_cfg) < 0) {
-            wlr_log(WLR_ERROR, "Failed to connect (%s)", names[i]);
-            WLog_ERR(TAG, "Failed to connect (%s)", names[i]);
-            for (int j = 0; j < i; j++)
-                p9_disconnect(conns[j]);
-            return -1;
         }
     }
     return 0;
@@ -256,64 +214,41 @@ static const char *setup_socket(struct server *s) {
 }
 
 int main(int argc, char *argv[]) {
-    const char *host, *uname;
-    int port, exec_argc, ret = 1;
+    const char *runtime_dir = "/tmp/xdg";
+    struct stat st = {0};
+    if (stat(runtime_dir, &st) == -1) {
+        mkdir(runtime_dir, 0700);
+    } else {
+        chmod(runtime_dir, 0700);
+    }
+    setenv("XDG_RUNTIME_DIR", runtime_dir, 1);
+    int width, height, exec_argc, ret = 1;
     float scale;
     enum wlr_log_importance log_level;
-    struct tls_config tls_cfg;
     char **exec_argv;
 
-    if (parse_args(argc, argv, &host, &port, &uname, &scale, &log_level,
-                   &tls_cfg, &exec_argv, &exec_argc) < 0) {
+    if (parse_args(argc, argv, &width, &height, &scale, &log_level,
+                   &exec_argv, &exec_argc) < 0) {
         print_usage(argv[0]);
         return 1;
     }
 
-    if (uname)
-        setenv("P9USER", uname, 1);
-
     signal(SIGPIPE, SIG_IGN);
     wlr_log_init(log_level, NULL);
     
-    /* Initialize FreeRDP WLog system */
-    winpr_Initialize();
-    WLog_SetLogLevel(WLog_Get(TAG), WLOG_LEVEL_INFO);
-
-    int using_tls = tls_cfg.cert_file || tls_cfg.cert_fingerprint || tls_cfg.insecure;
-    if (using_tls) {
-        if (tls_init() < 0) {
-            wlr_log(WLR_ERROR, "Failed to initialize TLS");
-            WLog_ERR(TAG, "Failed to initialize TLS");
-            return 1;
-        }
-    }
+    /* Initialize FreeRDP WLog system (WinPR 3 compatible) */
+    WLog_SetLogLevel(WLog_Get(TAG), WLOG_INFO);
 
     struct server s = {0};
     wl_list_init(&s.toplevels);
     focus_manager_init(&s.focus, &s);
-    s.host = host;
-    s.port = port;
     s.running = 1;
-    s.use_tls = using_tls;
     s.scale = scale;
     s.log_level = log_level;
-
-    wlr_log(WLR_INFO, "Connecting to %s:%d", host, port);
-    WLog_INFO(TAG, "Connecting to %s:%d", host, port);
-
-    if (connect_9p_sessions(&s, &tls_cfg) < 0)
-        goto cleanup;
-
-    if (init_draw(&s) < 0) {
-        wlr_log(WLR_ERROR, "Failed to initialize draw device");
-        WLog_ERR(TAG, "Failed to initialize draw device");
-        goto cleanup;
-    }
-
-    s.width = s.draw.width;
-    s.height = s.draw.height;
-    s.visible_width = s.draw.visible_width;
-    s.visible_height = s.draw.visible_height;
+    s.width = width;
+    s.height = height;
+    s.visible_width = width;
+    s.visible_height = height;
     s.tiles_x = s.width / TILE_SIZE;
     s.tiles_y = s.height / TILE_SIZE;
 
@@ -336,8 +271,7 @@ int main(int argc, char *argv[]) {
 
     input_queue_init(&s.input_queue);
 
-    pthread_create(&s.mouse_thread, NULL, mouse_thread_func, &s);
-    pthread_create(&s.kbd_thread, NULL, kbd_thread_func, &s); 
+    /* Start FreeRDP streaming thread */
     pthread_create(&s.send_thread, NULL, send_thread_func, &s);
 
     if (init_wayland(&s) < 0)
@@ -376,8 +310,8 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
 
-    wlr_log(WLR_INFO, "Running (9P%s via FreeRDP stream)", using_tls ? " over TLS" : "");
-    WLog_INFO(TAG, "Running (9P%s via FreeRDP stream)", using_tls ? " over TLS" : "");
+    wlr_log(WLR_INFO, "Running Standalone Wayland-to-RDP Compositor");
+    WLog_INFO(TAG, "Running Standalone Wayland-to-RDP Compositor");
     wl_display_run(s.display);
     ret = 0;
 
@@ -387,8 +321,5 @@ cleanup:
         wl_display_destroy(s.display);
     }
     server_cleanup(&s);
-    if (using_tls)
-        tls_cleanup();
-    winpr_Uninitialize();
     return ret;
 }

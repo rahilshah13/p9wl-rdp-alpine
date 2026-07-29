@@ -1,4 +1,3 @@
-
 /*
  * output.c - Output creation, frame rendering, and resize handling
  *
@@ -20,11 +19,45 @@
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
-
+#include "../draw/draw.h"
 #include "output.h"
 #include "../draw/send.h"
 #include "../draw/draw_cmd.h"
 #include "../p9/p9.h"
+
+#ifndef CHAN_XRGB32
+#define CHAN_XRGB32 1
+#endif
+#ifndef CHAN_ARGB32
+#define CHAN_ARGB32 2
+#endif
+
+#ifndef free_image_cmd
+static inline int free_image_cmd(uint8_t *cmd, uint32_t id) {
+    cmd[0] = 'f';
+    cmd[1] = id & 0xff;
+    cmd[2] = (id >> 8) & 0xff;
+    cmd[3] = (id >> 16) & 0xff;
+    cmd[4] = (id >> 24) & 0xff;
+    return 5;
+}
+#endif
+
+#ifndef alloc_image_cmd
+static inline int alloc_image_cmd(uint8_t *cmd, uint32_t id, uint32_t chan, int repl,
+                                  int x0, int y0, int x1, int y1, uint32_t col) {
+    cmd[0] = 'b';
+    *(uint32_t *)(cmd + 1) = id;
+    *(uint32_t *)(cmd + 5) = chan;
+    cmd[9] = (uint8_t)repl;
+    *(uint32_t *)(cmd + 10) = (uint32_t)x0;
+    *(uint32_t *)(cmd + 14) = (uint32_t)y0;
+    *(uint32_t *)(cmd + 18) = (uint32_t)x1;
+    *(uint32_t *)(cmd + 22) = (uint32_t)y1;
+    *(uint32_t *)(cmd + 26) = col;
+    return 30;
+}
+#endif
 
 static void output_destroy(struct wl_listener *listener, void *data) {
     struct server *s = wl_container_of(listener, s, output_destroy);
@@ -268,13 +301,6 @@ static void output_frame(struct wl_listener *listener, void *data) {
              * Extract damage BEFORE copying pixels.  This lets us skip
              * the buffer copy entirely on idle frames (nrects == 0) and
              * copy only damaged rows on active frames.
-             *
-             * We read ostate.damage unconditionally rather than checking
-             * ostate.committed & WLR_OUTPUT_STATE_DAMAGE.  The committed
-             * flag tracks fields set by the caller, not fields populated
-             * by wlr_scene_output_build_state().  wlr_output_state_init()
-             * initializes damage empty, and the scene builder fills it
-             * with actual changed regions.
              */
             int nrects = 0;
             pixman_box32_t *rects = pixman_region32_rectangles(
@@ -303,36 +329,11 @@ static void output_frame(struct wl_listener *listener, void *data) {
                 has_dirty = (nrects > 0);
             }
             
-            /*
-             * Copy rendered pixels from wlroots buffer to framebuf.
-             *
-             * This runs only when scene_dirty was set (a client committed
-             * new content), so on an idle screen this code never executes.
-             * We always do a full-frame copy because:
-             *
-             *   - send_frame() swaps framebuf with a recycled send_buf,
-             *     so the new framebuf has stale data from ~2 frames ago.
-             *     A partial copy would leave stale rows in the buffer.
-             *
-             *   - The send thread copies per-tile data from send_buf
-             *     into prev_framebuf (line ~544). If send_buf has stale
-             *     rows from incomplete copy, prev_framebuf gets corrupted,
-             *     breaking XOR delta encoding.
-             *
-             *   - Damage rects are pixel-precise but tiles are 16x16.
-             *     Copying only damaged rows can leave stale data within
-             *     a tile that the send thread reads in full.
-             *
-             * The scene_dirty check above already ensures we skip idle
-             * frames entirely, so the full copy only runs when content
-             * actually changed — not 60 times per second.
-             */
             if (valid_fb) {
                 int buf_w = buffer->width;
                 int buf_h = buffer->height;
                 int vis_w = s->visible_width;
                 int vis_h = s->visible_height;
-                /* Copy min of buffer and visible dims; framebuf stride is w (padded) */
                 int copy_w = (buf_w < vis_w) ? buf_w : vis_w;
                 int copy_h = (buf_h < vis_h) ? buf_h : vis_h;
                 
@@ -362,13 +363,6 @@ static void output_frame(struct wl_listener *listener, void *data) {
     clock_gettime(CLOCK_MONOTONIC, &ts);
     wlr_scene_output_send_frame_done(so, &ts);
     
-    /*
-     * Only wake the send thread when there's actual work:
-     *   - force_full_frame: resize/error recovery needs full resend
-     *   - has_dirty: compositor reported pixel changes
-     *   - !dirty_staging_valid: damage extraction failed (alloc error),
-     *     send thread must fall back to pixel scanning
-     */
     if (s->force_full_frame || has_dirty || !s->dirty_staging_valid) {
         send_frame(s);
     }

@@ -1,5 +1,3 @@
-how does p9/p9.h need to be modified to implement p9wl-rdp-alpine
-```
 /*
  * p9.h - 9P2000 Protocol Implementation
  *
@@ -512,6 +510,3 @@ int p9_rpc(struct p9conn *p9, int txlen, int expected_type);
 int p9_rpc_locked(struct p9conn *p9, int txlen, int expected_type);
 
 #endif /* P9_H */
-```
-
-

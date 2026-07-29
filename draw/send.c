@@ -20,10 +20,12 @@
 #include <wlr/util/log.h>
 
 #include <freerdp/freerdp.h>
-#include <freerdp/channels/wtsapi.h>
+#include <freerdp/listener.h>
+#include <freerdp/peer.h>
+#include <freerdp/settings.h>
+#include <winpr/wtsapi.h>
 #include <freerdp/primary.h>
-#include <freerdp/codecs/rfx.h>
-
+#include <freerdp/codec/rfx.h>
 #include "send.h"
 #include "compress.h"
 #include "scroll.h"
@@ -32,11 +34,14 @@
 #include "types.h"
 #include "input/input.h"
 
+#define TAG FREERDP_TAG("p9wl.send")
+
 /* ============== RDP Encoder / Drain Context ============== */
 
 struct rdp_send_ctx {
     freerdp *instance;
     rdpContext *context;
+    freerdp_peer *peer;
     RFX_CONTEXT *rfx_context;
     atomic_int pending;
     atomic_int errors;
@@ -58,51 +63,48 @@ static inline void rdp_drain_wake(void) {
     pthread_mutex_unlock(&rdp_ctx.lock);
 }
 
-static int rdp_send_recv_one(void) {
-    if (atomic_load(&rdp_ctx.broken)) return -1;
-    
-    if (!rdp_ctx.instance || !rdp_ctx.instance->update) {
-        atomic_store(&rdp_ctx.broken, 1);
-        return -1;
-    }
-    
-    /* Process incoming RDP channel events, client input, or control PDUs */
-    if (freerdp_shall_disconnect(rdp_ctx.instance)) {
-        atomic_store(&rdp_ctx.broken, 1);
-        return -1;
-    }
-    
-    return 0;
-}
-
 static void *rdp_drain_thread_func(void *arg) {
     (void)arg;
-    wlr_log(WLR_INFO, "RDP Channel Drain thread started");
+    wlr_log(WLR_INFO, "RDP Channel Drain / Event thread started");
     
     while (atomic_load(&rdp_ctx.running)) {
-        pthread_mutex_lock(&rdp_ctx.lock);
-        while (atomic_load(&rdp_ctx.pending) == 0 && atomic_load(&rdp_ctx.running)) {
-            pthread_cond_wait(&rdp_ctx.cond, &rdp_ctx.lock);
-        }
-        pthread_mutex_unlock(&rdp_ctx.lock);
-        
-        if (!atomic_load(&rdp_ctx.running)) break;
-        if (atomic_load(&rdp_ctx.paused) && atomic_load(&rdp_ctx.pending) == 0) continue;
-        
-        if (atomic_load(&rdp_ctx.broken)) {
-            int rem = atomic_exchange(&rdp_ctx.pending, 0);
-            if (rem > 0) {
-                pthread_mutex_lock(&rdp_ctx.lock);
-                pthread_cond_broadcast(&rdp_ctx.done_cond);
-                pthread_mutex_unlock(&rdp_ctx.lock);
-            }
+        freerdp_peer *peer = rdp_ctx.peer;
+        if (!peer) {
+            usleep(10000);
+            if (atomic_load(&rdp_ctx.broken)) break;
             continue;
+        }
+
+        HANDLE handles[64];
+        DWORD handle_count = 0;
+        if (peer->GetEventHandles) {
+            handle_count = peer->GetEventHandles(peer, handles, 64);
+        }
+
+        if (handle_count > 0) {
+            DWORD status = WaitForMultipleObjects(handle_count, handles, FALSE, 50);
+            if (status == WAIT_FAILED) {
+                atomic_store(&rdp_ctx.broken, 1);
+                break;
+            }
+        } else {
+            usleep(50000);
+        }
+
+        if (peer->CheckFileDescriptor) {
+            if (peer->CheckFileDescriptor(peer) != TRUE) {
+                wlr_log(WLR_INFO, "RDP peer disconnected or check file descriptor failed");
+                atomic_store(&rdp_ctx.broken, 1);
+                break;
+            }
+        }
+
+        if (freerdp_shall_disconnect_context(rdp_ctx.context)) {
+            atomic_store(&rdp_ctx.broken, 1);
+            break;
         }
         
         if (atomic_load(&rdp_ctx.pending) > 0) {
-            if (rdp_send_recv_one() < 0) {
-                atomic_fetch_add(&rdp_ctx.errors, 1);
-            }
             atomic_fetch_sub(&rdp_ctx.pending, 1);
             pthread_mutex_lock(&rdp_ctx.lock);
             pthread_cond_broadcast(&rdp_ctx.done_cond);
@@ -114,7 +116,7 @@ static void *rdp_drain_thread_func(void *arg) {
     return NULL;
 }
 
-static int rdp_drain_start(freerdp *instance, rdpContext *context) {
+static int rdp_drain_start(freerdp *instance, rdpContext *context, freerdp_peer *peer) {
     atomic_store(&rdp_ctx.pending, 0);
     atomic_store(&rdp_ctx.errors, 0);
     atomic_store(&rdp_ctx.running, 1);
@@ -122,6 +124,7 @@ static int rdp_drain_start(freerdp *instance, rdpContext *context) {
     atomic_store(&rdp_ctx.broken, 0);
     rdp_ctx.instance = instance;
     rdp_ctx.context = context;
+    rdp_ctx.peer = peer;
     
     pthread_mutex_init(&rdp_ctx.lock, NULL);
     pthread_cond_init(&rdp_ctx.cond, NULL);
@@ -129,8 +132,8 @@ static int rdp_drain_start(freerdp *instance, rdpContext *context) {
     
     rdp_ctx.rfx_context = rfx_context_new(TRUE);
     if (!rdp_ctx.rfx_context) return -1;
-    rfx_context_set_pixel_format(rdp_ctx.rfx_context, RDP_PIXEL_FORMAT_B8G8R8A8);
-    
+    rfx_context_set_pixel_format(rdp_ctx.rfx_context, PIXEL_FORMAT_BGRX32);
+
     if (pthread_create(&rdp_ctx.thread, NULL, rdp_drain_thread_func, NULL) != 0) {
         rfx_context_free(rdp_ctx.rfx_context);
         return -1;
@@ -180,6 +183,64 @@ static void rdp_drain_throttle(int max_pending) {
         pthread_cond_wait(&rdp_ctx.done_cond, &rdp_ctx.lock);
     }
     pthread_mutex_unlock(&rdp_ctx.lock);
+}
+
+/* ============== Peer Acceptance Callback ============== */
+
+static BOOL p9wl_peer_context_new(freerdp_peer *peer, rdpContext *context) {
+    (void)peer;
+    (void)context;
+    return TRUE;
+}
+
+static void p9wl_peer_context_free(freerdp_peer *peer, rdpContext *context) {
+    (void)peer;
+    (void)context;
+}
+
+static BOOL p9wl_peer_post_connect(freerdp_peer *peer) {
+    wlr_log(WLR_INFO, "RDP peer post-connect handshake complete");    
+    rdpSettings *settings = peer->context->settings;
+    if (settings) {
+        freerdp_settings_set_uint32(settings, FreeRDP_ColorDepth, 32);
+    }
+    return TRUE;
+}
+
+static BOOL rdp_peer_accepted_callback(freerdp_listener *listener, freerdp_peer *peer) {
+    (void)listener;
+
+    peer->ContextNew = p9wl_peer_context_new;
+    peer->ContextFree = p9wl_peer_context_free;
+
+    if (!freerdp_peer_context_new(peer)) {
+        wlr_log(WLR_ERROR, "Failed to allocate RDP peer context");
+        return FALSE;
+    }
+    
+    rdpSettings *settings = peer->context->settings;
+    if (settings) {
+        freerdp_settings_set_bool(settings, FreeRDP_NlaSecurity, FALSE);
+        freerdp_settings_set_bool(settings, FreeRDP_TlsSecurity, FALSE);
+        freerdp_settings_set_bool(settings, FreeRDP_RdpSecurity, FALSE);
+        freerdp_settings_set_bool(settings, FreeRDP_UseRdpSecurityLayer, FALSE);
+        freerdp_settings_set_string(settings, FreeRDP_CertificateName, "server");
+    }
+
+    peer->PostConnect = p9wl_peer_post_connect;
+
+    rdp_ctx.instance = peer->context->instance;
+    rdp_ctx.context = peer->context;
+    rdp_ctx.peer = peer;
+
+    if (!peer->Initialize(peer)) {
+        wlr_log(WLR_ERROR, "Failed to initialize RDP peer");
+        freerdp_peer_context_free(peer);
+        return FALSE;
+    }
+    
+    wlr_log(WLR_INFO, "RDP client socket accepted, initializing handshake...");
+    return TRUE;
 }
 
 /* ============== Frame Sending via FreeRDP Encoder ============== */
@@ -245,16 +306,50 @@ static int scroll_disabled(struct server *s) {
 
 void *send_thread_func(void *arg) {
     struct server *s = arg;
-    struct draw_state *draw = &s->draw;
-    static int send_count = 0;
     
     wlr_log(WLR_INFO, "RDP Send thread started");
     
+    freerdp_listener *listener = freerdp_listener_new();
+    if (!listener) {
+        wlr_log(WLR_ERROR, "Failed to create FreeRDP listener");
+        return NULL;
+    }
+
+    listener->PeerAccepted = rdp_peer_accepted_callback;
+
+    if (!listener->Open(listener, NULL, 3389)) {
+        wlr_log(WLR_ERROR, "Failed to bind FreeRDP listener to port 3389");
+        freerdp_listener_free(listener);
+        return NULL;
+    }
+
+    wlr_log(WLR_INFO, "Waiting for RDP client connection on port 3389...");
+
+    while (s->running && !rdp_ctx.instance) {
+        HANDLE handles[64];
+        DWORD count = listener->GetEventHandles(listener, handles, 64);
+        if (count == 0) break;
+        
+        DWORD status = WaitForMultipleObjects(count, handles, FALSE, 100);
+        if (status == WAIT_FAILED) break;
+        
+        if (listener->CheckFileDescriptor(listener) != TRUE) {
+            break;
+        }
+    }
+
+    listener->Close(listener);
+    freerdp_listener_free(listener);
+
+    if (!s->running || !rdp_ctx.instance) {
+        return NULL;
+    }
+
     if (scroll_disabled(s)) {
         wlr_log(WLR_INFO, "Scroll optimization disabled (fractional scale: %.2f)", s->scale);
     }
     
-    if (rdp_drain_start(draw->rdp_instance, draw->rdp_context) < 0) {
+    if (rdp_drain_start(rdp_ctx.instance, rdp_ctx.instance->context, rdp_ctx.peer) < 0) {
         return NULL;
     }
     
@@ -397,15 +492,12 @@ void *send_thread_func(void *arg) {
         
         rdp_drain_throttle(2);
         
-        /* Encode and push tiles via FreeRFX surface update encoder */
         for (int i = 0; i < work_count; i++) {
             struct tile_work *tw = &work[i];
             int x1 = tw->x1, y1 = tw->y1;
             int w = tw->w, h = tw->h;
             
-            /* Construct standard RDP Surface Bits / RFX update payload */
             if (rdp_ctx.rfx_context) {
-                // Enqueue encoded RDP surface command via libfreerdp channel encoders
                 rdp_drain_notify();
             }
             
@@ -415,7 +507,6 @@ void *send_thread_func(void *arg) {
             }
         }
         
-        send_count++;
         pthread_mutex_lock(&s->send_lock);
         s->active_buf = -1;
         pthread_mutex_unlock(&s->send_lock);

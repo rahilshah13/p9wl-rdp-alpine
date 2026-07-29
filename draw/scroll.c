@@ -14,13 +14,14 @@
 #include "compress.h"
 #include "parallel.h"
 #include "phase_correlate.h"
-#include "draw/draw_helpers.h"
 #include "types.h"
 #include "draw/draw.h"
+#include "draw/draw_helpers.h"
 
 #define TAG FREERDP_TAG("p9wl.scroll")
 
 static struct scroll_timing timing;
+extern int cmd_copy(uint8_t *dst, uint32_t dst_id, uint32_t src_id, uint32_t clip_id, int dst_x1, int dst_y1, int dst_x2, int dst_y2, int src_x1, int src_y1);
 
 struct scroll_ctx {
     struct server *s;
@@ -66,8 +67,8 @@ static void detect_region_scroll(void *ctx, int reg_idx) {
     
     if (abs_dx >= max_scroll_x || abs_dy >= max_scroll_y) return;
     
-    WRLOG(WLR_INFO, "Region %d: FFT detected scroll dx=%d dy=%d", reg_idx, dx, dy);
-    
+    WLog_WARN(TAG, "Region %d: FFT detected scroll dx=%d dy=%d", reg_idx, dx, dy);
+
     struct scroll_rects rects;
     compute_scroll_rects(rx1, ry1, rx2, ry2, dx, dy, &rects);
     if (!rects.valid) return;
