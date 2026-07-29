@@ -40,7 +40,8 @@ RUN apk add --no-cache \
     fftw \
     lz4 \
     zlib \
-    xkeyboard-config
+    xkeyboard-config \
+    firefox
 
 WORKDIR /app
 COPY --from=builder /app/p9wl /app/p9wl
@@ -65,6 +66,12 @@ activate = 1\n' > /app/openssl.cnf
 ENV OPENSSL_CONF=/app/openssl.cnf
 # Optional: Set WinPR/FreeRDP logging to trace if handshake diagnostics are needed
 ENV WLOG_LEVEL=TRACE
+RUN mkdir -p /tmp/xdg
+# RUN mkdir -p /tmp/xdg /var/lib/dbus && dbus-uuidgen > /var/lib/dbus/machine-id
+ENV XDG_RUNTIME_DIR=/tmp/xdg \
+    WAYLAND_DISPLAY=wayland-0 \
+    MOZ_ENABLE_WAYLAND=1 \
+    MOZ_DISABLE_CONTENT_SANDBOX=1
 
 EXPOSE 3389
 ENTRYPOINT ["/app/p9wl", "-d"]

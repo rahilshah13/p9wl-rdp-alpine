@@ -23,6 +23,8 @@
 #include <freerdp/listener.h>
 #include <freerdp/peer.h>
 #include <freerdp/settings.h>
+#include <freerdp/crypto/certificate.h>
+#include <freerdp/crypto/privatekey.h>
 #include <winpr/wtsapi.h>
 #include <freerdp/primary.h>
 #include <freerdp/codec/rfx.h>
@@ -222,9 +224,22 @@ static BOOL rdp_peer_accepted_callback(freerdp_listener *listener, freerdp_peer 
     if (settings) {
         freerdp_settings_set_bool(settings, FreeRDP_NlaSecurity, FALSE);
         freerdp_settings_set_bool(settings, FreeRDP_TlsSecurity, FALSE);
-        freerdp_settings_set_bool(settings, FreeRDP_RdpSecurity, FALSE);
-        freerdp_settings_set_bool(settings, FreeRDP_UseRdpSecurityLayer, FALSE);
-        freerdp_settings_set_string(settings, FreeRDP_CertificateName, "server");
+        freerdp_settings_set_bool(settings, FreeRDP_RdpSecurity, TRUE);
+        freerdp_settings_set_bool(settings, FreeRDP_UseRdpSecurityLayer, TRUE);
+
+        rdpCertificate *cert = freerdp_certificate_new_from_file("/app/server.crt");
+        if (cert) {
+            freerdp_settings_set_pointer_len(settings, FreeRDP_RdpServerCertificate, cert, 1);
+        } else {
+            wlr_log(WLR_ERROR, "Failed to load RDP server certificate from /app/server.crt");
+        }
+
+        rdpPrivateKey *key = freerdp_key_new_from_file_enc("/app/server.key", NULL);
+        if (key) {
+            freerdp_settings_set_pointer_len(settings, FreeRDP_RdpServerRsaKey, key, 1);
+        } else {
+            wlr_log(WLR_ERROR, "Failed to load RDP private key from /app/server.key");
+        }
     }
 
     peer->PostConnect = p9wl_peer_post_connect;
