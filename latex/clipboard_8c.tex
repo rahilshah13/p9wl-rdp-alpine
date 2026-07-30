@@ -1,0 +1,91 @@
+\doxysection{input/\+clipboard.c File Reference}
+\hypertarget{clipboard_8c}{}\label{clipboard_8c}\index{input/clipboard.c@{input/clipboard.c}}
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$unistd.\+h$>$}\newline
+{\ttfamily \+\#include $<$fcntl.\+h$>$}\newline
+{\ttfamily \+\#include $<$errno.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+log.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+channels/\+cliprdr.\+h$>$}\newline
+{\ttfamily \+\#include "{}clipboard.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+types.\+h"{}}\newline
+Include dependency graph for clipboard.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{clipboard_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{clipboard_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{clipboard_8c_a8fb447618db946a9e2a596d9ea18763f}{\+\_\+\+DEFAULT\+\_\+\+SOURCE}}
+\item 
+\+\#define \doxymbox{\hyperlink{clipboard_8c_afc3d101f633a076cc1ca84b85b6224b2}{TAG}}~FREERDP\+\_\+\+TAG("{}p9wl.\+clipboard"{})
+\item 
+\+\#define \doxymbox{\hyperlink{clipboard_8c_a70f87d0825d631a0be31098db46ea68f}{CLIPBOARD\+\_\+\+MAX\+\_\+\+SIZE}}~(1024 \texorpdfstring{$\ast$}{*} 1024)  /\+\texorpdfstring{$\ast$}{*} 1MB max clipboard \texorpdfstring{$\ast$}{*}/\+
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{clipboard_8c_aebccaa080f7bd99dc3ba6d542464f222}{rdp\+\_\+to\+\_\+local\+\_\+write}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, const void \texorpdfstring{$\ast$}{*}data, size\+\_\+t size)
+\item 
+int \doxymbox{\hyperlink{clipboard_8c_acbe520a65cfb289a0b650d5f5c37c934}{clipboard\+\_\+init}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\item 
+void \doxymbox{\hyperlink{clipboard_8c_a6d337917c3b03b5250dd95d99d7e1c99}{clipboard\+\_\+cleanup}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\end{DoxyCompactItemize}
+
+
+\label{clipboard_8c_doc-define-members}
+\Hypertarget{clipboard_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{clipboard_8c_a8fb447618db946a9e2a596d9ea18763f}\index{clipboard.c@{clipboard.c}!\_DEFAULT\_SOURCE@{\_DEFAULT\_SOURCE}}
+\index{\_DEFAULT\_SOURCE@{\_DEFAULT\_SOURCE}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{\_DEFAULT\_SOURCE}{\_DEFAULT\_SOURCE}}
+{\footnotesize\ttfamily \label{clipboard_8c_a8fb447618db946a9e2a596d9ea18763f} 
+\+\#define \+\_\+\+DEFAULT\+\_\+\+SOURCE}
+
+\Hypertarget{clipboard_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{clipboard.c@{clipboard.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{clipboard_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{clipboard_8c_a70f87d0825d631a0be31098db46ea68f}\index{clipboard.c@{clipboard.c}!CLIPBOARD\_MAX\_SIZE@{CLIPBOARD\_MAX\_SIZE}}
+\index{CLIPBOARD\_MAX\_SIZE@{CLIPBOARD\_MAX\_SIZE}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{CLIPBOARD\_MAX\_SIZE}{CLIPBOARD\_MAX\_SIZE}}
+{\footnotesize\ttfamily \label{clipboard_8c_a70f87d0825d631a0be31098db46ea68f} 
+\+\#define CLIPBOARD\+\_\+\+MAX\+\_\+\+SIZE~(1024 \texorpdfstring{$\ast$}{*} 1024)  /\+\texorpdfstring{$\ast$}{*} 1MB max clipboard \texorpdfstring{$\ast$}{*}/\+}
+
+\Hypertarget{clipboard_8c_afc3d101f633a076cc1ca84b85b6224b2}\index{clipboard.c@{clipboard.c}!TAG@{TAG}}
+\index{TAG@{TAG}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{clipboard_8c_afc3d101f633a076cc1ca84b85b6224b2} 
+\+\#define TAG~FREERDP\+\_\+\+TAG("{}p9wl.\+clipboard"{})}
+
+
+
+\label{clipboard_8c_doc-func-members}
+\Hypertarget{clipboard_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{clipboard_8c_a6d337917c3b03b5250dd95d99d7e1c99}\index{clipboard.c@{clipboard.c}!clipboard\_cleanup@{clipboard\_cleanup}}
+\index{clipboard\_cleanup@{clipboard\_cleanup}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{clipboard\_cleanup()}{clipboard\_cleanup()}}
+{\footnotesize\ttfamily \label{clipboard_8c_a6d337917c3b03b5250dd95d99d7e1c99} 
+void clipboard\+\_\+cleanup (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{clipboard_8c_acbe520a65cfb289a0b650d5f5c37c934}\index{clipboard.c@{clipboard.c}!clipboard\_init@{clipboard\_init}}
+\index{clipboard\_init@{clipboard\_init}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{clipboard\_init()}{clipboard\_init()}}
+{\footnotesize\ttfamily \label{clipboard_8c_acbe520a65cfb289a0b650d5f5c37c934} 
+int clipboard\+\_\+init (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{clipboard_8c_aebccaa080f7bd99dc3ba6d542464f222}\index{clipboard.c@{clipboard.c}!rdp\_to\_local\_write@{rdp\_to\_local\_write}}
+\index{rdp\_to\_local\_write@{rdp\_to\_local\_write}!clipboard.c@{clipboard.c}}
+\doxysubsubsection{\texorpdfstring{rdp\_to\_local\_write()}{rdp\_to\_local\_write()}}
+{\footnotesize\ttfamily \label{clipboard_8c_aebccaa080f7bd99dc3ba6d542464f222} 
+void rdp\+\_\+to\+\_\+local\+\_\+write (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{const void \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+

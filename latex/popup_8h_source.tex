@@ -1,0 +1,84 @@
+\doxysection{popup.\+h}
+\hypertarget{popup_8h_source}{}\label{popup_8h_source}\index{wayland/popup.h@{wayland/popup.h}}
+\doxymbox{\hyperlink{popup_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00002\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ popup.h\ -\/\ XDG\ popup\ lifecycle\ management}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ This\ module\ handles\ the\ creation\ and\ destruction\ of\ XDG\ popups\ (menus,}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ dropdowns,\ tooltips).\ Focus\ management\ for\ popups\ is\ handled\ by\ the}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ focus\_manager\ module.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ Popup\ Lifecycle:}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ \ \ 1.\ new\_popup()\ -\/\ Called\ when\ client\ creates\ xdg\_popup}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Validates\ parent\ surface\ (must\ be\ valid\ XDG\ surface\ with\ data)}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Creates\ scene\ tree\ as\ child\ of\ parent's\ scene\ tree}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Allocates\ and\ initializes\ popup\_data\ struct}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Registers\ popup\ with\ focus\ manager\ via\ focus\_popup\_register()}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Sets\ up\ commit\ and\ destroy\ listeners}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Detects\ grab\ state\ from\ popup-\/>seat\ (non-\/NULL\ =\ has\ grab)}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ 2.\ popup\_commit()\ -\/\ Called\ on\ each\ surface\ commit}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Initial\ commit:\ unconstrains\ popup\ to\ screen\ bounds\ using}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ logical\ dimensions\ (physical\ /\ scale)}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Subsequent\ commits:\ tracks\ map/unmap\ state\ transitions}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ On\ map:\ calls\ focus\_popup\_mapped()\ to\ handle\ focus}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ On\ unmap:\ calls\ focus\_popup\_unmapped()\ to\ restore\ focus}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ \ \ 3.\ popup\_destroy()\ -\/\ Called\ when\ popup\ is\ destroyed}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Unregisters\ from\ focus\ manager\ via\ focus\_popup\_unregister()}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Removes\ commit,\ destroy,\ and\ grab\ listeners}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Frees\ popup\_data\ struct}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ Data\ Structures:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ \ \ The\ popup\_data\ struct\ (defined\ in\ focus\_manager.h)\ tracks:}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ popup:\ wlr\_xdg\_popup\ pointer}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ surface:\ wlr\_surface\ pointer\ for\ quick\ access}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ scene\_tree:\ scene\ graph\ node\ for\ rendering}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ server:\ back-\/reference\ to\ server\ state}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ configured:\ set\ after\ initial\ configure\ sent}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ commit\_count:\ number\ of\ commits\ received\ (for\ debugging)}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ mapped:\ true\ when\ surface\ has\ buffer\ and\ is\ visible}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ has\_grab:\ true\ if\ popup\ requested\ keyboard\ grab\ (menus)}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ commit/destroy/grab:\ Wayland\ listeners}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ link:\ position\ in\ focus\_manager's\ popup\_stack}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ *\ Usage:}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ *\ \ \ Wire\ up\ new\_popup\ as\ the\ handler\ for\ xdg\_shell's\ new\_popup\ event:}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ *\ \ \ \ \ server-\/>new\_xdg\_popup.notify\ =\ new\_popup;}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ *\ \ \ \ \ wl\_signal\_add(\&xdg\_shell-\/>events.new\_popup,\ \&server-\/>new\_xdg\_popup);}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#ifndef\ P9WL\_POPUP\_H}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#define\ P9WL\_POPUP\_H}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#include\ "{}\doxymbox{\hyperlink{types_8h}{../types.h}}"{}}}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{/*\ ==============\ Popup\ Handling\ ==============\ */}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ *\ Handle\ new\ XDG\ popup\ creation.}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ *\ Creates\ scene\ graph\ nodes,\ allocates\ popup\_data,\ registers\ with\ the}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ *\ focus\ manager,\ and\ sets\ up\ commit/destroy\ listeners.}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00066\ \textcolor{comment}{\ *\ The\ popup's\ parent\ must\ be\ a\ valid\ XDG\ surface\ with\ data\ set}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ *\ (parent-\/>data\ points\ to\ parent's\ scene\ tree).\ Returns\ early\ with}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ *\ error\ log\ if\ parent\ is\ invalid.}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00070\ \textcolor{comment}{\ *\ Scene\ tree\ is\ created\ via\ wlr\_scene\_xdg\_surface\_create()\ as\ a\ child}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ *\ of\ the\ parent's\ scene\ tree,\ ensuring\ proper\ layering.}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ *\ l:\ wl\_listener\ from\ server-\/>new\_xdg\_popup}}
+\DoxyCodeLine{00074\ \textcolor{comment}{\ *\ d:\ wlr\_xdg\_popup\ pointer}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{popup_8h_a815e7e3b77bff6e3ed082a1698d1ae4d}{new\_popup}}(\textcolor{keyword}{struct}\ wl\_listener\ *l,\ \textcolor{keywordtype}{void}\ *d);}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ P9WL\_POPUP\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

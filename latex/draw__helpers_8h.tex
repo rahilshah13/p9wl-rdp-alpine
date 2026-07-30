@@ -1,0 +1,107 @@
+\doxysection{draw/\+draw\+\_\+helpers.h File Reference}
+\hypertarget{draw__helpers_8h}{}\label{draw__helpers_8h}\index{draw/draw\_helpers.h@{draw/draw\_helpers.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stddef.\+h$>$}\newline
+Include dependency graph for draw\+\_\+helpers.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=264pt]{draw__helpers_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{draw__helpers_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structscroll__rects}{scroll\+\_\+rects}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{draw__helpers_8h_a36ea1c08ef673bc9ab7b427acf8672c2}{PUT32}}(p,  v)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__helpers_8h_a3383b5461b39f23eab4b226c471762e3}{PUT16}}(p,  v)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__helpers_8h_af6ced6a027d3d4ae0314960ac933a452}{XDG\+\_\+\+VALID}}(xdg)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__helpers_8h_a61d54e250aae9db2ee9cec8dbe3cb07c}{XDG\+\_\+\+MAPPED}}(xdg)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__helpers_8h_ab9728477598d034a2f6fdfb4e3d36291}{XDG\+\_\+\+SURFACE}}(xdg)
+\end{DoxyCompactItemize}
+
+
+\label{draw__helpers_8h_doc-define-members}
+\Hypertarget{draw__helpers_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{draw__helpers_8h_a3383b5461b39f23eab4b226c471762e3}\index{draw\_helpers.h@{draw\_helpers.h}!PUT16@{PUT16}}
+\index{PUT16@{PUT16}!draw\_helpers.h@{draw\_helpers.h}}
+\doxysubsubsection{\texorpdfstring{PUT16}{PUT16}}
+{\footnotesize\ttfamily \label{draw__helpers_8h_a3383b5461b39f23eab4b226c471762e3} 
+\+\#define PUT16(\begin{DoxyParamCaption}\item[{}]{p}{, }\item[{}]{v}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ uint16\_t\ \_v\ =\ (v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[0]\ =\ \_v\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[1]\ =\ (\_v\ >>\ 8)\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+\Hypertarget{draw__helpers_8h_a36ea1c08ef673bc9ab7b427acf8672c2}\index{draw\_helpers.h@{draw\_helpers.h}!PUT32@{PUT32}}
+\index{PUT32@{PUT32}!draw\_helpers.h@{draw\_helpers.h}}
+\doxysubsubsection{\texorpdfstring{PUT32}{PUT32}}
+{\footnotesize\ttfamily \label{draw__helpers_8h_a36ea1c08ef673bc9ab7b427acf8672c2} 
+\+\#define PUT32(\begin{DoxyParamCaption}\item[{}]{p}{, }\item[{}]{v}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ uint32\_t\ \_v\ =\ (v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[0]\ =\ \_v\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[1]\ =\ (\_v\ >>\ 8)\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[2]\ =\ (\_v\ >>\ 16)\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[3]\ =\ (\_v\ >>\ 24)\ \&\ 0xFF;\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+\Hypertarget{draw__helpers_8h_a61d54e250aae9db2ee9cec8dbe3cb07c}\index{draw\_helpers.h@{draw\_helpers.h}!XDG\_MAPPED@{XDG\_MAPPED}}
+\index{XDG\_MAPPED@{XDG\_MAPPED}!draw\_helpers.h@{draw\_helpers.h}}
+\doxysubsubsection{\texorpdfstring{XDG\_MAPPED}{XDG\_MAPPED}}
+{\footnotesize\ttfamily \label{draw__helpers_8h_a61d54e250aae9db2ee9cec8dbe3cb07c} 
+\+\#define XDG\+\_\+\+MAPPED(\begin{DoxyParamCaption}\item[{}]{xdg}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(\doxymbox{\hyperlink{draw__helpers_8h_af6ced6a027d3d4ae0314960ac933a452}{XDG\_VALID}}(xdg)\ \&\&\ (xdg)-\/>base-\/>surface-\/>mapped)}
+
+\end{DoxyCode}
+\Hypertarget{draw__helpers_8h_ab9728477598d034a2f6fdfb4e3d36291}\index{draw\_helpers.h@{draw\_helpers.h}!XDG\_SURFACE@{XDG\_SURFACE}}
+\index{XDG\_SURFACE@{XDG\_SURFACE}!draw\_helpers.h@{draw\_helpers.h}}
+\doxysubsubsection{\texorpdfstring{XDG\_SURFACE}{XDG\_SURFACE}}
+{\footnotesize\ttfamily \label{draw__helpers_8h_ab9728477598d034a2f6fdfb4e3d36291} 
+\+\#define XDG\+\_\+\+SURFACE(\begin{DoxyParamCaption}\item[{}]{xdg}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(\doxymbox{\hyperlink{draw__helpers_8h_af6ced6a027d3d4ae0314960ac933a452}{XDG\_VALID}}(xdg)\ ?\ (xdg)-\/>base-\/>surface\ :\ NULL)}
+
+\end{DoxyCode}
+\Hypertarget{draw__helpers_8h_af6ced6a027d3d4ae0314960ac933a452}\index{draw\_helpers.h@{draw\_helpers.h}!XDG\_VALID@{XDG\_VALID}}
+\index{XDG\_VALID@{XDG\_VALID}!draw\_helpers.h@{draw\_helpers.h}}
+\doxysubsubsection{\texorpdfstring{XDG\_VALID}{XDG\_VALID}}
+{\footnotesize\ttfamily \label{draw__helpers_8h_af6ced6a027d3d4ae0314960ac933a452} 
+\+\#define XDG\+\_\+\+VALID(\begin{DoxyParamCaption}\item[{}]{xdg}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((xdg)\ \&\&\ (xdg)-\/>base\ \&\&\ (xdg)-\/>base-\/>surface)}
+
+\end{DoxyCode}

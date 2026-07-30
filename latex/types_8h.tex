@@ -1,0 +1,163 @@
+\doxysection{types.\+h File Reference}
+\hypertarget{types_8h}{}\label{types_8h}\index{types.h@{types.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$time.\+h$>$}\newline
+{\ttfamily \+\#include $<$wayland-\/server-\/core.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+keyboard.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+scene.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+keyboard\+\_\+shortcuts\+\_\+inhibit\+\_\+v1.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}p9/\+p9.\+h"{}}\newline
+{\ttfamily \+\#include "{}wayland/\+focus\+\_\+manager.\+h"{}}\newline
+Include dependency graph for types.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{types_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{types_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}}
+\item 
+struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}}
+\item 
+struct \doxymbox{\hyperlink{structdraw__state}{draw\+\_\+state}}
+\item 
+struct \doxymbox{\hyperlink{structsubsurface__track}{subsurface\+\_\+track}}
+\item 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}}
+\item 
+struct \doxymbox{\hyperlink{structserver}{server}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\+\_\+\+SIZE}}~16
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_ab65aff68990a6e5bc6e914c958511e84}{MAX\+\_\+\+SCROLL\+\_\+\+REGIONS}}~128
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a8551d86efdcd2ea40b4fe96d6ea65340}{MAX\+\_\+\+SCREEN\+\_\+\+DIM}}~8192
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a57704e555932d744adebbba6718e69cc}{FRAME\+\_\+\+INTERVAL\+\_\+\+MS}}~0
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a534c988cc42ab4a87c6a2c9707a83591}{INPUT\+\_\+\+QUEUE\+\_\+\+SIZE}}~256
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a21b8728530f1cfa16af40a8e4f8d4499}{SCROLL\+\_\+\+REGION\+\_\+\+SIZE}}~512
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a81f9d9a80ae741e09c30f3e9d22c7032}{server\+\_\+popup\+\_\+stack}}(s)
+\item 
+\+\#define \doxymbox{\hyperlink{types_8h_a13119c6bd95c5feaf0909f037504859e}{server\+\_\+needs\+\_\+focus\+\_\+recheck}}(s)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \doxymbox{\hyperlink{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8ef}{input\+\_\+type}} \{ \doxymbox{\hyperlink{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efae914d914c45f059c3fcf6920a9891405}{INPUT\+\_\+\+MOUSE}}
+, \doxymbox{\hyperlink{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa35c4f94a041a261f915e41f9430ae7ed}{INPUT\+\_\+\+KEY}}
+, \doxymbox{\hyperlink{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa48a1297dd58e6d3e3e5163585410f68f}{INPUT\+\_\+\+WAKEUP}}
+ \}
+\end{DoxyCompactItemize}
+
+
+\label{types_8h_doc-define-members}
+\Hypertarget{types_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{types_8h_a57704e555932d744adebbba6718e69cc}\index{types.h@{types.h}!FRAME\_INTERVAL\_MS@{FRAME\_INTERVAL\_MS}}
+\index{FRAME\_INTERVAL\_MS@{FRAME\_INTERVAL\_MS}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{FRAME\_INTERVAL\_MS}{FRAME\_INTERVAL\_MS}}
+{\footnotesize\ttfamily \label{types_8h_a57704e555932d744adebbba6718e69cc} 
+\+\#define FRAME\+\_\+\+INTERVAL\+\_\+\+MS~0}
+
+\Hypertarget{types_8h_a534c988cc42ab4a87c6a2c9707a83591}\index{types.h@{types.h}!INPUT\_QUEUE\_SIZE@{INPUT\_QUEUE\_SIZE}}
+\index{INPUT\_QUEUE\_SIZE@{INPUT\_QUEUE\_SIZE}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{INPUT\_QUEUE\_SIZE}{INPUT\_QUEUE\_SIZE}}
+{\footnotesize\ttfamily \label{types_8h_a534c988cc42ab4a87c6a2c9707a83591} 
+\+\#define INPUT\+\_\+\+QUEUE\+\_\+\+SIZE~256}
+
+\Hypertarget{types_8h_a8551d86efdcd2ea40b4fe96d6ea65340}\index{types.h@{types.h}!MAX\_SCREEN\_DIM@{MAX\_SCREEN\_DIM}}
+\index{MAX\_SCREEN\_DIM@{MAX\_SCREEN\_DIM}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_SCREEN\_DIM}{MAX\_SCREEN\_DIM}}
+{\footnotesize\ttfamily \label{types_8h_a8551d86efdcd2ea40b4fe96d6ea65340} 
+\+\#define MAX\+\_\+\+SCREEN\+\_\+\+DIM~8192}
+
+\Hypertarget{types_8h_ab65aff68990a6e5bc6e914c958511e84}\index{types.h@{types.h}!MAX\_SCROLL\_REGIONS@{MAX\_SCROLL\_REGIONS}}
+\index{MAX\_SCROLL\_REGIONS@{MAX\_SCROLL\_REGIONS}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_SCROLL\_REGIONS}{MAX\_SCROLL\_REGIONS}}
+{\footnotesize\ttfamily \label{types_8h_ab65aff68990a6e5bc6e914c958511e84} 
+\+\#define MAX\+\_\+\+SCROLL\+\_\+\+REGIONS~128}
+
+\Hypertarget{types_8h_a21b8728530f1cfa16af40a8e4f8d4499}\index{types.h@{types.h}!SCROLL\_REGION\_SIZE@{SCROLL\_REGION\_SIZE}}
+\index{SCROLL\_REGION\_SIZE@{SCROLL\_REGION\_SIZE}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{SCROLL\_REGION\_SIZE}{SCROLL\_REGION\_SIZE}}
+{\footnotesize\ttfamily \label{types_8h_a21b8728530f1cfa16af40a8e4f8d4499} 
+\+\#define SCROLL\+\_\+\+REGION\+\_\+\+SIZE~512}
+
+\Hypertarget{types_8h_a13119c6bd95c5feaf0909f037504859e}\index{types.h@{types.h}!server\_needs\_focus\_recheck@{server\_needs\_focus\_recheck}}
+\index{server\_needs\_focus\_recheck@{server\_needs\_focus\_recheck}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{server\_needs\_focus\_recheck}{server\_needs\_focus\_recheck}}
+{\footnotesize\ttfamily \label{types_8h_a13119c6bd95c5feaf0909f037504859e} 
+\+\#define server\+\_\+needs\+\_\+focus\+\_\+recheck(\begin{DoxyParamCaption}\item[{}]{s}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((s)-\/>focus.pointer\_focus\_deferred)}
+
+\end{DoxyCode}
+\Hypertarget{types_8h_a81f9d9a80ae741e09c30f3e9d22c7032}\index{types.h@{types.h}!server\_popup\_stack@{server\_popup\_stack}}
+\index{server\_popup\_stack@{server\_popup\_stack}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{server\_popup\_stack}{server\_popup\_stack}}
+{\footnotesize\ttfamily \label{types_8h_a81f9d9a80ae741e09c30f3e9d22c7032} 
+\+\#define server\+\_\+popup\+\_\+stack(\begin{DoxyParamCaption}\item[{}]{s}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((s)-\/>focus.popup\_stack)}
+
+\end{DoxyCode}
+\Hypertarget{types_8h_a62ecd70800687eb2d625af180c4210d7}\index{types.h@{types.h}!TILE\_SIZE@{TILE\_SIZE}}
+\index{TILE\_SIZE@{TILE\_SIZE}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{TILE\_SIZE}{TILE\_SIZE}}
+{\footnotesize\ttfamily \label{types_8h_a62ecd70800687eb2d625af180c4210d7} 
+\+\#define TILE\+\_\+\+SIZE~16}
+
+
+
+\label{types_8h_doc-enum-members}
+\Hypertarget{types_8h_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8ef}\index{types.h@{types.h}!input\_type@{input\_type}}
+\index{input\_type@{input\_type}!types.h@{types.h}}
+\doxysubsubsection{\texorpdfstring{input\_type}{input\_type}}
+{\footnotesize\ttfamily \label{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8ef} 
+enum \doxymbox{\hyperlink{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8ef}{input\+\_\+type}}}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INPUT\_MOUSE@{INPUT\_MOUSE}!types.h@{types.h}}
+\index{types.h@{types.h}!INPUT\_MOUSE@{INPUT\_MOUSE}}
+}\Hypertarget{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efae914d914c45f059c3fcf6920a9891405}\label{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efae914d914c45f059c3fcf6920a9891405} 
+INPUT\+\_\+\+MOUSE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INPUT\_KEY@{INPUT\_KEY}!types.h@{types.h}}
+\index{types.h@{types.h}!INPUT\_KEY@{INPUT\_KEY}}
+}\Hypertarget{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa35c4f94a041a261f915e41f9430ae7ed}\label{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa35c4f94a041a261f915e41f9430ae7ed} 
+INPUT\+\_\+\+KEY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INPUT\_WAKEUP@{INPUT\_WAKEUP}!types.h@{types.h}}
+\index{types.h@{types.h}!INPUT\_WAKEUP@{INPUT\_WAKEUP}}
+}\Hypertarget{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa48a1297dd58e6d3e3e5163585410f68f}\label{types_8h_a0ae208dfa21925e3cb4a7c4ea17ea8efa48a1297dd58e6d3e3e5163585410f68f} 
+INPUT\+\_\+\+WAKEUP&\\
+\hline
+
+\end{DoxyEnumFields}

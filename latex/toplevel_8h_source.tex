@@ -1,0 +1,121 @@
+\doxysection{toplevel.\+h}
+\hypertarget{toplevel_8h_source}{}\label{toplevel_8h_source}\index{wayland/toplevel.h@{wayland/toplevel.h}}
+\doxymbox{\hyperlink{toplevel_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00002\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ toplevel.h\ -\/\ XDG\ toplevel\ window\ management}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ This\ module\ handles\ the\ lifecycle\ of\ XDG\ toplevel\ surfaces\ (application}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ windows).\ Each\ toplevel\ is\ tracked\ with\ a\ struct\ toplevel\ that\ contains}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ scene\ graph\ nodes,\ surface\ references,\ and\ subsurface\ tracking.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ Toplevel\ Lifecycle:}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ \ \ 1.\ new\_toplevel()\ -\/\ Called\ when\ client\ creates\ xdg\_toplevel}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Sets\ s-\/>has\_toplevel\ and\ s-\/>had\_toplevel\ flags}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Allocates\ toplevel\ struct}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Creates\ scene\ tree\ via\ wlr\_scene\_xdg\_surface\_create()}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Stores\ scene\_tree\ in\ xdg-\/>base-\/>data\ for\ cross-\/referencing}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Stores\ toplevel\ pointer\ in\ scene\_tree-\/>node.data}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Positions\ scene\ node\ at\ (0,0)}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Initializes\ empty\ subsurface\ tracking\ list}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Adds\ to\ server's\ toplevel\ list}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Sets\ up\ commit,\ destroy,\ xdg\_destroy,\ request\_fullscreen,}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ and\ request\_maximize\ listeners}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ \ \ 2.\ toplevel\_commit()\ -\/\ Called\ on\ each\ surface\ commit}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Initial\ commit:\ sends\ configure\ with\ logical\ dimensions,}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ maximized\ and\ activated\ states\ via\ wlr\_xdg\_toplevel\_set\_*()}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Tracks\ map/unmap\ state\ transitions\ via\ wlr\_surface\_has\_buffer()}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ On\ map:\ calls\ focus\_on\_surface\_map(),\ updates\ pointer\ focus}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ On\ unmap:\ calls\ focus\_on\_surface\_unmap()}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Scans\ for\ new\ subsurfaces\ via\ check\_new\_subsurfaces()}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Sets\ scene\_dirty\ flag\ and\ schedules\ output\ frame}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ \ \ 2a.\ toplevel\_request\_fullscreen()\ -\/\ Called\ on\ fullscreen\ request}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Skips\ if\ surface\ not\ yet\ initialized\ (guard\ against\ early\ calls)}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Acknowledges\ the\ fullscreen\ state\ so\ the\ browser's\ Fullscreen}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ API\ resolves\ (e.g.\ YouTube\ fullscreen\ button)}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ No\ geometry\ change\ needed\ since\ toplevels\ already\ fill\ the\ window}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ *\ \ \ 2b.\ toplevel\_request\_maximize()\ -\/\ Called\ on\ maximize\ request}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Skips\ if\ surface\ not\ yet\ initialized\ (Firefox\ sends\ this\ early)}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Acknowledges\ the\ maximized\ state\ to\ keep\ client\ in\ sync}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ No\ geometry\ change\ needed\ since\ toplevels\ already\ fill\ the\ window}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ *\ \ \ 3.\ toplevel\_xdg\_destroy()\ -\/\ Called\ when\ xdg\_toplevel\ is\ destroyed}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Fires\ BEFORE\ xdg\_surface\ destroy\ (wlroots\ destruction\ order)}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Removes\ request\_fullscreen,\ request\_maximize,\ and\ xdg\_destroy}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ listeners\ before\ wlroots\ asserts\ their\ lists\ are\ empty}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Sets\ tl-\/>xdg\ =\ NULL\ to\ signal\ toplevel\_destroy\ and}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ toplevel\_commit\ that\ the\ xdg\_toplevel\ is\ gone}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ *\ \ \ 4.\ toplevel\_destroy()\ -\/\ Called\ when\ xdg\_surface\ is\ destroyed}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Calls\ focus\_on\_surface\_destroy()\ to\ clean\ up\ focus\ state}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Cleans\ up\ all\ tracked\ subsurfaces}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ If\ tl-\/>xdg\ is\ still\ set\ (shouldn't\ happen\ normally),}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ removes\ toplevel-\/specific\ listeners\ as\ a\ safety\ fallback}}
+\DoxyCodeLine{00055\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Removes\ from\ server's\ toplevel\ list}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ Frees\ toplevel\ struct}}
+\DoxyCodeLine{00057\ \textcolor{comment}{\ *\ \ \ \ \ \ -\/\ If\ last\ toplevel\ (s-\/>had\_toplevel\ \&\&\ list\ empty):}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ *\ Sets\ s-\/>running\ =\ 0\ and\ joins\ send\_thread}}
+\DoxyCodeLine{00059\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ *\ Disconnects\ p9\_draw\ and\ calls\ exit(0)}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ *\ Subsurface\ Tracking:}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ *\ \ \ Wayland\ subsurfaces\ are\ child\ surfaces\ that\ move\ with\ their\ parent.}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ *\ \ \ This\ module\ tracks\ them\ via\ subsurface\_track\ structs\ to\ ensure\ proper}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ *\ \ \ focus\ handling\ and\ cleanup.\ Subsurfaces\ are\ discovered\ by\ scanning}}
+\DoxyCodeLine{00066\ \textcolor{comment}{\ *\ \ \ the\ surface's\ subsurface\ lists\ on\ each\ commit.}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ *\ \ \ The\ FOR\_EACH\_SUBSURFACE\ macro\ iterates\ both\ below\ and\ above\ lists:}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00070\ \textcolor{comment}{\ *\ \ \ \ \ FOR\_EACH\_SUBSURFACE(surface,\ sub)\ \{\ ...\ \}}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ *\ \ \ subsurface\_track\ contains:}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ subsurface:\ wlr\_subsurface\ pointer}}
+\DoxyCodeLine{00074\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ server:\ back-\/reference\ for\ focus\ operations}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ toplevel:\ owning\ toplevel}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ mapped:\ current\ visibility\ state}}
+\DoxyCodeLine{00077\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ destroy/commit:\ Wayland\ listeners}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ link:\ position\ in\ toplevel's\ subsurface\ list}}
+\DoxyCodeLine{00079\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00080\ \textcolor{comment}{\ *\ Usage:}}
+\DoxyCodeLine{00081\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00082\ \textcolor{comment}{\ *\ \ \ Wire\ up\ new\_toplevel\ as\ the\ handler\ for\ xdg\_shell's\ new\_toplevel\ event:}}
+\DoxyCodeLine{00083\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00084\ \textcolor{comment}{\ *\ \ \ \ \ server-\/>new\_xdg\_toplevel.notify\ =\ new\_toplevel;}}
+\DoxyCodeLine{00085\ \textcolor{comment}{\ *\ \ \ \ \ wl\_signal\_add(\&xdg\_shell-\/>events.new\_toplevel,\ \&server-\/>new\_xdg\_toplevel);}}
+\DoxyCodeLine{00086\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\#ifndef\ P9WL\_TOPLEVEL\_H}}
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#define\ P9WL\_TOPLEVEL\_H}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#include\ "{}\doxymbox{\hyperlink{types_8h}{../types.h}}"{}}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{comment}{/*\ ==============\ Toplevel\ Handling\ ==============\ */}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00096\ \textcolor{comment}{\ *\ Handle\ new\ XDG\ toplevel\ creation.}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00098\ \textcolor{comment}{\ *\ Creates\ the\ scene\ tree,\ initializes\ the\ toplevel\ struct,\ adds\ it\ to}}
+\DoxyCodeLine{00099\ \textcolor{comment}{\ *\ the\ server's\ toplevel\ list,\ and\ sets\ up\ commit,\ destroy,\ xdg\_destroy,}}
+\DoxyCodeLine{00100\ \textcolor{comment}{\ *\ request\_fullscreen,\ and\ request\_maximize\ listeners.}}
+\DoxyCodeLine{00101\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00102\ \textcolor{comment}{\ *\ The\ toplevel\ is\ configured\ to\ fill\ the\ entire\ output\ at\ the\ current}}
+\DoxyCodeLine{00103\ \textcolor{comment}{\ *\ logical\ visible\ dimensions\ (s-\/>visible\_width/s-\/>scale\ by}}
+\DoxyCodeLine{00104\ \textcolor{comment}{\ *\ s-\/>visible\_height/s-\/>scale),\ with\ maximized\ and\ activated\ states}}
+\DoxyCodeLine{00105\ \textcolor{comment}{\ *\ set\ on\ initial\ commit.}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00107\ \textcolor{comment}{\ *\ Scene\ tree\ node\ is\ positioned\ at\ (0,0)\ -\/\ all\ toplevels\ fill\ the}}
+\DoxyCodeLine{00108\ \textcolor{comment}{\ *\ entire\ window\ in\ this\ compositor.}}
+\DoxyCodeLine{00109\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00110\ \textcolor{comment}{\ *\ l:\ wl\_listener\ from\ server-\/>new\_xdg\_toplevel}}
+\DoxyCodeLine{00111\ \textcolor{comment}{\ *\ d:\ wlr\_xdg\_toplevel\ pointer}}
+\DoxyCodeLine{00112\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00113\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{toplevel_8h_a9fde6b5aef5d682f6e396efbfa75e71e}{new\_toplevel}}(\textcolor{keyword}{struct}\ wl\_listener\ *l,\ \textcolor{keywordtype}{void}\ *d);}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ P9WL\_TOPLEVEL\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

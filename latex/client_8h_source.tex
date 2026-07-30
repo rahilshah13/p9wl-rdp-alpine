@@ -1,0 +1,134 @@
+\doxysection{client.\+h}
+\hypertarget{client_8h_source}{}\label{client_8h_source}\index{wayland/client.h@{wayland/client.h}}
+\doxymbox{\hyperlink{client_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ client.h\ -\/\ Client\ decoration,\ keyboard\ shortcuts\ inhibit,\ and\ server\ cleanup}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ This\ module\ handles\ three\ responsibilities:}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ XDG\ Decoration:}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ \ \ Wayland\ clients\ can\ request\ either\ client-\/side\ or\ server-\/side\ window}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ \ \ decorations.\ The\ p9wl\ compositor\ forces\ server-\/side\ decorations\ so}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ \ \ that\ it\ can\ draw\ window\ borders\ via\ the\ Plan\ 9\ draw\ protocol.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ When\ a\ client\ creates\ an\ xdg\_toplevel\_decoration\ object,\ the}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ handle\_new\_decoration()\ handler\ sets\ the\ mode\ to\ server-\/side.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ \ \ This\ may\ need\ to\ be\ deferred\ until\ the\ surface\ is\ initialized.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ \ \ Internal\ decoration\_data\ struct\ tracks:}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ decoration:\ the\ wlr\_xdg\_toplevel\_decoration\_v1\ object}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ destroy/request\_mode/surface\_commit:\ Wayland\ listeners}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ mode\_set:\ flag\ to\ avoid\ setting\ mode\ multiple\ times}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ Keyboard\ Shortcuts\ Inhibit:}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ \ \ When\ a\ client\ enters\ fullscreen\ (e.g.\ YouTube\ video),\ it\ may\ request}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *\ \ \ that\ the\ compositor\ stop\ intercepting\ keyboard\ shortcuts\ and\ forward}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ \ \ all\ keys\ to\ the\ client.\ This\ allows\ the\ client\ to\ handle\ Escape\ etc.}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ handle\_new\_kb\_inhibitor()\ activates\ the\ inhibitor.\ While\ active,}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ wl\_input.c\ checks\ s-\/>active\_kb\_inhibitor\ and\ skips\ compositor-\/level}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ \ \ key\ interception\ (popup\ Escape\ dismissal).}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ \ \ Wire\ up\ during\ server\ initialization:}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>kb\_shortcuts\_inhibit\ =}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ wlr\_keyboard\_shortcuts\_inhibit\_manager\_v1\_create(s-\/>wl\_display);}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>new\_kb\_shortcut\_inhibitor.notify\ =\ handle\_new\_kb\_inhibitor;}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ \ \ \ \ wl\_signal\_add(\&s-\/>kb\_shortcuts\_inhibit-\/>events.new\_inhibitor,}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&s-\/>new\_kb\_shortcut\_inhibitor);}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ *\ Server\ Cleanup:}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ *\ \ \ server\_cleanup()\ performs\ orderly\ shutdown\ of\ the\ compositor:}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ *\ \ \ \ \ 1.\ Signal\ threads\ to\ stop\ (s-\/>running\ =\ 0)}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ *\ \ \ \ \ 2.\ Wake\ send\ thread\ via\ condition\ variable}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ *\ \ \ \ \ 3.\ Join\ all\ worker\ threads\ (mouse,\ keyboard,\ send)}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ *\ \ \ \ \ 4.\ Clean\ up\ virtual\ keyboard\ via\ wlr\_keyboard\_finish()}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ *\ \ \ \ \ 5.\ Log\ focus\ manager\ statistics\ via\ focus\_manager\_cleanup()}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ *\ \ \ \ \ 6.\ Free\ framebuffers\ (framebuf,\ prev\_framebuf,\ send\_buf[0/1])}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ *\ \ \ \ \ 7.\ Destroy\ synchronization\ primitives\ (mutex,\ condvar)}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ *\ \ \ \ \ 8.\ Disconnect\ all\ 9P\ connections\ (draw,\ mouse,\ kbd,\ wctl,\ snarf)}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ *\ \ \ \ \ 9.\ Close\ input\ queue\ pipe\ and\ destroy\ its\ mutex}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ *\ \ \ \ \ 10.\ Free\ TLS\ configuration\ strings}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ *\ Usage:}}
+\DoxyCodeLine{00055\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ *\ \ \ Wire\ up\ the\ decoration\ handler\ during\ server\ initialization:}}
+\DoxyCodeLine{00057\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ *\ \ \ \ \ server-\/>new\_decoration.notify\ =\ handle\_new\_decoration;}}
+\DoxyCodeLine{00059\ \textcolor{comment}{\ *\ \ \ \ \ wl\_signal\_add(\&decoration\_mgr-\/>events.new\_toplevel\_decoration,}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \&server-\/>new\_decoration);}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ *\ \ \ Call\ server\_cleanup()\ during\ shutdown\ (or\ let\ toplevel\_destroy()}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ *\ \ \ call\ exit()\ which\ doesn't\ require\ explicit\ cleanup).}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#ifndef\ P9WL\_CLIENT\_H}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#define\ P9WL\_CLIENT\_H}}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#include\ "{}\doxymbox{\hyperlink{types_8h}{../types.h}}"{}}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \textcolor{comment}{/*\ ==============\ Decoration\ Handling\ ==============\ */}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ *\ Handle\ new\ XDG\ toplevel\ decoration\ request.}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00077\ \textcolor{comment}{\ *\ Forces\ server-\/side\ decoration\ mode.\ If\ the\ underlying\ XDG\ surface\ is}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ *\ not\ yet\ initialized\ (xdg-\/>base-\/>initialized\ is\ false),\ defers\ the\ mode}}
+\DoxyCodeLine{00079\ \textcolor{comment}{\ *\ setting\ by\ adding\ a\ surface\ commit\ listener\ that\ will\ retry\ on\ each}}
+\DoxyCodeLine{00080\ \textcolor{comment}{\ *\ commit\ until\ the\ surface\ is\ ready.}}
+\DoxyCodeLine{00081\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00082\ \textcolor{comment}{\ *\ Allocates\ internal\ decoration\_data\ struct\ that\ is\ automatically\ freed}}
+\DoxyCodeLine{00083\ \textcolor{comment}{\ *\ when\ the\ decoration\ is\ destroyed.}}
+\DoxyCodeLine{00084\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00085\ \textcolor{comment}{\ *\ listener:\ wl\_listener\ from\ server-\/>new\_decoration}}
+\DoxyCodeLine{00086\ \textcolor{comment}{\ *\ data:\ \ \ \ \ wlr\_xdg\_toplevel\_decoration\_v1\ pointer}}
+\DoxyCodeLine{00087\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00088\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{client_8h_ab9ac574cf85e5649f11d6fe1c29e5742}{handle\_new\_decoration}}(\textcolor{keyword}{struct}\ wl\_listener\ *listener,\ \textcolor{keywordtype}{void}\ *data);}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{comment}{/*\ ==============\ Keyboard\ Shortcuts\ Inhibit\ ==============\ */}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00093\ \textcolor{comment}{\ *\ Handle\ new\ keyboard\ shortcuts\ inhibitor\ request.}}
+\DoxyCodeLine{00094\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00095\ \textcolor{comment}{\ *\ When\ a\ fullscreen\ client\ (e.g.\ a\ browser\ showing\ fullscreen\ video)}}
+\DoxyCodeLine{00096\ \textcolor{comment}{\ *\ requests\ keyboard\ shortcuts\ inhibition,\ this\ handler\ activates\ it}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ *\ so\ that\ all\ keys\ (including\ Escape)\ are\ forwarded\ to\ the\ client}}
+\DoxyCodeLine{00098\ \textcolor{comment}{\ *\ rather\ than\ being\ intercepted\ by\ the\ compositor.}}
+\DoxyCodeLine{00099\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00100\ \textcolor{comment}{\ *\ Only\ one\ inhibitor\ is\ active\ at\ a\ time;\ creating\ a\ new\ one}}
+\DoxyCodeLine{00101\ \textcolor{comment}{\ *\ deactivates\ any\ existing\ inhibitor.}}
+\DoxyCodeLine{00102\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00103\ \textcolor{comment}{\ *\ listener:\ wl\_listener\ from\ server-\/>new\_kb\_shortcut\_inhibitor}}
+\DoxyCodeLine{00104\ \textcolor{comment}{\ *\ data:\ \ \ \ \ wlr\_keyboard\_shortcuts\_inhibitor\_v1\ pointer}}
+\DoxyCodeLine{00105\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00106\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{client_8h_afdad3c9016c41825c94c2ed8b81ffeed}{handle\_new\_kb\_inhibitor}}(\textcolor{keyword}{struct}\ wl\_listener\ *listener,\ \textcolor{keywordtype}{void}\ *data);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \textcolor{comment}{/*\ ==============\ Server\ Cleanup\ ==============\ */}}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00111\ \textcolor{comment}{\ *\ Clean\ up\ server\ resources\ during\ shutdown.}}
+\DoxyCodeLine{00112\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00113\ \textcolor{comment}{\ *\ Stops\ all\ worker\ threads,\ frees\ allocated\ memory,\ destroys}}
+\DoxyCodeLine{00114\ \textcolor{comment}{\ *\ synchronization\ primitives,\ and\ disconnects\ 9P\ connections.}}
+\DoxyCodeLine{00115\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00116\ \textcolor{comment}{\ *\ Thread\ shutdown\ sequence:}}
+\DoxyCodeLine{00117\ \textcolor{comment}{\ *\ \ \ 1.\ Sets\ s-\/>running\ =\ 0}}
+\DoxyCodeLine{00118\ \textcolor{comment}{\ *\ \ \ 2.\ Signals\ send\_cond\ to\ wake\ send\ thread}}
+\DoxyCodeLine{00119\ \textcolor{comment}{\ *\ \ \ 3.\ Joins\ mouse\_thread,\ kbd\_thread,\ send\_thread}}
+\DoxyCodeLine{00120\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00121\ \textcolor{comment}{\ *\ This\ is\ typically\ not\ called\ explicitly\ since\ the\ compositor\ exits}}
+\DoxyCodeLine{00122\ \textcolor{comment}{\ *\ via\ exit()\ when\ the\ last\ toplevel\ is\ destroyed\ in\ toplevel\_destroy().}}
+\DoxyCodeLine{00123\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00124\ \textcolor{comment}{\ *\ s:\ server\ state\ to\ clean\ up}}
+\DoxyCodeLine{00125\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{client_8h_afc31f6ac67e1f45fe6e668c32fb986b6}{server\_cleanup}}(\textcolor{keyword}{struct}\ \doxymbox{\hyperlink{structserver}{server}}\ *s);}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ P9WL\_CLIENT\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

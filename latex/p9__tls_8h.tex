@@ -1,0 +1,119 @@
+\doxysection{p9/\+p9\+\_\+tls.h File Reference}
+\hypertarget{p9__tls_8h}{}\label{p9__tls_8h}\index{p9/p9\_tls.h@{p9/p9\_tls.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$openssl/\+ssl.\+h$>$}\newline
+{\ttfamily \+\#include $<$openssl/\+x509.\+h$>$}\newline
+Include dependency graph for p9\+\_\+tls.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=320pt]{p9__tls_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{p9__tls_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structtls__config}{tls\+\_\+config}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{p9__tls_8h_a15f5865c271e46840918a9224d3630c2}{P9\+\_\+\+TLS\+\_\+\+PORT}}~10001
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a35bcc298d938a0383d1f350897f5d903}{tls\+\_\+init}} (void)
+\item 
+void \doxymbox{\hyperlink{p9__tls_8h_a1dd281b0a3150c1277d4b7d2f57a1786}{tls\+\_\+cleanup}} (void)
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a0883bab1464ef8ac9307563def5cefe5}{tls\+\_\+connect}} (int fd, SSL \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}ssl\+\_\+out, struct \doxymbox{\hyperlink{structtls__config}{tls\+\_\+config}} \texorpdfstring{$\ast$}{*}cfg)
+\item 
+void \doxymbox{\hyperlink{p9__tls_8h_a65b4d68aca2036bd97d7a10313a1269c}{tls\+\_\+disconnect}} (SSL \texorpdfstring{$\ast$}{*}ssl)
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a9e04a0c1c1225de38964a653cc0ac630}{tls\+\_\+verify\+\_\+pinned}} (SSL \texorpdfstring{$\ast$}{*}ssl, struct \doxymbox{\hyperlink{structtls__config}{tls\+\_\+config}} \texorpdfstring{$\ast$}{*}cfg)
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a0a7ab0911ff4a23f757b75081bfec606}{tls\+\_\+read\+\_\+full}} (SSL \texorpdfstring{$\ast$}{*}ssl, uint8\+\_\+t \texorpdfstring{$\ast$}{*}buf, int n)
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a22c1e1ec0bfb562796edf74040bfae14}{tls\+\_\+write\+\_\+full}} (SSL \texorpdfstring{$\ast$}{*}ssl, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}buf, int len)
+\item 
+int \doxymbox{\hyperlink{p9__tls_8h_a0ec055c45568db0773c65eeb2360167e}{tls\+\_\+cert\+\_\+file\+\_\+fingerprint}} (const char \texorpdfstring{$\ast$}{*}path, char \texorpdfstring{$\ast$}{*}out, int outlen)
+\end{DoxyCompactItemize}
+
+
+\label{p9__tls_8h_doc-define-members}
+\Hypertarget{p9__tls_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{p9__tls_8h_a15f5865c271e46840918a9224d3630c2}\index{p9\_tls.h@{p9\_tls.h}!P9\_TLS\_PORT@{P9\_TLS\_PORT}}
+\index{P9\_TLS\_PORT@{P9\_TLS\_PORT}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{P9\_TLS\_PORT}{P9\_TLS\_PORT}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a15f5865c271e46840918a9224d3630c2} 
+\+\#define P9\+\_\+\+TLS\+\_\+\+PORT~10001}
+
+
+
+\label{p9__tls_8h_doc-func-members}
+\Hypertarget{p9__tls_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{p9__tls_8h_a0ec055c45568db0773c65eeb2360167e}\index{p9\_tls.h@{p9\_tls.h}!tls\_cert\_file\_fingerprint@{tls\_cert\_file\_fingerprint}}
+\index{tls\_cert\_file\_fingerprint@{tls\_cert\_file\_fingerprint}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_cert\_file\_fingerprint()}{tls\_cert\_file\_fingerprint()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a0ec055c45568db0773c65eeb2360167e} 
+int tls\+\_\+cert\+\_\+file\+\_\+fingerprint (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{int}]{outlen}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a1dd281b0a3150c1277d4b7d2f57a1786}\index{p9\_tls.h@{p9\_tls.h}!tls\_cleanup@{tls\_cleanup}}
+\index{tls\_cleanup@{tls\_cleanup}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_cleanup()}{tls\_cleanup()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a1dd281b0a3150c1277d4b7d2f57a1786} 
+void tls\+\_\+cleanup (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a0883bab1464ef8ac9307563def5cefe5}\index{p9\_tls.h@{p9\_tls.h}!tls\_connect@{tls\_connect}}
+\index{tls\_connect@{tls\_connect}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_connect()}{tls\_connect()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a0883bab1464ef8ac9307563def5cefe5} 
+int tls\+\_\+connect (\begin{DoxyParamCaption}\item[{int}]{fd}{, }\item[{SSL \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{ssl\+\_\+out}{, }\item[{struct \doxymbox{\hyperlink{structtls__config}{tls\+\_\+config}} \texorpdfstring{$\ast$}{*}}]{cfg}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=272pt]{p9__tls_8h_a0883bab1464ef8ac9307563def5cefe5_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{p9__tls_8h_a65b4d68aca2036bd97d7a10313a1269c}\index{p9\_tls.h@{p9\_tls.h}!tls\_disconnect@{tls\_disconnect}}
+\index{tls\_disconnect@{tls\_disconnect}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_disconnect()}{tls\_disconnect()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a65b4d68aca2036bd97d7a10313a1269c} 
+void tls\+\_\+disconnect (\begin{DoxyParamCaption}\item[{SSL \texorpdfstring{$\ast$}{*}}]{ssl}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a35bcc298d938a0383d1f350897f5d903}\index{p9\_tls.h@{p9\_tls.h}!tls\_init@{tls\_init}}
+\index{tls\_init@{tls\_init}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_init()}{tls\_init()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a35bcc298d938a0383d1f350897f5d903} 
+int tls\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a0a7ab0911ff4a23f757b75081bfec606}\index{p9\_tls.h@{p9\_tls.h}!tls\_read\_full@{tls\_read\_full}}
+\index{tls\_read\_full@{tls\_read\_full}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_read\_full()}{tls\_read\_full()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a0a7ab0911ff4a23f757b75081bfec606} 
+int tls\+\_\+read\+\_\+full (\begin{DoxyParamCaption}\item[{SSL \texorpdfstring{$\ast$}{*}}]{ssl}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{int}]{n}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a9e04a0c1c1225de38964a653cc0ac630}\index{p9\_tls.h@{p9\_tls.h}!tls\_verify\_pinned@{tls\_verify\_pinned}}
+\index{tls\_verify\_pinned@{tls\_verify\_pinned}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_verify\_pinned()}{tls\_verify\_pinned()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a9e04a0c1c1225de38964a653cc0ac630} 
+int tls\+\_\+verify\+\_\+pinned (\begin{DoxyParamCaption}\item[{SSL \texorpdfstring{$\ast$}{*}}]{ssl}{, }\item[{struct \doxymbox{\hyperlink{structtls__config}{tls\+\_\+config}} \texorpdfstring{$\ast$}{*}}]{cfg}{}\end{DoxyParamCaption})}
+
+\Hypertarget{p9__tls_8h_a22c1e1ec0bfb562796edf74040bfae14}\index{p9\_tls.h@{p9\_tls.h}!tls\_write\_full@{tls\_write\_full}}
+\index{tls\_write\_full@{tls\_write\_full}!p9\_tls.h@{p9\_tls.h}}
+\doxysubsubsection{\texorpdfstring{tls\_write\_full()}{tls\_write\_full()}}
+{\footnotesize\ttfamily \label{p9__tls_8h_a22c1e1ec0bfb562796edf74040bfae14} 
+int tls\+\_\+write\+\_\+full (\begin{DoxyParamCaption}\item[{SSL \texorpdfstring{$\ast$}{*}}]{ssl}{, }\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{int}]{len}{}\end{DoxyParamCaption})}
+

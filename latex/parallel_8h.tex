@@ -1,0 +1,65 @@
+\doxysection{draw/\+parallel.h File Reference}
+\hypertarget{parallel_8h}{}\label{parallel_8h}\index{draw/parallel.h@{draw/parallel.h}}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{parallel_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{parallel_8h_a7553a3b6420fd55ba1caaf53d271f1f8}{MAX\+\_\+\+WORKERS}}~8
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+typedef void(\texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{parallel_8h_a3a2b689a85b8c192fafce8aeaf365e29}{parallel\+\_\+fn}}) (void \texorpdfstring{$\ast$}{*}ctx, int idx)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{parallel_8h_ae169043bef52cc8650072aa3fd7313c1}{parallel\+\_\+for}} (int count, \doxymbox{\hyperlink{parallel_8h_a3a2b689a85b8c192fafce8aeaf365e29}{parallel\+\_\+fn}} fn, void \texorpdfstring{$\ast$}{*}ctx)
+\item 
+void \doxymbox{\hyperlink{parallel_8h_a0dadb4f1d784360f2b6c3926077a66d8}{parallel\+\_\+cleanup}} (void)
+\end{DoxyCompactItemize}
+
+
+\label{parallel_8h_doc-define-members}
+\Hypertarget{parallel_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{parallel_8h_a7553a3b6420fd55ba1caaf53d271f1f8}\index{parallel.h@{parallel.h}!MAX\_WORKERS@{MAX\_WORKERS}}
+\index{MAX\_WORKERS@{MAX\_WORKERS}!parallel.h@{parallel.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_WORKERS}{MAX\_WORKERS}}
+{\footnotesize\ttfamily \label{parallel_8h_a7553a3b6420fd55ba1caaf53d271f1f8} 
+\+\#define MAX\+\_\+\+WORKERS~8}
+
+
+
+\label{parallel_8h_doc-typedef-members}
+\Hypertarget{parallel_8h_doc-typedef-members}
+\doxysubsection{Typedef Documentation}
+\Hypertarget{parallel_8h_a3a2b689a85b8c192fafce8aeaf365e29}\index{parallel.h@{parallel.h}!parallel\_fn@{parallel\_fn}}
+\index{parallel\_fn@{parallel\_fn}!parallel.h@{parallel.h}}
+\doxysubsubsection{\texorpdfstring{parallel\_fn}{parallel\_fn}}
+{\footnotesize\ttfamily \label{parallel_8h_a3a2b689a85b8c192fafce8aeaf365e29} 
+typedef void(\texorpdfstring{$\ast$}{*} parallel\+\_\+fn) (void \texorpdfstring{$\ast$}{*}\doxymbox{\hyperlink{parallel_8c_a1f6d09b30c54854dfca659b7463ac207}{ctx}}, int idx)}
+
+
+
+\label{parallel_8h_doc-func-members}
+\Hypertarget{parallel_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{parallel_8h_a0dadb4f1d784360f2b6c3926077a66d8}\index{parallel.h@{parallel.h}!parallel\_cleanup@{parallel\_cleanup}}
+\index{parallel\_cleanup@{parallel\_cleanup}!parallel.h@{parallel.h}}
+\doxysubsubsection{\texorpdfstring{parallel\_cleanup()}{parallel\_cleanup()}}
+{\footnotesize\ttfamily \label{parallel_8h_a0dadb4f1d784360f2b6c3926077a66d8} 
+void parallel\+\_\+cleanup (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{parallel_8h_ae169043bef52cc8650072aa3fd7313c1}\index{parallel.h@{parallel.h}!parallel\_for@{parallel\_for}}
+\index{parallel\_for@{parallel\_for}!parallel.h@{parallel.h}}
+\doxysubsubsection{\texorpdfstring{parallel\_for()}{parallel\_for()}}
+{\footnotesize\ttfamily \label{parallel_8h_ae169043bef52cc8650072aa3fd7313c1} 
+void parallel\+\_\+for (\begin{DoxyParamCaption}\item[{int}]{count}{, }\item[{\doxymbox{\hyperlink{parallel_8h_a3a2b689a85b8c192fafce8aeaf365e29}{parallel\+\_\+fn}}}]{fn}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{ctx}{}\end{DoxyParamCaption})}
+

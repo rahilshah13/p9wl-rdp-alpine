@@ -1,0 +1,78 @@
+\doxysection{draw/\+draw\+\_\+cmd.h File Reference}
+\hypertarget{draw__cmd_8h}{}\label{draw__cmd_8h}\index{draw/draw\_cmd.h@{draw/draw\_cmd.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+Include dependency graph for draw\+\_\+cmd.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=194pt]{draw__cmd_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=282pt]{draw__cmd_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{draw__cmd_8h_a36ea1c08ef673bc9ab7b427acf8672c2}{PUT32}}(p,  v)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__cmd_8h_a3383b5461b39f23eab4b226c471762e3}{PUT16}}(p,  v)
+\item 
+\+\#define \doxymbox{\hyperlink{draw__cmd_8h_ac4f124b5b992c252e0ed4b8d03afccc5}{RDP\+\_\+\+PIXEL\+\_\+\+FORMAT\+\_\+\+BGRA32}}~0x48081828  /\+\texorpdfstring{$\ast$}{*} a8b8g8r8 -\/ 32bpp surface mapping \texorpdfstring{$\ast$}{*}/\+
+\item 
+\+\#define \doxymbox{\hyperlink{draw__cmd_8h_a2bcd181a4ed4301458c017b40355c655}{RDP\+\_\+\+PIXEL\+\_\+\+FORMAT\+\_\+\+XRGB32}}~0x68081828  /\+\texorpdfstring{$\ast$}{*} x8r8g8b8 -\/ 32bpp with padding \texorpdfstring{$\ast$}{*}/\+
+\end{DoxyCompactItemize}
+
+
+\label{draw__cmd_8h_doc-define-members}
+\Hypertarget{draw__cmd_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{draw__cmd_8h_a3383b5461b39f23eab4b226c471762e3}\index{draw\_cmd.h@{draw\_cmd.h}!PUT16@{PUT16}}
+\index{PUT16@{PUT16}!draw\_cmd.h@{draw\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{PUT16}{PUT16}}
+{\footnotesize\ttfamily \label{draw__cmd_8h_a3383b5461b39f23eab4b226c471762e3} 
+\+\#define PUT16(\begin{DoxyParamCaption}\item[{}]{p}{, }\item[{}]{v}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ uint16\_t\ \_v\ =\ (v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[0]\ =\ (uint8\_t)(\_v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[1]\ =\ (uint8\_t)(\_v\ >>\ 8);\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+\Hypertarget{draw__cmd_8h_a36ea1c08ef673bc9ab7b427acf8672c2}\index{draw\_cmd.h@{draw\_cmd.h}!PUT32@{PUT32}}
+\index{PUT32@{PUT32}!draw\_cmd.h@{draw\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{PUT32}{PUT32}}
+{\footnotesize\ttfamily \label{draw__cmd_8h_a36ea1c08ef673bc9ab7b427acf8672c2} 
+\+\#define PUT32(\begin{DoxyParamCaption}\item[{}]{p}{, }\item[{}]{v}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\ \ \ \ \textcolor{keywordflow}{do}\ \{\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ uint32\_t\ \_v\ =\ (v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[0]\ =\ (uint8\_t)(\_v);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[1]\ =\ (uint8\_t)(\_v\ >>\ 8);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[2]\ =\ (uint8\_t)(\_v\ >>\ 16);\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ (p)[3]\ =\ (uint8\_t)(\_v\ >>\ 24);\ \(\backslash\)}
+\DoxyCodeLine{\}\ \textcolor{keywordflow}{while}(0)}
+
+\end{DoxyCode}
+\Hypertarget{draw__cmd_8h_ac4f124b5b992c252e0ed4b8d03afccc5}\index{draw\_cmd.h@{draw\_cmd.h}!RDP\_PIXEL\_FORMAT\_BGRA32@{RDP\_PIXEL\_FORMAT\_BGRA32}}
+\index{RDP\_PIXEL\_FORMAT\_BGRA32@{RDP\_PIXEL\_FORMAT\_BGRA32}!draw\_cmd.h@{draw\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{RDP\_PIXEL\_FORMAT\_BGRA32}{RDP\_PIXEL\_FORMAT\_BGRA32}}
+{\footnotesize\ttfamily \label{draw__cmd_8h_ac4f124b5b992c252e0ed4b8d03afccc5} 
+\+\#define RDP\+\_\+\+PIXEL\+\_\+\+FORMAT\+\_\+\+BGRA32~0x48081828  /\+\texorpdfstring{$\ast$}{*} a8b8g8r8 -\/ 32bpp surface mapping \texorpdfstring{$\ast$}{*}/\+}
+
+\Hypertarget{draw__cmd_8h_a2bcd181a4ed4301458c017b40355c655}\index{draw\_cmd.h@{draw\_cmd.h}!RDP\_PIXEL\_FORMAT\_XRGB32@{RDP\_PIXEL\_FORMAT\_XRGB32}}
+\index{RDP\_PIXEL\_FORMAT\_XRGB32@{RDP\_PIXEL\_FORMAT\_XRGB32}!draw\_cmd.h@{draw\_cmd.h}}
+\doxysubsubsection{\texorpdfstring{RDP\_PIXEL\_FORMAT\_XRGB32}{RDP\_PIXEL\_FORMAT\_XRGB32}}
+{\footnotesize\ttfamily \label{draw__cmd_8h_a2bcd181a4ed4301458c017b40355c655} 
+\+\#define RDP\+\_\+\+PIXEL\+\_\+\+FORMAT\+\_\+\+XRGB32~0x68081828  /\+\texorpdfstring{$\ast$}{*} x8r8g8b8 -\/ 32bpp with padding \texorpdfstring{$\ast$}{*}/\+}
+

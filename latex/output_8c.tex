@@ -1,0 +1,87 @@
+\doxysection{wayland/\+output.c File Reference}
+\hypertarget{output_8c}{}\label{output_8c}\index{wayland/output.c@{wayland/output.c}}
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$time.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$wayland-\/server-\/core.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+output.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+output\+\_\+layout.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+scene.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+cursor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+shell.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}../\+draw/\+draw.\+h"{}}\newline
+{\ttfamily \+\#include "{}output.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+draw/\+send.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+draw/\+draw\+\_\+cmd.\+h"{}}\newline
+{\ttfamily \+\#include "{}../\+p9/\+p9.\+h"{}}\newline
+Include dependency graph for output.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{output_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{output_8c_a2d7fb6ae3538ca67fd1d53b39914080f}{CHAN\+\_\+\+XRGB32}}~1
+\item 
+\+\#define \doxymbox{\hyperlink{output_8c_a3d784be844c34b54a420a8dd15383ea4}{CHAN\+\_\+\+ARGB32}}~2
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{output_8c_a3c533752db7c64befe637d0cb5ca1576}{new\+\_\+output}} (struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}l, void \texorpdfstring{$\ast$}{*}d)
+\item 
+void \doxymbox{\hyperlink{output_8c_aaca8e82e73d5aa22e9f035ad995c9f43}{new\+\_\+input}} (struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}l, void \texorpdfstring{$\ast$}{*}d)
+\end{DoxyCompactItemize}
+
+
+\label{output_8c_doc-define-members}
+\Hypertarget{output_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{output_8c_a3d784be844c34b54a420a8dd15383ea4}\index{output.c@{output.c}!CHAN\_ARGB32@{CHAN\_ARGB32}}
+\index{CHAN\_ARGB32@{CHAN\_ARGB32}!output.c@{output.c}}
+\doxysubsubsection{\texorpdfstring{CHAN\_ARGB32}{CHAN\_ARGB32}}
+{\footnotesize\ttfamily \label{output_8c_a3d784be844c34b54a420a8dd15383ea4} 
+\+\#define CHAN\+\_\+\+ARGB32~2}
+
+\Hypertarget{output_8c_a2d7fb6ae3538ca67fd1d53b39914080f}\index{output.c@{output.c}!CHAN\_XRGB32@{CHAN\_XRGB32}}
+\index{CHAN\_XRGB32@{CHAN\_XRGB32}!output.c@{output.c}}
+\doxysubsubsection{\texorpdfstring{CHAN\_XRGB32}{CHAN\_XRGB32}}
+{\footnotesize\ttfamily \label{output_8c_a2d7fb6ae3538ca67fd1d53b39914080f} 
+\+\#define CHAN\+\_\+\+XRGB32~1}
+
+
+
+\label{output_8c_doc-func-members}
+\Hypertarget{output_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{output_8c_aaca8e82e73d5aa22e9f035ad995c9f43}\index{output.c@{output.c}!new\_input@{new\_input}}
+\index{new\_input@{new\_input}!output.c@{output.c}}
+\doxysubsubsection{\texorpdfstring{new\_input()}{new\_input()}}
+{\footnotesize\ttfamily \label{output_8c_aaca8e82e73d5aa22e9f035ad995c9f43} 
+void new\+\_\+input (\begin{DoxyParamCaption}\item[{struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}}]{l}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{d}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=140pt]{output_8c_aaca8e82e73d5aa22e9f035ad995c9f43_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{output_8c_a3c533752db7c64befe637d0cb5ca1576}\index{output.c@{output.c}!new\_output@{new\_output}}
+\index{new\_output@{new\_output}!output.c@{output.c}}
+\doxysubsubsection{\texorpdfstring{new\_output()}{new\_output()}}
+{\footnotesize\ttfamily \label{output_8c_a3c533752db7c64befe637d0cb5ca1576} 
+void new\+\_\+output (\begin{DoxyParamCaption}\item[{struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}}]{l}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{d}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=146pt]{output_8c_a3c533752db7c64befe637d0cb5ca1576_cgraph}
+\end{center}
+\end{figure}

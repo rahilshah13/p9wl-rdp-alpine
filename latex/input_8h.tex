@@ -1,0 +1,103 @@
+\doxysection{input/\+input.h File Reference}
+\hypertarget{input_8h}{}\label{input_8h}\index{input/input.h@{input/input.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include "{}../\+types.\+h"{}}\newline
+Include dependency graph for input.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{input_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structkey__map}{key\+\_\+map}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{input_8h_a02caa5a2412b7c9cb2d9d1d6e41f8ff6}{input\+\_\+queue\+\_\+init}} (struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}q)
+\item 
+void \doxymbox{\hyperlink{input_8h_a363d343a480a8a9dca7b131d07277e1a}{input\+\_\+queue\+\_\+push}} (struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}q, struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} \texorpdfstring{$\ast$}{*}ev)
+\item 
+int \doxymbox{\hyperlink{input_8h_ae63df73f54a5220c84e097132ce1bf60}{input\+\_\+queue\+\_\+pop}} (struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}q, struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} \texorpdfstring{$\ast$}{*}ev)
+\item 
+void \doxymbox{\hyperlink{input_8h_a2953ee549106916adc8685900beb1596}{rdp\+\_\+handle\+\_\+mouse}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, uint16\+\_\+t flags, uint16\+\_\+t x, uint16\+\_\+t y)
+\item 
+void \doxymbox{\hyperlink{input_8h_a9a6edbca35f7ab3519883a320220f5f2}{rdp\+\_\+handle\+\_\+keyboard}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, uint16\+\_\+t flags, uint8\+\_\+t keycode)
+\item 
+uint32\+\_\+t \doxymbox{\hyperlink{input_8h_a3041642d6c1b91671e722182789d7267}{keymapmod}} (uint32\+\_\+t rune)
+\item 
+const struct \doxymbox{\hyperlink{structkey__map}{key\+\_\+map}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{input_8h_ad3ca4efbd575aa09841ecc60a405582c}{keymap\+\_\+lookup}} (uint32\+\_\+t rune)
+\end{DoxyCompactItemize}
+
+
+\label{input_8h_doc-func-members}
+\Hypertarget{input_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{input_8h_a02caa5a2412b7c9cb2d9d1d6e41f8ff6}\index{input.h@{input.h}!input\_queue\_init@{input\_queue\_init}}
+\index{input\_queue\_init@{input\_queue\_init}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{input\_queue\_init()}{input\_queue\_init()}}
+{\footnotesize\ttfamily \label{input_8h_a02caa5a2412b7c9cb2d9d1d6e41f8ff6} 
+void input\+\_\+queue\+\_\+init (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}}]{q}{}\end{DoxyParamCaption})}
+
+\Hypertarget{input_8h_ae63df73f54a5220c84e097132ce1bf60}\index{input.h@{input.h}!input\_queue\_pop@{input\_queue\_pop}}
+\index{input\_queue\_pop@{input\_queue\_pop}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{input\_queue\_pop()}{input\_queue\_pop()}}
+{\footnotesize\ttfamily \label{input_8h_ae63df73f54a5220c84e097132ce1bf60} 
+int input\+\_\+queue\+\_\+pop (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}}]{q}{, }\item[{struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} \texorpdfstring{$\ast$}{*}}]{ev}{}\end{DoxyParamCaption})}
+
+\Hypertarget{input_8h_a363d343a480a8a9dca7b131d07277e1a}\index{input.h@{input.h}!input\_queue\_push@{input\_queue\_push}}
+\index{input\_queue\_push@{input\_queue\_push}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{input\_queue\_push()}{input\_queue\_push()}}
+{\footnotesize\ttfamily \label{input_8h_a363d343a480a8a9dca7b131d07277e1a} 
+void input\+\_\+queue\+\_\+push (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structinput__queue}{input\+\_\+queue}} \texorpdfstring{$\ast$}{*}}]{q}{, }\item[{struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} \texorpdfstring{$\ast$}{*}}]{ev}{}\end{DoxyParamCaption})}
+
+\Hypertarget{input_8h_ad3ca4efbd575aa09841ecc60a405582c}\index{input.h@{input.h}!keymap\_lookup@{keymap\_lookup}}
+\index{keymap\_lookup@{keymap\_lookup}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{keymap\_lookup()}{keymap\_lookup()}}
+{\footnotesize\ttfamily \label{input_8h_ad3ca4efbd575aa09841ecc60a405582c} 
+const struct \doxymbox{\hyperlink{structkey__map}{key\+\_\+map}} \texorpdfstring{$\ast$}{*} keymap\+\_\+lookup (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{rune}{}\end{DoxyParamCaption})}
+
+\Hypertarget{input_8h_a3041642d6c1b91671e722182789d7267}\index{input.h@{input.h}!keymapmod@{keymapmod}}
+\index{keymapmod@{keymapmod}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{keymapmod()}{keymapmod()}}
+{\footnotesize\ttfamily \label{input_8h_a3041642d6c1b91671e722182789d7267} 
+uint32\+\_\+t keymapmod (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{rune}{}\end{DoxyParamCaption})}
+
+\Hypertarget{input_8h_a9a6edbca35f7ab3519883a320220f5f2}\index{input.h@{input.h}!rdp\_handle\_keyboard@{rdp\_handle\_keyboard}}
+\index{rdp\_handle\_keyboard@{rdp\_handle\_keyboard}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{rdp\_handle\_keyboard()}{rdp\_handle\_keyboard()}}
+{\footnotesize\ttfamily \label{input_8h_a9a6edbca35f7ab3519883a320220f5f2} 
+void rdp\+\_\+handle\+\_\+keyboard (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{uint16\+\_\+t}]{flags}{, }\item[{uint8\+\_\+t}]{keycode}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=319pt]{input_8h_a9a6edbca35f7ab3519883a320220f5f2_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{input_8h_a2953ee549106916adc8685900beb1596}\index{input.h@{input.h}!rdp\_handle\_mouse@{rdp\_handle\_mouse}}
+\index{rdp\_handle\_mouse@{rdp\_handle\_mouse}!input.h@{input.h}}
+\doxysubsubsection{\texorpdfstring{rdp\_handle\_mouse()}{rdp\_handle\_mouse()}}
+{\footnotesize\ttfamily \label{input_8h_a2953ee549106916adc8685900beb1596} 
+void rdp\+\_\+handle\+\_\+mouse (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{uint16\+\_\+t}]{flags}{, }\item[{uint16\+\_\+t}]{x}{, }\item[{uint16\+\_\+t}]{y}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=309pt]{input_8h_a2953ee549106916adc8685900beb1596_cgraph}
+\end{center}
+\end{figure}

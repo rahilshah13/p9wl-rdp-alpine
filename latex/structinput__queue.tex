@@ -1,0 +1,68 @@
+\doxysection{input\+\_\+queue Struct Reference}
+\hypertarget{structinput__queue}{}\label{structinput__queue}\index{input\_queue@{input\_queue}}
+
+
+{\ttfamily \+\#include $<$types.\+h$>$}
+
+
+
+Collaboration diagram for input\+\_\+queue:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=150pt]{structinput__queue__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} \doxymbox{\hyperlink{structinput__queue_a40ff331f32936fca3e09dfd57ecd9a58}{events}} \+[\doxymbox{\hyperlink{types_8h_a534c988cc42ab4a87c6a2c9707a83591}{INPUT\+\_\+\+QUEUE\+\_\+\+SIZE}}]\+
+\item 
+int \doxymbox{\hyperlink{structinput__queue_af6d9935cc8a114d0721928e892263912}{head}}
+\item 
+int \doxymbox{\hyperlink{structinput__queue_acdf615d293ec738a3f1726f7dc0a4a19}{tail}}
+\item 
+pthread\+\_\+mutex\+\_\+t \doxymbox{\hyperlink{structinput__queue_a8bcd639239f5952178b63a5f9ff7622e}{lock}}
+\item 
+int \doxymbox{\hyperlink{structinput__queue_a3868d8150769fbe1864ad715e40e4172}{pipe\+\_\+fd}} \+[2]\+
+\end{DoxyCompactItemize}
+
+
+\label{structinput__queue_doc-variable-members}
+\Hypertarget{structinput__queue_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structinput__queue_a40ff331f32936fca3e09dfd57ecd9a58}\index{input\_queue@{input\_queue}!events@{events}}
+\index{events@{events}!input\_queue@{input\_queue}}
+\doxysubsubsection{\texorpdfstring{events}{events}}
+{\footnotesize\ttfamily \label{structinput__queue_a40ff331f32936fca3e09dfd57ecd9a58} 
+struct \doxymbox{\hyperlink{structinput__event}{input\+\_\+event}} input\+\_\+queue::\+events\+[\doxymbox{\hyperlink{types_8h_a534c988cc42ab4a87c6a2c9707a83591}{INPUT\+\_\+\+QUEUE\+\_\+\+SIZE}}]\+}
+
+\Hypertarget{structinput__queue_af6d9935cc8a114d0721928e892263912}\index{input\_queue@{input\_queue}!head@{head}}
+\index{head@{head}!input\_queue@{input\_queue}}
+\doxysubsubsection{\texorpdfstring{head}{head}}
+{\footnotesize\ttfamily \label{structinput__queue_af6d9935cc8a114d0721928e892263912} 
+int input\+\_\+queue::\+head}
+
+\Hypertarget{structinput__queue_a8bcd639239f5952178b63a5f9ff7622e}\index{input\_queue@{input\_queue}!lock@{lock}}
+\index{lock@{lock}!input\_queue@{input\_queue}}
+\doxysubsubsection{\texorpdfstring{lock}{lock}}
+{\footnotesize\ttfamily \label{structinput__queue_a8bcd639239f5952178b63a5f9ff7622e} 
+pthread\+\_\+mutex\+\_\+t input\+\_\+queue::\+lock}
+
+\Hypertarget{structinput__queue_a3868d8150769fbe1864ad715e40e4172}\index{input\_queue@{input\_queue}!pipe\_fd@{pipe\_fd}}
+\index{pipe\_fd@{pipe\_fd}!input\_queue@{input\_queue}}
+\doxysubsubsection{\texorpdfstring{pipe\_fd}{pipe\_fd}}
+{\footnotesize\ttfamily \label{structinput__queue_a3868d8150769fbe1864ad715e40e4172} 
+int input\+\_\+queue::\+pipe\+\_\+fd\+[2]\+}
+
+\Hypertarget{structinput__queue_acdf615d293ec738a3f1726f7dc0a4a19}\index{input\_queue@{input\_queue}!tail@{tail}}
+\index{tail@{tail}!input\_queue@{input\_queue}}
+\doxysubsubsection{\texorpdfstring{tail}{tail}}
+{\footnotesize\ttfamily \label{structinput__queue_acdf615d293ec738a3f1726f7dc0a4a19} 
+int input\+\_\+queue::\+tail}
+
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+\doxymbox{\hyperlink{types_8h}{types.\+h}}\end{DoxyCompactItemize}

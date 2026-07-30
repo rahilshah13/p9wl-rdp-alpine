@@ -1,0 +1,93 @@
+\doxysection{compress.\+h}
+\hypertarget{compress_8h_source}{}\label{compress_8h_source}\index{draw/compress.h@{draw/compress.h}}
+\doxymbox{\hyperlink{compress_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ compress.h\ -\/\ Tile\ compression\ for\ Plan\ 9\ draw\ protocol\ (Alpine\ RDP\ Variant)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ Modified\ for\ p9wl-\/rdp-\/alpine:\ musl\ compatibility,\ strict\ standard\ compliance,}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ alignment\ definitions\ for\ multi-\/arch\ SIMD\ paths\ (x86\_64/aarch64),\ and\ }}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ container-\/optimized\ memory\ footprints.}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#ifndef\ COMPRESS\_H}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#define\ COMPRESS\_H}}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#ifndef\ TILE\_SIZE}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#define\ TILE\_SIZE\ 16}}
+\DoxyCodeLine{00018\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{comment}{/*\ Overhead\ for\ alpha-\/delta\ composite\ command\ (Plan\ 9\ 'd'\ command)\ */}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#define\ ALPHA\_DELTA\_OVERHEAD\ 45}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{comment}{/*\ Alignment\ macro\ for\ Alpine\ multi-\/arch\ vector\ optimizations\ */}}
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#ifndef\ P9WL\_ALIGN}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#define\ P9WL\_ALIGN\ 64}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#if\ defined(\_\_GNUC\_\_)\ ||\ defined(\_\_clang\_\_)}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#define\ P9WL\_ALIGNED\_STRUCT\ \_\_attribute\_\_((aligned(P9WL\_ALIGN)))}}
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ P9WL\_API\ \_\_attribute\_\_((visibility("{}default"{})))}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#define\ P9WL\_ALIGNED\_STRUCT}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#define\ P9WL\_API}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \textcolor{comment}{/*\ ==============\ Data\ Structures\ ==============\ */}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ *\ Per-\/tile\ compression\ result\ (Alpine\ alignment\ enforced).}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00041\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{compress_8h_ac259666683f24870e3fbec0e7e687e9e}{P9WL\_ALIGNED\_STRUCT}}\ \doxymbox{\hyperlink{structtile__result}{tile\_result}}\ \{}
+\DoxyCodeLine{00042\ \ \ \ \ uint8\_t\ \doxymbox{\hyperlink{structtile__result_ab131c7cb096dadbe27755ea58ca17060}{data}}[\doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\_SIZE}}\ *\ \doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\_SIZE}}\ *\ 4\ +\ 256];}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{structtile__result_ad0fdac951d864405bf60362e19a971b9}{size}};}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{structtile__result_a9de22987d6a6663437bd6334d3675162}{is\_delta}};}
+\DoxyCodeLine{00045\ \};}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ *\ Work\ item\ for\ parallel\ compression.}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00050\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structtile__work}{tile\_work}}\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ uint32\_t\ *\doxymbox{\hyperlink{structtile__work_aaf5b87cb36fdbee934068138464acf00}{pixels}};}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{structtile__work_a54535284fc4e3e551d1ae4c03b3b3aee}{stride}};}
+\DoxyCodeLine{00053\ \ \ \ \ uint32\_t\ *\doxymbox{\hyperlink{structtile__work_a782fdd9434b3b0867577320ce0ad44ef}{prev\_pixels}};}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{structtile__work_a0a2e3e6061cc0f8e1d36627100ee8d52}{prev\_stride}};}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{structtile__work_a99a3162c654bea7bcb92333a100637a7}{x1}},\ \doxymbox{\hyperlink{structtile__work_ae672b19e3308e6646a998eb1e91ed1bd}{y1}},\ \doxymbox{\hyperlink{structtile__work_ab5c49c404a89ad26d59cdedcd9b25fe5}{w}},\ \doxymbox{\hyperlink{structtile__work_a10064eaf9859c57a7bde942419263b73}{h}};}
+\DoxyCodeLine{00056\ \};}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \textcolor{comment}{/*\ ==============\ Core\ Compression\ Functions\ ==============\ */}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_a44b11b3c3cf5bbf2bc72b98e2405ff67}{compress\_tile\_data}}(uint8\_t\ *dst,\ \textcolor{keywordtype}{int}\ dst\_max,\ }
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ *raw,\ \textcolor{keywordtype}{int}\ bytes\_per\_row,\ \textcolor{keywordtype}{int}\ h);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_ac1009aabef2977009ad352fd21b1905b}{compress\_tile\_direct}}(uint8\_t\ *dst,\ \textcolor{keywordtype}{int}\ dst\_max,\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *pixels,\ \textcolor{keywordtype}{int}\ stride,\ }
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x1,\ \textcolor{keywordtype}{int}\ y1,\ \textcolor{keywordtype}{int}\ w,\ \textcolor{keywordtype}{int}\ h);}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_a455ce7edf39cf16b67d9985f60781e8e}{compress\_tile\_alpha\_delta}}(uint8\_t\ *dst,\ \textcolor{keywordtype}{int}\ dst\_max,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *pixels,\ \textcolor{keywordtype}{int}\ stride,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *prev\_pixels,\ \textcolor{keywordtype}{int}\ prev\_stride,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x1,\ \textcolor{keywordtype}{int}\ y1,\ \textcolor{keywordtype}{int}\ w,\ \textcolor{keywordtype}{int}\ h);}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_ad8840b7734f6a0576edb446905c9313d}{compress\_tile\_adaptive}}(uint8\_t\ *dst,\ \textcolor{keywordtype}{int}\ dst\_max,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *pixels,\ \textcolor{keywordtype}{int}\ stride,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ *prev\_pixels,\ \textcolor{keywordtype}{int}\ prev\_stride,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ x1,\ \textcolor{keywordtype}{int}\ y1,\ \textcolor{keywordtype}{int}\ w,\ \textcolor{keywordtype}{int}\ h);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \textcolor{comment}{/*\ ==============\ Parallel\ Compression\ API\ ==============\ */}}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_a972e3a0f428008719dd7b6b47b718d7c}{compress\_pool\_init}}(\textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{parallel_8c_a2b6a46c4274b223ea03fb4a7b80f4a5a}{nthreads}});}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{compress_8h_a41109ec54915f2f99b35a48f3c1ce02a}{compress\_pool\_shutdown}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \doxymbox{\hyperlink{compress_8h_af1d1919cd20a262099a1ab7d31c7e9ef}{P9WL\_API}}\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{compress_8h_af6aea903432d2a5bfd5cc1991d6cf2e6}{compress\_tiles\_parallel}}(\textcolor{keyword}{struct}\ \doxymbox{\hyperlink{structtile__work}{tile\_work}}\ *tiles,\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct}\ \doxymbox{\hyperlink{structtile__result}{tile\_result}}\ *results,\ }
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{parallel_8c_ad43c3812e6d13e0518d9f8b8f463ffcf}{count}});}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ COMPRESS\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

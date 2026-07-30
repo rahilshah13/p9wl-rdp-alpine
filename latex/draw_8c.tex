@@ -1,0 +1,104 @@
+\doxysection{draw/\+draw.c File Reference}
+\hypertarget{draw_8c}{}\label{draw_8c}\index{draw/draw.c@{draw/draw.c}}
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$unistd.\+h$>$}\newline
+{\ttfamily \+\#include $<$errno.\+h$>$}\newline
+{\ttfamily \+\#include $<$time.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}draw.\+h"{}}\newline
+{\ttfamily \+\#include "{}send.\+h"{}}\newline
+Include dependency graph for draw.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{draw_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{draw_8c_a369266c24eacffb87046522897a570d5}{\+\_\+\+GNU\+\_\+\+SOURCE}}
+\item 
+\+\#define \doxymbox{\hyperlink{draw_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{draw_8c_a79a80061b920f57d9a9db4d46935d1df}{DRAW\+\_\+\+SCALE}}~1.\+0f
+\item 
+\+\#define \doxymbox{\hyperlink{draw_8c_a337c4552635552b8e74291a46b6c0f61}{TILE\+\_\+\+ALIGN\+\_\+\+UP}}(x)
+\item 
+\+\#define \doxymbox{\hyperlink{draw_8c_a004c1ea22f3392fc3b367266163b1e18}{MIN\+\_\+\+ALIGNED\+\_\+\+DIM}}~(\doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\+\_\+\+SIZE}} \texorpdfstring{$\ast$}{*} 4)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{draw_8c_af312159b17b06be1282558e56b0a22a9}{relookup\+\_\+window}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\item 
+void \doxymbox{\hyperlink{draw_8c_a795188505dd3aa2668a91fa260d0211d}{delete\+\_\+rio\+\_\+window}} (void \texorpdfstring{$\ast$}{*}p9)
+\item 
+int \doxymbox{\hyperlink{draw_8c_ac13009efaa3f10fa33184f4bef52e3d9}{init\+\_\+draw}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\end{DoxyCompactItemize}
+
+
+\label{draw_8c_doc-define-members}
+\Hypertarget{draw_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{draw_8c_a369266c24eacffb87046522897a570d5}\index{draw.c@{draw.c}!\_GNU\_SOURCE@{\_GNU\_SOURCE}}
+\index{\_GNU\_SOURCE@{\_GNU\_SOURCE}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{\_GNU\_SOURCE}{\_GNU\_SOURCE}}
+{\footnotesize\ttfamily \label{draw_8c_a369266c24eacffb87046522897a570d5} 
+\+\#define \+\_\+\+GNU\+\_\+\+SOURCE}
+
+\Hypertarget{draw_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{draw.c@{draw.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{draw_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{draw_8c_a79a80061b920f57d9a9db4d46935d1df}\index{draw.c@{draw.c}!DRAW\_SCALE@{DRAW\_SCALE}}
+\index{DRAW\_SCALE@{DRAW\_SCALE}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{DRAW\_SCALE}{DRAW\_SCALE}}
+{\footnotesize\ttfamily \label{draw_8c_a79a80061b920f57d9a9db4d46935d1df} 
+\+\#define DRAW\+\_\+\+SCALE~1.\+0f}
+
+\Hypertarget{draw_8c_a004c1ea22f3392fc3b367266163b1e18}\index{draw.c@{draw.c}!MIN\_ALIGNED\_DIM@{MIN\_ALIGNED\_DIM}}
+\index{MIN\_ALIGNED\_DIM@{MIN\_ALIGNED\_DIM}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{MIN\_ALIGNED\_DIM}{MIN\_ALIGNED\_DIM}}
+{\footnotesize\ttfamily \label{draw_8c_a004c1ea22f3392fc3b367266163b1e18} 
+\+\#define MIN\+\_\+\+ALIGNED\+\_\+\+DIM~(\doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\+\_\+\+SIZE}} \texorpdfstring{$\ast$}{*} 4)}
+
+\Hypertarget{draw_8c_a337c4552635552b8e74291a46b6c0f61}\index{draw.c@{draw.c}!TILE\_ALIGN\_UP@{TILE\_ALIGN\_UP}}
+\index{TILE\_ALIGN\_UP@{TILE\_ALIGN\_UP}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{TILE\_ALIGN\_UP}{TILE\_ALIGN\_UP}}
+{\footnotesize\ttfamily \label{draw_8c_a337c4552635552b8e74291a46b6c0f61} 
+\+\#define TILE\+\_\+\+ALIGN\+\_\+\+UP(\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(((x)\ +\ \doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\_SIZE}}\ -\/\ 1)\ /\ \doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\_SIZE}}\ *\ \doxymbox{\hyperlink{compress_8h_a62ecd70800687eb2d625af180c4210d7}{TILE\_SIZE}})}
+
+\end{DoxyCode}
+
+
+\label{draw_8c_doc-func-members}
+\Hypertarget{draw_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{draw_8c_a795188505dd3aa2668a91fa260d0211d}\index{draw.c@{draw.c}!delete\_rio\_window@{delete\_rio\_window}}
+\index{delete\_rio\_window@{delete\_rio\_window}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{delete\_rio\_window()}{delete\_rio\_window()}}
+{\footnotesize\ttfamily \label{draw_8c_a795188505dd3aa2668a91fa260d0211d} 
+void delete\+\_\+rio\+\_\+window (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{p9}{}\end{DoxyParamCaption})}
+
+\Hypertarget{draw_8c_ac13009efaa3f10fa33184f4bef52e3d9}\index{draw.c@{draw.c}!init\_draw@{init\_draw}}
+\index{init\_draw@{init\_draw}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{init\_draw()}{init\_draw()}}
+{\footnotesize\ttfamily \label{draw_8c_ac13009efaa3f10fa33184f4bef52e3d9} 
+int init\+\_\+draw (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{draw_8c_af312159b17b06be1282558e56b0a22a9}\index{draw.c@{draw.c}!relookup\_window@{relookup\_window}}
+\index{relookup\_window@{relookup\_window}!draw.c@{draw.c}}
+\doxysubsubsection{\texorpdfstring{relookup\_window()}{relookup\_window()}}
+{\footnotesize\ttfamily \label{draw_8c_af312159b17b06be1282558e56b0a22a9} 
+int relookup\+\_\+window (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+

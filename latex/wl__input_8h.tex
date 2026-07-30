@@ -1,0 +1,71 @@
+\doxysection{wayland/\+wl\+\_\+input.h File Reference}
+\hypertarget{wl__input_8h}{}\label{wl__input_8h}\index{wayland/wl\_input.h@{wayland/wl\_input.h}}
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+{\ttfamily \+\#include "{}../\+types.\+h"{}}\newline
+Include dependency graph for wl\+\_\+input.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{wl__input_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=296pt]{wl__input_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{wl__input_8h_ab62bdcb708d39bc5e08023371154a777}{handle\+\_\+key}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, uint32\+\_\+t rune, int pressed)
+\item 
+void \doxymbox{\hyperlink{wl__input_8h_a78040c4fc4766b262585c144a899aebb}{handle\+\_\+mouse}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, int mx, int my, int buttons)
+\item 
+int \doxymbox{\hyperlink{wl__input_8h_ae053b99d67002e91284454ee33808326}{handle\+\_\+input\+\_\+events}} (int fd, uint32\+\_\+t mask, void \texorpdfstring{$\ast$}{*}data)
+\end{DoxyCompactItemize}
+
+
+\label{wl__input_8h_doc-func-members}
+\Hypertarget{wl__input_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{wl__input_8h_ae053b99d67002e91284454ee33808326}\index{wl\_input.h@{wl\_input.h}!handle\_input\_events@{handle\_input\_events}}
+\index{handle\_input\_events@{handle\_input\_events}!wl\_input.h@{wl\_input.h}}
+\doxysubsubsection{\texorpdfstring{handle\_input\_events()}{handle\_input\_events()}}
+{\footnotesize\ttfamily \label{wl__input_8h_ae053b99d67002e91284454ee33808326} 
+int handle\+\_\+input\+\_\+events (\begin{DoxyParamCaption}\item[{int}]{fd}{, }\item[{uint32\+\_\+t}]{mask}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{data}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{wl__input_8h_ae053b99d67002e91284454ee33808326_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{wl__input_8h_ab62bdcb708d39bc5e08023371154a777}\index{wl\_input.h@{wl\_input.h}!handle\_key@{handle\_key}}
+\index{handle\_key@{handle\_key}!wl\_input.h@{wl\_input.h}}
+\doxysubsubsection{\texorpdfstring{handle\_key()}{handle\_key()}}
+{\footnotesize\ttfamily \label{wl__input_8h_ab62bdcb708d39bc5e08023371154a777} 
+void handle\+\_\+key (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{uint32\+\_\+t}]{rune}{, }\item[{int}]{pressed}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=292pt]{wl__input_8h_ab62bdcb708d39bc5e08023371154a777_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{wl__input_8h_a78040c4fc4766b262585c144a899aebb}\index{wl\_input.h@{wl\_input.h}!handle\_mouse@{handle\_mouse}}
+\index{handle\_mouse@{handle\_mouse}!wl\_input.h@{wl\_input.h}}
+\doxysubsubsection{\texorpdfstring{handle\_mouse()}{handle\_mouse()}}
+{\footnotesize\ttfamily \label{wl__input_8h_a78040c4fc4766b262585c144a899aebb} 
+void handle\+\_\+mouse (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{int}]{mx}{, }\item[{int}]{my}{, }\item[{int}]{buttons}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{wl__input_8h_a78040c4fc4766b262585c144a899aebb_cgraph}
+\end{center}
+\end{figure}

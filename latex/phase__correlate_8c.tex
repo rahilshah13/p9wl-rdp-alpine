@@ -1,0 +1,92 @@
+\doxysection{draw/\+phase\+\_\+correlate.c File Reference}
+\hypertarget{phase__correlate_8c}{}\label{phase__correlate_8c}\index{draw/phase\_correlate.c@{draw/phase\_correlate.c}}
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$math.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$fftw3.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}phase\+\_\+correlate.\+h"{}}\newline
+Include dependency graph for phase\+\_\+correlate.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{phase__correlate_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structfft__thread__resources}{fft\+\_\+thread\+\_\+resources}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{phase__correlate_8c_a369266c24eacffb87046522897a570d5}{\+\_\+\+GNU\+\_\+\+SOURCE}}
+\item 
+\+\#define \doxymbox{\hyperlink{phase__correlate_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{phase__correlate_8c_afc3d101f633a076cc1ca84b85b6224b2}{TAG}}~FREERDP\+\_\+\+TAG("{}p9wl.\+phase\+\_\+correlate"{})
+\item 
+\+\#define \doxymbox{\hyperlink{phase__correlate_8c_ae71449b1cc6e6250b91f539153a7a0d3}{M\+\_\+\+PI}}~3.\+14159265358979323846
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structphase__result}{phase\+\_\+result}} \doxymbox{\hyperlink{phase__correlate_8c_ab178ac3117e4354ff873da41c1e3f6ae}{phase\+\_\+correlate\+\_\+detect}} (uint32\+\_\+t \texorpdfstring{$\ast$}{*}curr\+\_\+buf, uint32\+\_\+t \texorpdfstring{$\ast$}{*}prev\+\_\+buf, int buf\+\_\+width, int rx1, int ry1, int rx2, int ry2, int max\+\_\+shift)
+\item 
+void \doxymbox{\hyperlink{phase__correlate_8c_a1d22aff73f72bf7961b066ac4c1adf8c}{phase\+\_\+correlate\+\_\+cleanup}} (void)
+\end{DoxyCompactItemize}
+
+
+\label{phase__correlate_8c_doc-define-members}
+\Hypertarget{phase__correlate_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{phase__correlate_8c_a369266c24eacffb87046522897a570d5}\index{phase\_correlate.c@{phase\_correlate.c}!\_GNU\_SOURCE@{\_GNU\_SOURCE}}
+\index{\_GNU\_SOURCE@{\_GNU\_SOURCE}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{\_GNU\_SOURCE}{\_GNU\_SOURCE}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_a369266c24eacffb87046522897a570d5} 
+\+\#define \+\_\+\+GNU\+\_\+\+SOURCE}
+
+\Hypertarget{phase__correlate_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{phase\_correlate.c@{phase\_correlate.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{phase__correlate_8c_ae71449b1cc6e6250b91f539153a7a0d3}\index{phase\_correlate.c@{phase\_correlate.c}!M\_PI@{M\_PI}}
+\index{M\_PI@{M\_PI}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{M\_PI}{M\_PI}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_ae71449b1cc6e6250b91f539153a7a0d3} 
+\+\#define M\+\_\+\+PI~3.\+14159265358979323846}
+
+\Hypertarget{phase__correlate_8c_afc3d101f633a076cc1ca84b85b6224b2}\index{phase\_correlate.c@{phase\_correlate.c}!TAG@{TAG}}
+\index{TAG@{TAG}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_afc3d101f633a076cc1ca84b85b6224b2} 
+\+\#define TAG~FREERDP\+\_\+\+TAG("{}p9wl.\+phase\+\_\+correlate"{})}
+
+
+
+\label{phase__correlate_8c_doc-func-members}
+\Hypertarget{phase__correlate_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{phase__correlate_8c_a1d22aff73f72bf7961b066ac4c1adf8c}\index{phase\_correlate.c@{phase\_correlate.c}!phase\_correlate\_cleanup@{phase\_correlate\_cleanup}}
+\index{phase\_correlate\_cleanup@{phase\_correlate\_cleanup}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{phase\_correlate\_cleanup()}{phase\_correlate\_cleanup()}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_a1d22aff73f72bf7961b066ac4c1adf8c} 
+void phase\+\_\+correlate\+\_\+cleanup (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{phase__correlate_8c_ab178ac3117e4354ff873da41c1e3f6ae}\index{phase\_correlate.c@{phase\_correlate.c}!phase\_correlate\_detect@{phase\_correlate\_detect}}
+\index{phase\_correlate\_detect@{phase\_correlate\_detect}!phase\_correlate.c@{phase\_correlate.c}}
+\doxysubsubsection{\texorpdfstring{phase\_correlate\_detect()}{phase\_correlate\_detect()}}
+{\footnotesize\ttfamily \label{phase__correlate_8c_ab178ac3117e4354ff873da41c1e3f6ae} 
+struct \doxymbox{\hyperlink{structphase__result}{phase\+\_\+result}} phase\+\_\+correlate\+\_\+detect (\begin{DoxyParamCaption}\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{curr\+\_\+buf}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{prev\+\_\+buf}{, }\item[{int}]{buf\+\_\+width}{, }\item[{int}]{rx1}{, }\item[{int}]{ry1}{, }\item[{int}]{rx2}{, }\item[{int}]{ry2}{, }\item[{int}]{max\+\_\+shift}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=197pt]{phase__correlate_8c_ab178ac3117e4354ff873da41c1e3f6ae_cgraph}
+\end{center}
+\end{figure}

@@ -1,0 +1,50 @@
+\doxysection{input/\+clipboard.h File Reference}
+\hypertarget{clipboard_8h}{}\label{clipboard_8h}\index{input/clipboard.h@{input/clipboard.h}}
+{\ttfamily \+\#include $<$stddef.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdint.\+h$>$}\newline
+Include dependency graph for clipboard.\+h:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=198pt]{clipboard_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=347pt]{clipboard_8h__dep__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{clipboard_8h_acbe520a65cfb289a0b650d5f5c37c934}{clipboard\+\_\+init}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\item 
+void \doxymbox{\hyperlink{clipboard_8h_acc74b91032e5f52b3bf63d70f45a5140}{rdp\+\_\+to\+\_\+snarf\+\_\+write}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s, const void \texorpdfstring{$\ast$}{*}data, size\+\_\+t size)
+\item 
+void \doxymbox{\hyperlink{clipboard_8h_a6d337917c3b03b5250dd95d99d7e1c99}{clipboard\+\_\+cleanup}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\end{DoxyCompactItemize}
+
+
+\label{clipboard_8h_doc-func-members}
+\Hypertarget{clipboard_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{clipboard_8h_a6d337917c3b03b5250dd95d99d7e1c99}\index{clipboard.h@{clipboard.h}!clipboard\_cleanup@{clipboard\_cleanup}}
+\index{clipboard\_cleanup@{clipboard\_cleanup}!clipboard.h@{clipboard.h}}
+\doxysubsubsection{\texorpdfstring{clipboard\_cleanup()}{clipboard\_cleanup()}}
+{\footnotesize\ttfamily \label{clipboard_8h_a6d337917c3b03b5250dd95d99d7e1c99} 
+void clipboard\+\_\+cleanup (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{clipboard_8h_acbe520a65cfb289a0b650d5f5c37c934}\index{clipboard.h@{clipboard.h}!clipboard\_init@{clipboard\_init}}
+\index{clipboard\_init@{clipboard\_init}!clipboard.h@{clipboard.h}}
+\doxysubsubsection{\texorpdfstring{clipboard\_init()}{clipboard\_init()}}
+{\footnotesize\ttfamily \label{clipboard_8h_acbe520a65cfb289a0b650d5f5c37c934} 
+int clipboard\+\_\+init (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{clipboard_8h_acc74b91032e5f52b3bf63d70f45a5140}\index{clipboard.h@{clipboard.h}!rdp\_to\_snarf\_write@{rdp\_to\_snarf\_write}}
+\index{rdp\_to\_snarf\_write@{rdp\_to\_snarf\_write}!clipboard.h@{clipboard.h}}
+\doxysubsubsection{\texorpdfstring{rdp\_to\_snarf\_write()}{rdp\_to\_snarf\_write()}}
+{\footnotesize\ttfamily \label{clipboard_8h_acc74b91032e5f52b3bf63d70f45a5140} 
+void rdp\+\_\+to\+\_\+snarf\+\_\+write (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{, }\item[{const void \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{size\+\_\+t}]{size}{}\end{DoxyParamCaption})}
+

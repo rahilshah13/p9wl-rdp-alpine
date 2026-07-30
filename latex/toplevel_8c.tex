@@ -1,0 +1,64 @@
+\doxysection{wayland/\+toplevel.c File Reference}
+\hypertarget{toplevel_8c}{}\label{toplevel_8c}\index{wayland/toplevel.c@{wayland/toplevel.c}}
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$wayland-\/server-\/core.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+shell.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+scene.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+seat.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+output.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+compositor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+subcompositor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}toplevel.\+h"{}}\newline
+{\ttfamily \+\#include "{}types.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw/\+draw\+\_\+helpers.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw/\+draw.\+h"{}}\newline
+{\ttfamily \+\#include "{}p9/\+p9.\+h"{}}\newline
+Include dependency graph for toplevel.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{toplevel_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{toplevel_8c_aa34eaff1f811e08f8f2c38ef5419e172}{FOR\+\_\+\+EACH\+\_\+\+SUBSURFACE}}(surface,  sub)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{toplevel_8c_a9fde6b5aef5d682f6e396efbfa75e71e}{new\+\_\+toplevel}} (struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}l, void \texorpdfstring{$\ast$}{*}d)
+\end{DoxyCompactItemize}
+
+
+\label{toplevel_8c_doc-define-members}
+\Hypertarget{toplevel_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{toplevel_8c_aa34eaff1f811e08f8f2c38ef5419e172}\index{toplevel.c@{toplevel.c}!FOR\_EACH\_SUBSURFACE@{FOR\_EACH\_SUBSURFACE}}
+\index{FOR\_EACH\_SUBSURFACE@{FOR\_EACH\_SUBSURFACE}!toplevel.c@{toplevel.c}}
+\doxysubsubsection{\texorpdfstring{FOR\_EACH\_SUBSURFACE}{FOR\_EACH\_SUBSURFACE}}
+{\footnotesize\ttfamily \label{toplevel_8c_aa34eaff1f811e08f8f2c38ef5419e172} 
+\+\#define FOR\+\_\+\+EACH\+\_\+\+SUBSURFACE(\begin{DoxyParamCaption}\item[{}]{surface}{, }\item[{}]{sub}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ \_list\_idx\ =\ 0;\ \_list\_idx\ <\ 2;\ \_list\_idx++)\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ wl\_list\_for\_each(sub,\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ (\_list\_idx\ ==\ 0)\ ?\ \&(surface)-\/>current.subsurfaces\_below\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ :\ \&(surface)-\/>current.subsurfaces\_above,\ \(\backslash\)}
+\DoxyCodeLine{\ \ \ \ \ \ \ \ current.link)}
+
+\end{DoxyCode}
+
+
+\label{toplevel_8c_doc-func-members}
+\Hypertarget{toplevel_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{toplevel_8c_a9fde6b5aef5d682f6e396efbfa75e71e}\index{toplevel.c@{toplevel.c}!new\_toplevel@{new\_toplevel}}
+\index{new\_toplevel@{new\_toplevel}!toplevel.c@{toplevel.c}}
+\doxysubsubsection{\texorpdfstring{new\_toplevel()}{new\_toplevel()}}
+{\footnotesize\ttfamily \label{toplevel_8c_a9fde6b5aef5d682f6e396efbfa75e71e} 
+void new\+\_\+toplevel (\begin{DoxyParamCaption}\item[{struct wl\+\_\+listener \texorpdfstring{$\ast$}{*}}]{l}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{d}{}\end{DoxyParamCaption})}
+

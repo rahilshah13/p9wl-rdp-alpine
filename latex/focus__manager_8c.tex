@@ -1,0 +1,391 @@
+\doxysection{wayland/\+focus\+\_\+manager.c File Reference}
+\hypertarget{focus__manager_8c}{}\label{focus__manager_8c}\index{wayland/focus\_manager.c@{wayland/focus\_manager.c}}
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$wayland-\/server-\/core.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+scene.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+seat.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+cursor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+shell.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+keyboard.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+subcompositor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include "{}types.\+h"{}}\newline
+Include dependency graph for focus\+\_\+manager.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{focus__manager_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{focus__manager_8c_af8492f48ec2415909af070b1e41dd443}{SEAT}}(fm)
+\item 
+\+\#define \doxymbox{\hyperlink{focus__manager_8c_a46622481fcafc00a4f3f07356e199b94}{CURSOR}}(fm)
+\item 
+\+\#define \doxymbox{\hyperlink{focus__manager_8c_aa863e119f5b1d0c0ee4c0f0923f098af}{BUTTONS\+\_\+\+HELD}}(fm)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_af5bb6c43869a30ed9ff0b4163a9046e2}{focus\+\_\+manager\+\_\+init}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct server \texorpdfstring{$\ast$}{*}server)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_aedcdcedc1cf23030ccc7919d7dd52dde}{focus\+\_\+manager\+\_\+cleanup}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_a9614149a4bc298af7c9a13c27e08a411}{focus\+\_\+surface\+\_\+at\+\_\+cursor}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, double \texorpdfstring{$\ast$}{*}sx, double \texorpdfstring{$\ast$}{*}sy)
+\item 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_a9ca3909a64241e95fd714afa1f09b7ed}{focus\+\_\+toplevel\+\_\+from\+\_\+surface}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface)
+\item 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_ad761f4940928a030be829853cb58ac9c}{focus\+\_\+toplevel\+\_\+at\+\_\+cursor}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a017c2e4cfd1242b005ab60ddafc6b31e}{focus\+\_\+pointer\+\_\+set}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface, double sx, double sy, enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}} reason)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a3660eefd3f95a1a8134f852982961a22}{focus\+\_\+pointer\+\_\+motion}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, double sx, double sy, uint32\+\_\+t time\+\_\+msec)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_ab836259fad13b3679c76eaf315f54295}{focus\+\_\+pointer\+\_\+recheck}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a0a874e4c45b81a35354e44b2913f2231}{focus\+\_\+pointer\+\_\+button\+\_\+pressed}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a7e938e2994052c540b9a6b41d07ff525}{focus\+\_\+pointer\+\_\+button\+\_\+released}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a1a14b1795d160fa91db7a23a5be6efd4}{focus\+\_\+keyboard\+\_\+set}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface, enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}} reason)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_adffd107323ee793f687f85b88d14b430}{focus\+\_\+keyboard\+\_\+set\+\_\+modifiers}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, uint32\+\_\+t modifiers)
+\item 
+uint32\+\_\+t \doxymbox{\hyperlink{focus__manager_8c_a4da3332c17ceaf2fc7ba3f3221279c09}{focus\+\_\+keyboard\+\_\+get\+\_\+modifiers}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_aa2acdaf2003ff65de557f9f99b4cbec5}{focus\+\_\+toplevel}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*}tl, enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}} reason)
+\item 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_a8a578aed2609e5928931356637f41e0b}{focus\+\_\+get\+\_\+focused\+\_\+toplevel}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_aebf3dab21677843591bb7587ab2b5fad}{focus\+\_\+popup\+\_\+register}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}pd)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a2966a23d2d33edc3f057b770b0cd2937}{focus\+\_\+popup\+\_\+mapped}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}pd)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a1438302a8c1c870bddc3348791524606}{focus\+\_\+popup\+\_\+unmapped}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}pd)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a5beb606d583daa306b839937a0fb3d78}{focus\+\_\+popup\+\_\+unregister}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}pd)
+\item 
+struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_ab9eb2f9eca29f9e86b6759bfd2eb68ab}{focus\+\_\+popup\+\_\+get\+\_\+topmost}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_a96d813a8233a2ee2dcd30046f3167180}{focus\+\_\+popup\+\_\+from\+\_\+surface}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_a7a4bc2b2676f321c677461fb70adf500}{focus\+\_\+popup\+\_\+dismiss\+\_\+all}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+bool \doxymbox{\hyperlink{focus__manager_8c_a222867c2399095ecbea481bee28fefb6}{focus\+\_\+popup\+\_\+dismiss\+\_\+topmost\+\_\+grabbed}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+bool \doxymbox{\hyperlink{focus__manager_8c_a63d6451839077dc5410eb47e0c0d61b2}{focus\+\_\+popup\+\_\+stack\+\_\+empty}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_afc8c099f19c4705e14d4ffe6cf5ad495}{focus\+\_\+on\+\_\+surface\+\_\+map}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface, bool is\+\_\+toplevel)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_ae3bb54e60e2b6a3855c42476b1ad2024}{focus\+\_\+on\+\_\+surface\+\_\+unmap}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface)
+\item 
+void \doxymbox{\hyperlink{focus__manager_8c_ad1407fe9372a99bb086ac5bda8676f5c}{focus\+\_\+on\+\_\+surface\+\_\+destroy}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}surface)
+\item 
+struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{focus__manager_8c_ada31f1311b9d4cfc4f557872ced1a52c}{focus\+\_\+handle\+\_\+click}} (struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}fm, struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}clicked, double sx, double sy, uint32\+\_\+t button)
+\end{DoxyCompactItemize}
+
+
+\label{focus__manager_8c_doc-define-members}
+\Hypertarget{focus__manager_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{focus__manager_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{focus\_manager.c@{focus\_manager.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{focus__manager_8c_aa863e119f5b1d0c0ee4c0f0923f098af}\index{focus\_manager.c@{focus\_manager.c}!BUTTONS\_HELD@{BUTTONS\_HELD}}
+\index{BUTTONS\_HELD@{BUTTONS\_HELD}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{BUTTONS\_HELD}{BUTTONS\_HELD}}
+{\footnotesize\ttfamily \label{focus__manager_8c_aa863e119f5b1d0c0ee4c0f0923f098af} 
+\+\#define BUTTONS\+\_\+\+HELD(\begin{DoxyParamCaption}\item[{}]{fm}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{(\doxymbox{\hyperlink{focus__manager_8c_af8492f48ec2415909af070b1e41dd443}{SEAT}}(fm)-\/>pointer\_state.button\_count\ >\ 0)}
+
+\end{DoxyCode}
+\Hypertarget{focus__manager_8c_a46622481fcafc00a4f3f07356e199b94}\index{focus\_manager.c@{focus\_manager.c}!CURSOR@{CURSOR}}
+\index{CURSOR@{CURSOR}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{CURSOR}{CURSOR}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a46622481fcafc00a4f3f07356e199b94} 
+\+\#define CURSOR(\begin{DoxyParamCaption}\item[{}]{fm}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((fm)-\/>server-\/>cursor)}
+
+\end{DoxyCode}
+\Hypertarget{focus__manager_8c_af8492f48ec2415909af070b1e41dd443}\index{focus\_manager.c@{focus\_manager.c}!SEAT@{SEAT}}
+\index{SEAT@{SEAT}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{SEAT}{SEAT}}
+{\footnotesize\ttfamily \label{focus__manager_8c_af8492f48ec2415909af070b1e41dd443} 
+\+\#define SEAT(\begin{DoxyParamCaption}\item[{}]{fm}{}\end{DoxyParamCaption})}
+
+{\bfseries Value:\+}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{((fm)-\/>server-\/>seat)}
+
+\end{DoxyCode}
+
+
+\label{focus__manager_8c_doc-func-members}
+\Hypertarget{focus__manager_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{focus__manager_8c_a8a578aed2609e5928931356637f41e0b}\index{focus\_manager.c@{focus\_manager.c}!focus\_get\_focused\_toplevel@{focus\_get\_focused\_toplevel}}
+\index{focus\_get\_focused\_toplevel@{focus\_get\_focused\_toplevel}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_get\_focused\_toplevel()}{focus\_get\_focused\_toplevel()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a8a578aed2609e5928931356637f41e0b} 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} focus\+\_\+get\+\_\+focused\+\_\+toplevel (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_a8a578aed2609e5928931356637f41e0b_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_ada31f1311b9d4cfc4f557872ced1a52c}\index{focus\_manager.c@{focus\_manager.c}!focus\_handle\_click@{focus\_handle\_click}}
+\index{focus\_handle\_click@{focus\_handle\_click}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_handle\_click()}{focus\_handle\_click()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ada31f1311b9d4cfc4f557872ced1a52c} 
+struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*} focus\+\_\+handle\+\_\+click (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{clicked}{, }\item[{double}]{sx}{, }\item[{double}]{sy}{, }\item[{uint32\+\_\+t}]{button}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_ada31f1311b9d4cfc4f557872ced1a52c_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a4da3332c17ceaf2fc7ba3f3221279c09}\index{focus\_manager.c@{focus\_manager.c}!focus\_keyboard\_get\_modifiers@{focus\_keyboard\_get\_modifiers}}
+\index{focus\_keyboard\_get\_modifiers@{focus\_keyboard\_get\_modifiers}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_keyboard\_get\_modifiers()}{focus\_keyboard\_get\_modifiers()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a4da3332c17ceaf2fc7ba3f3221279c09} 
+uint32\+\_\+t focus\+\_\+keyboard\+\_\+get\+\_\+modifiers (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a1a14b1795d160fa91db7a23a5be6efd4}\index{focus\_manager.c@{focus\_manager.c}!focus\_keyboard\_set@{focus\_keyboard\_set}}
+\index{focus\_keyboard\_set@{focus\_keyboard\_set}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_keyboard\_set()}{focus\_keyboard\_set()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a1a14b1795d160fa91db7a23a5be6efd4} 
+void focus\+\_\+keyboard\+\_\+set (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{, }\item[{enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}}}]{reason}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_adffd107323ee793f687f85b88d14b430}\index{focus\_manager.c@{focus\_manager.c}!focus\_keyboard\_set\_modifiers@{focus\_keyboard\_set\_modifiers}}
+\index{focus\_keyboard\_set\_modifiers@{focus\_keyboard\_set\_modifiers}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_keyboard\_set\_modifiers()}{focus\_keyboard\_set\_modifiers()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_adffd107323ee793f687f85b88d14b430} 
+void focus\+\_\+keyboard\+\_\+set\+\_\+modifiers (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{uint32\+\_\+t}]{modifiers}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_aedcdcedc1cf23030ccc7919d7dd52dde}\index{focus\_manager.c@{focus\_manager.c}!focus\_manager\_cleanup@{focus\_manager\_cleanup}}
+\index{focus\_manager\_cleanup@{focus\_manager\_cleanup}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_manager\_cleanup()}{focus\_manager\_cleanup()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_aedcdcedc1cf23030ccc7919d7dd52dde} 
+void focus\+\_\+manager\+\_\+cleanup (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_af5bb6c43869a30ed9ff0b4163a9046e2}\index{focus\_manager.c@{focus\_manager.c}!focus\_manager\_init@{focus\_manager\_init}}
+\index{focus\_manager\_init@{focus\_manager\_init}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_manager\_init()}{focus\_manager\_init()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_af5bb6c43869a30ed9ff0b4163a9046e2} 
+void focus\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{server}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_ad1407fe9372a99bb086ac5bda8676f5c}\index{focus\_manager.c@{focus\_manager.c}!focus\_on\_surface\_destroy@{focus\_on\_surface\_destroy}}
+\index{focus\_on\_surface\_destroy@{focus\_on\_surface\_destroy}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_on\_surface\_destroy()}{focus\_on\_surface\_destroy()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ad1407fe9372a99bb086ac5bda8676f5c} 
+void focus\+\_\+on\+\_\+surface\+\_\+destroy (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_ad1407fe9372a99bb086ac5bda8676f5c_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_afc8c099f19c4705e14d4ffe6cf5ad495}\index{focus\_manager.c@{focus\_manager.c}!focus\_on\_surface\_map@{focus\_on\_surface\_map}}
+\index{focus\_on\_surface\_map@{focus\_on\_surface\_map}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_on\_surface\_map()}{focus\_on\_surface\_map()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_afc8c099f19c4705e14d4ffe6cf5ad495} 
+void focus\+\_\+on\+\_\+surface\+\_\+map (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{, }\item[{bool}]{is\+\_\+toplevel}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_afc8c099f19c4705e14d4ffe6cf5ad495_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_ae3bb54e60e2b6a3855c42476b1ad2024}\index{focus\_manager.c@{focus\_manager.c}!focus\_on\_surface\_unmap@{focus\_on\_surface\_unmap}}
+\index{focus\_on\_surface\_unmap@{focus\_on\_surface\_unmap}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_on\_surface\_unmap()}{focus\_on\_surface\_unmap()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ae3bb54e60e2b6a3855c42476b1ad2024} 
+void focus\+\_\+on\+\_\+surface\+\_\+unmap (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=348pt]{focus__manager_8c_ae3bb54e60e2b6a3855c42476b1ad2024_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a0a874e4c45b81a35354e44b2913f2231}\index{focus\_manager.c@{focus\_manager.c}!focus\_pointer\_button\_pressed@{focus\_pointer\_button\_pressed}}
+\index{focus\_pointer\_button\_pressed@{focus\_pointer\_button\_pressed}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_pointer\_button\_pressed()}{focus\_pointer\_button\_pressed()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a0a874e4c45b81a35354e44b2913f2231} 
+void focus\+\_\+pointer\+\_\+button\+\_\+pressed (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a7e938e2994052c540b9a6b41d07ff525}\index{focus\_manager.c@{focus\_manager.c}!focus\_pointer\_button\_released@{focus\_pointer\_button\_released}}
+\index{focus\_pointer\_button\_released@{focus\_pointer\_button\_released}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_pointer\_button\_released()}{focus\_pointer\_button\_released()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a7e938e2994052c540b9a6b41d07ff525} 
+void focus\+\_\+pointer\+\_\+button\+\_\+released (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_a7e938e2994052c540b9a6b41d07ff525_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a3660eefd3f95a1a8134f852982961a22}\index{focus\_manager.c@{focus\_manager.c}!focus\_pointer\_motion@{focus\_pointer\_motion}}
+\index{focus\_pointer\_motion@{focus\_pointer\_motion}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_pointer\_motion()}{focus\_pointer\_motion()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a3660eefd3f95a1a8134f852982961a22} 
+void focus\+\_\+pointer\+\_\+motion (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{double}]{sx}{, }\item[{double}]{sy}{, }\item[{uint32\+\_\+t}]{time\+\_\+msec}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_ab836259fad13b3679c76eaf315f54295}\index{focus\_manager.c@{focus\_manager.c}!focus\_pointer\_recheck@{focus\_pointer\_recheck}}
+\index{focus\_pointer\_recheck@{focus\_pointer\_recheck}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_pointer\_recheck()}{focus\_pointer\_recheck()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ab836259fad13b3679c76eaf315f54295} 
+void focus\+\_\+pointer\+\_\+recheck (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_ab836259fad13b3679c76eaf315f54295_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a017c2e4cfd1242b005ab60ddafc6b31e}\index{focus\_manager.c@{focus\_manager.c}!focus\_pointer\_set@{focus\_pointer\_set}}
+\index{focus\_pointer\_set@{focus\_pointer\_set}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_pointer\_set()}{focus\_pointer\_set()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a017c2e4cfd1242b005ab60ddafc6b31e} 
+void focus\+\_\+pointer\+\_\+set (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{, }\item[{double}]{sx}{, }\item[{double}]{sy}{, }\item[{enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}}}]{reason}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a7a4bc2b2676f321c677461fb70adf500}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_dismiss\_all@{focus\_popup\_dismiss\_all}}
+\index{focus\_popup\_dismiss\_all@{focus\_popup\_dismiss\_all}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_dismiss\_all()}{focus\_popup\_dismiss\_all()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a7a4bc2b2676f321c677461fb70adf500} 
+void focus\+\_\+popup\+\_\+dismiss\+\_\+all (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a222867c2399095ecbea481bee28fefb6}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_dismiss\_topmost\_grabbed@{focus\_popup\_dismiss\_topmost\_grabbed}}
+\index{focus\_popup\_dismiss\_topmost\_grabbed@{focus\_popup\_dismiss\_topmost\_grabbed}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_dismiss\_topmost\_grabbed()}{focus\_popup\_dismiss\_topmost\_grabbed()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a222867c2399095ecbea481bee28fefb6} 
+bool focus\+\_\+popup\+\_\+dismiss\+\_\+topmost\+\_\+grabbed (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a96d813a8233a2ee2dcd30046f3167180}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_from\_surface@{focus\_popup\_from\_surface}}
+\index{focus\_popup\_from\_surface@{focus\_popup\_from\_surface}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_from\_surface()}{focus\_popup\_from\_surface()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a96d813a8233a2ee2dcd30046f3167180} 
+struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*} focus\+\_\+popup\+\_\+from\+\_\+surface (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_ab9eb2f9eca29f9e86b6759bfd2eb68ab}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_get\_topmost@{focus\_popup\_get\_topmost}}
+\index{focus\_popup\_get\_topmost@{focus\_popup\_get\_topmost}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_get\_topmost()}{focus\_popup\_get\_topmost()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ab9eb2f9eca29f9e86b6759bfd2eb68ab} 
+struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*} focus\+\_\+popup\+\_\+get\+\_\+topmost (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a2966a23d2d33edc3f057b770b0cd2937}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_mapped@{focus\_popup\_mapped}}
+\index{focus\_popup\_mapped@{focus\_popup\_mapped}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_mapped()}{focus\_popup\_mapped()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a2966a23d2d33edc3f057b770b0cd2937} 
+void focus\+\_\+popup\+\_\+mapped (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}}]{pd}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_a2966a23d2d33edc3f057b770b0cd2937_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_aebf3dab21677843591bb7587ab2b5fad}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_register@{focus\_popup\_register}}
+\index{focus\_popup\_register@{focus\_popup\_register}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_register()}{focus\_popup\_register()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_aebf3dab21677843591bb7587ab2b5fad} 
+void focus\+\_\+popup\+\_\+register (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}}]{pd}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a63d6451839077dc5410eb47e0c0d61b2}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_stack\_empty@{focus\_popup\_stack\_empty}}
+\index{focus\_popup\_stack\_empty@{focus\_popup\_stack\_empty}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_stack\_empty()}{focus\_popup\_stack\_empty()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a63d6451839077dc5410eb47e0c0d61b2} 
+bool focus\+\_\+popup\+\_\+stack\+\_\+empty (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_a1438302a8c1c870bddc3348791524606}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_unmapped@{focus\_popup\_unmapped}}
+\index{focus\_popup\_unmapped@{focus\_popup\_unmapped}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_unmapped()}{focus\_popup\_unmapped()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a1438302a8c1c870bddc3348791524606} 
+void focus\+\_\+popup\+\_\+unmapped (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}}]{pd}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=331pt]{focus__manager_8c_a1438302a8c1c870bddc3348791524606_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a5beb606d583daa306b839937a0fb3d78}\index{focus\_manager.c@{focus\_manager.c}!focus\_popup\_unregister@{focus\_popup\_unregister}}
+\index{focus\_popup\_unregister@{focus\_popup\_unregister}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_popup\_unregister()}{focus\_popup\_unregister()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a5beb606d583daa306b839937a0fb3d78} 
+void focus\+\_\+popup\+\_\+unregister (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structpopup__data}{popup\+\_\+data}} \texorpdfstring{$\ast$}{*}}]{pd}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=339pt]{focus__manager_8c_a5beb606d583daa306b839937a0fb3d78_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a9614149a4bc298af7c9a13c27e08a411}\index{focus\_manager.c@{focus\_manager.c}!focus\_surface\_at\_cursor@{focus\_surface\_at\_cursor}}
+\index{focus\_surface\_at\_cursor@{focus\_surface\_at\_cursor}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_surface\_at\_cursor()}{focus\_surface\_at\_cursor()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a9614149a4bc298af7c9a13c27e08a411} 
+struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*} focus\+\_\+surface\+\_\+at\+\_\+cursor (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{double \texorpdfstring{$\ast$}{*}}]{sx}{, }\item[{double \texorpdfstring{$\ast$}{*}}]{sy}{}\end{DoxyParamCaption})}
+
+\Hypertarget{focus__manager_8c_aa2acdaf2003ff65de557f9f99b4cbec5}\index{focus\_manager.c@{focus\_manager.c}!focus\_toplevel@{focus\_toplevel}}
+\index{focus\_toplevel@{focus\_toplevel}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_toplevel()}{focus\_toplevel()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_aa2acdaf2003ff65de557f9f99b4cbec5} 
+void focus\+\_\+toplevel (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*}}]{tl}{, }\item[{enum \doxymbox{\hyperlink{focus__manager_8h_a7cee1a0f4ae75b054f59b6d00bfba580}{focus\+\_\+reason}}}]{reason}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_aa2acdaf2003ff65de557f9f99b4cbec5_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_ad761f4940928a030be829853cb58ac9c}\index{focus\_manager.c@{focus\_manager.c}!focus\_toplevel\_at\_cursor@{focus\_toplevel\_at\_cursor}}
+\index{focus\_toplevel\_at\_cursor@{focus\_toplevel\_at\_cursor}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_toplevel\_at\_cursor()}{focus\_toplevel\_at\_cursor()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_ad761f4940928a030be829853cb58ac9c} 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} focus\+\_\+toplevel\+\_\+at\+\_\+cursor (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{focus__manager_8c_ad761f4940928a030be829853cb58ac9c_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{focus__manager_8c_a9ca3909a64241e95fd714afa1f09b7ed}\index{focus\_manager.c@{focus\_manager.c}!focus\_toplevel\_from\_surface@{focus\_toplevel\_from\_surface}}
+\index{focus\_toplevel\_from\_surface@{focus\_toplevel\_from\_surface}!focus\_manager.c@{focus\_manager.c}}
+\doxysubsubsection{\texorpdfstring{focus\_toplevel\_from\_surface()}{focus\_toplevel\_from\_surface()}}
+{\footnotesize\ttfamily \label{focus__manager_8c_a9ca3909a64241e95fd714afa1f09b7ed} 
+struct \doxymbox{\hyperlink{structtoplevel}{toplevel}} \texorpdfstring{$\ast$}{*} focus\+\_\+toplevel\+\_\+from\+\_\+surface (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structfocus__manager}{focus\+\_\+manager}} \texorpdfstring{$\ast$}{*}}]{fm}{, }\item[{struct wlr\+\_\+surface \texorpdfstring{$\ast$}{*}}]{surface}{}\end{DoxyParamCaption})}
+

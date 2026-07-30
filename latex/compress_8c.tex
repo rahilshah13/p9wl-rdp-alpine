@@ -1,0 +1,121 @@
+\doxysection{draw/\+compress.c File Reference}
+\hypertarget{compress_8c}{}\label{compress_8c}\index{draw/compress.c@{draw/compress.c}}
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include "{}compress.\+h"{}}\newline
+{\ttfamily \+\#include "{}parallel.\+h"{}}\newline
+Include dependency graph for compress.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=308pt]{compress_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structcompress__ctx}{compress\+\_\+ctx}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{compress_8c_ab0bc977d3fec2517ebda1a77e1cfaecc}{HASH\+\_\+\+BITS}}~10
+\item 
+\+\#define \doxymbox{\hyperlink{compress_8c_ad6074dd11ab3c97c8135c43aab03ae95}{HASH\+\_\+\+SIZE}}~(1 $<$$<$ \doxymbox{\hyperlink{compress_8c_ab0bc977d3fec2517ebda1a77e1cfaecc}{HASH\+\_\+\+BITS}})
+\item 
+\+\#define \doxymbox{\hyperlink{compress_8c_a8ba578169aad59095035a05d2f7323a7}{HASH\+\_\+\+MASK}}~(\doxymbox{\hyperlink{compress_8c_ad6074dd11ab3c97c8135c43aab03ae95}{HASH\+\_\+\+SIZE}} -\/ 1)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{compress_8c_a4c07a8bc25223efc6522074ed89bf3f9}{compress\+\_\+tile\+\_\+data}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}dst, int dst\+\_\+max, uint8\+\_\+t \texorpdfstring{$\ast$}{*}raw, int bytes\+\_\+per\+\_\+row, int h)
+\item 
+int \doxymbox{\hyperlink{compress_8c_ae3cbe881db2067f203a8d268be4d3dd7}{compress\+\_\+tile\+\_\+direct}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}dst, int dst\+\_\+max, uint32\+\_\+t \texorpdfstring{$\ast$}{*}pixels, int stride, int x1, int y1, int w, int h)
+\item 
+int \doxymbox{\hyperlink{compress_8c_ac55bb6223eb85f027470fe40e7b3b73c}{compress\+\_\+tile\+\_\+alpha\+\_\+delta}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}dst, int dst\+\_\+max, uint32\+\_\+t \texorpdfstring{$\ast$}{*}pixels, int stride, uint32\+\_\+t \texorpdfstring{$\ast$}{*}prev\+\_\+pixels, int prev\+\_\+stride, int x1, int y1, int w, int h)
+\item 
+int \doxymbox{\hyperlink{compress_8c_a45a72030079785a1e53d7af836a52467}{compress\+\_\+tile\+\_\+adaptive}} (uint8\+\_\+t \texorpdfstring{$\ast$}{*}dst, int dst\+\_\+max, uint32\+\_\+t \texorpdfstring{$\ast$}{*}pixels, int stride, uint32\+\_\+t \texorpdfstring{$\ast$}{*}prev\+\_\+pixels, int prev\+\_\+stride, int x1, int y1, int w, int h)
+\item 
+int \doxymbox{\hyperlink{compress_8c_afb6878fdc79a63a824be53e8b36835e7}{compress\+\_\+pool\+\_\+init}} (int nthreads)
+\item 
+void \doxymbox{\hyperlink{compress_8c_a5734d15e33919e6912f6ec1e83d1c30c}{compress\+\_\+pool\+\_\+shutdown}} (void)
+\item 
+int \doxymbox{\hyperlink{compress_8c_a41cd9034fa7186464d5a9a0a7a98ec95}{compress\+\_\+tiles\+\_\+parallel}} (struct \doxymbox{\hyperlink{structtile__work}{tile\+\_\+work}} \texorpdfstring{$\ast$}{*}tiles, struct \doxymbox{\hyperlink{structtile__result}{tile\+\_\+result}} \texorpdfstring{$\ast$}{*}results, int count)
+\end{DoxyCompactItemize}
+
+
+\label{compress_8c_doc-define-members}
+\Hypertarget{compress_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{compress_8c_ab0bc977d3fec2517ebda1a77e1cfaecc}\index{compress.c@{compress.c}!HASH\_BITS@{HASH\_BITS}}
+\index{HASH\_BITS@{HASH\_BITS}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{HASH\_BITS}{HASH\_BITS}}
+{\footnotesize\ttfamily \label{compress_8c_ab0bc977d3fec2517ebda1a77e1cfaecc} 
+\+\#define HASH\+\_\+\+BITS~10}
+
+\Hypertarget{compress_8c_a8ba578169aad59095035a05d2f7323a7}\index{compress.c@{compress.c}!HASH\_MASK@{HASH\_MASK}}
+\index{HASH\_MASK@{HASH\_MASK}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{HASH\_MASK}{HASH\_MASK}}
+{\footnotesize\ttfamily \label{compress_8c_a8ba578169aad59095035a05d2f7323a7} 
+\+\#define HASH\+\_\+\+MASK~(\doxymbox{\hyperlink{compress_8c_ad6074dd11ab3c97c8135c43aab03ae95}{HASH\+\_\+\+SIZE}} -\/ 1)}
+
+\Hypertarget{compress_8c_ad6074dd11ab3c97c8135c43aab03ae95}\index{compress.c@{compress.c}!HASH\_SIZE@{HASH\_SIZE}}
+\index{HASH\_SIZE@{HASH\_SIZE}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{HASH\_SIZE}{HASH\_SIZE}}
+{\footnotesize\ttfamily \label{compress_8c_ad6074dd11ab3c97c8135c43aab03ae95} 
+\+\#define HASH\+\_\+\+SIZE~(1 $<$$<$ \doxymbox{\hyperlink{compress_8c_ab0bc977d3fec2517ebda1a77e1cfaecc}{HASH\+\_\+\+BITS}})}
+
+
+
+\label{compress_8c_doc-func-members}
+\Hypertarget{compress_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{compress_8c_afb6878fdc79a63a824be53e8b36835e7}\index{compress.c@{compress.c}!compress\_pool\_init@{compress\_pool\_init}}
+\index{compress\_pool\_init@{compress\_pool\_init}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_pool\_init()}{compress\_pool\_init()}}
+{\footnotesize\ttfamily \label{compress_8c_afb6878fdc79a63a824be53e8b36835e7} 
+int compress\+\_\+pool\+\_\+init (\begin{DoxyParamCaption}\item[{int}]{nthreads}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_a5734d15e33919e6912f6ec1e83d1c30c}\index{compress.c@{compress.c}!compress\_pool\_shutdown@{compress\_pool\_shutdown}}
+\index{compress\_pool\_shutdown@{compress\_pool\_shutdown}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_pool\_shutdown()}{compress\_pool\_shutdown()}}
+{\footnotesize\ttfamily \label{compress_8c_a5734d15e33919e6912f6ec1e83d1c30c} 
+void compress\+\_\+pool\+\_\+shutdown (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_a45a72030079785a1e53d7af836a52467}\index{compress.c@{compress.c}!compress\_tile\_adaptive@{compress\_tile\_adaptive}}
+\index{compress\_tile\_adaptive@{compress\_tile\_adaptive}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_tile\_adaptive()}{compress\_tile\_adaptive()}}
+{\footnotesize\ttfamily \label{compress_8c_a45a72030079785a1e53d7af836a52467} 
+int compress\+\_\+tile\+\_\+adaptive (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{dst}{, }\item[{int}]{dst\+\_\+max}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{pixels}{, }\item[{int}]{stride}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{prev\+\_\+pixels}{, }\item[{int}]{prev\+\_\+stride}{, }\item[{int}]{x1}{, }\item[{int}]{y1}{, }\item[{int}]{w}{, }\item[{int}]{h}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_ac55bb6223eb85f027470fe40e7b3b73c}\index{compress.c@{compress.c}!compress\_tile\_alpha\_delta@{compress\_tile\_alpha\_delta}}
+\index{compress\_tile\_alpha\_delta@{compress\_tile\_alpha\_delta}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_tile\_alpha\_delta()}{compress\_tile\_alpha\_delta()}}
+{\footnotesize\ttfamily \label{compress_8c_ac55bb6223eb85f027470fe40e7b3b73c} 
+int compress\+\_\+tile\+\_\+alpha\+\_\+delta (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{dst}{, }\item[{int}]{dst\+\_\+max}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{pixels}{, }\item[{int}]{stride}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{prev\+\_\+pixels}{, }\item[{int}]{prev\+\_\+stride}{, }\item[{int}]{x1}{, }\item[{int}]{y1}{, }\item[{int}]{w}{, }\item[{int}]{h}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_a4c07a8bc25223efc6522074ed89bf3f9}\index{compress.c@{compress.c}!compress\_tile\_data@{compress\_tile\_data}}
+\index{compress\_tile\_data@{compress\_tile\_data}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_tile\_data()}{compress\_tile\_data()}}
+{\footnotesize\ttfamily \label{compress_8c_a4c07a8bc25223efc6522074ed89bf3f9} 
+int compress\+\_\+tile\+\_\+data (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{dst}{, }\item[{int}]{dst\+\_\+max}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{raw}{, }\item[{int}]{bytes\+\_\+per\+\_\+row}{, }\item[{int}]{h}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_ae3cbe881db2067f203a8d268be4d3dd7}\index{compress.c@{compress.c}!compress\_tile\_direct@{compress\_tile\_direct}}
+\index{compress\_tile\_direct@{compress\_tile\_direct}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_tile\_direct()}{compress\_tile\_direct()}}
+{\footnotesize\ttfamily \label{compress_8c_ae3cbe881db2067f203a8d268be4d3dd7} 
+int compress\+\_\+tile\+\_\+direct (\begin{DoxyParamCaption}\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{dst}{, }\item[{int}]{dst\+\_\+max}{, }\item[{uint32\+\_\+t \texorpdfstring{$\ast$}{*}}]{pixels}{, }\item[{int}]{stride}{, }\item[{int}]{x1}{, }\item[{int}]{y1}{, }\item[{int}]{w}{, }\item[{int}]{h}{}\end{DoxyParamCaption})}
+
+\Hypertarget{compress_8c_a41cd9034fa7186464d5a9a0a7a98ec95}\index{compress.c@{compress.c}!compress\_tiles\_parallel@{compress\_tiles\_parallel}}
+\index{compress\_tiles\_parallel@{compress\_tiles\_parallel}!compress.c@{compress.c}}
+\doxysubsubsection{\texorpdfstring{compress\_tiles\_parallel()}{compress\_tiles\_parallel()}}
+{\footnotesize\ttfamily \label{compress_8c_a41cd9034fa7186464d5a9a0a7a98ec95} 
+int compress\+\_\+tiles\+\_\+parallel (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structtile__work}{tile\+\_\+work}} \texorpdfstring{$\ast$}{*}}]{tiles}{, }\item[{struct \doxymbox{\hyperlink{structtile__result}{tile\+\_\+result}} \texorpdfstring{$\ast$}{*}}]{results}{, }\item[{int}]{count}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=297pt]{compress_8c_a41cd9034fa7186464d5a9a0a7a98ec95_cgraph}
+\end{center}
+\end{figure}

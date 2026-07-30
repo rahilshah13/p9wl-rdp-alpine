@@ -1,0 +1,118 @@
+\doxysection{main.\+c File Reference}
+\hypertarget{main_8c}{}\label{main_8c}\index{main.c@{main.c}}
+{\ttfamily \+\#include $<$sys/\+types.\+h$>$}\newline
+{\ttfamily \+\#include $<$sys/\+socket.\+h$>$}\newline
+{\ttfamily \+\#include $<$netinet/\+in.\+h$>$}\newline
+{\ttfamily \+\#include $<$winpr/\+wlog.\+h$>$}\newline
+{\ttfamily \+\#include $<$winpr/\+winpr.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$unistd.\+h$>$}\newline
+{\ttfamily \+\#include $<$signal.\+h$>$}\newline
+{\ttfamily \+\#include $<$time.\+h$>$}\newline
+{\ttfamily \+\#include $<$errno.\+h$>$}\newline
+{\ttfamily \+\#include $<$sys/\+stat.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$wayland-\/server-\/core.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+backend.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+backend/\+headless.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+render/\+allocator.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+render/\+wlr\+\_\+renderer.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+compositor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+subcompositor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+data\+\_\+device.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+output.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+output\+\_\+layout.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+shell.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+decoration\+\_\+v1.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+xdg\+\_\+output\+\_\+v1.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+scene.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+seat.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+cursor.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+keyboard.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+interfaces/\+wlr\+\_\+keyboard.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+viewporter.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+primary\+\_\+selection\+\_\+v1.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+idle\+\_\+notify\+\_\+v1.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+types/\+wlr\+\_\+presentation\+\_\+time.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include $<$xkbcommon/\+xkbcommon.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+freerdp.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+listener.\+h$>$}\newline
+{\ttfamily \+\#include "{}types.\+h"{}}\newline
+{\ttfamily \+\#include "{}input/\+input.\+h"{}}\newline
+{\ttfamily \+\#include "{}input/\+clipboard.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw/\+draw.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw/\+send.\+h"{}}\newline
+{\ttfamily \+\#include "{}wayland/\+wayland.\+h"{}}\newline
+Include dependency graph for main.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{main_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{main_8c_afc3d101f633a076cc1ca84b85b6224b2}{TAG}}~FREERDP\+\_\+\+TAG("{}p9wl.\+main"{})
+\item 
+\+\#define \doxymbox{\hyperlink{main_8c_a93493eb8fae5549bd5be67f3449245e0}{DEFAULT\+\_\+\+WIDTH}}~1280
+\item 
+\+\#define \doxymbox{\hyperlink{main_8c_a1879f9e5604a01f0983829846001ab23}{DEFAULT\+\_\+\+HEIGHT}}~800
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \doxymbox{\hyperlink{main_8c_a0ddf1224851353fc92bfbff6f499fa97}{main}} (int argc, char \texorpdfstring{$\ast$}{*}argv\+[$\,$]\+)
+\end{DoxyCompactItemize}
+
+
+\label{main_8c_doc-define-members}
+\Hypertarget{main_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{main_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{main.c@{main.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{main_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{main_8c_a1879f9e5604a01f0983829846001ab23}\index{main.c@{main.c}!DEFAULT\_HEIGHT@{DEFAULT\_HEIGHT}}
+\index{DEFAULT\_HEIGHT@{DEFAULT\_HEIGHT}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEFAULT\_HEIGHT}{DEFAULT\_HEIGHT}}
+{\footnotesize\ttfamily \label{main_8c_a1879f9e5604a01f0983829846001ab23} 
+\+\#define DEFAULT\+\_\+\+HEIGHT~800}
+
+\Hypertarget{main_8c_a93493eb8fae5549bd5be67f3449245e0}\index{main.c@{main.c}!DEFAULT\_WIDTH@{DEFAULT\_WIDTH}}
+\index{DEFAULT\_WIDTH@{DEFAULT\_WIDTH}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{DEFAULT\_WIDTH}{DEFAULT\_WIDTH}}
+{\footnotesize\ttfamily \label{main_8c_a93493eb8fae5549bd5be67f3449245e0} 
+\+\#define DEFAULT\+\_\+\+WIDTH~1280}
+
+\Hypertarget{main_8c_afc3d101f633a076cc1ca84b85b6224b2}\index{main.c@{main.c}!TAG@{TAG}}
+\index{TAG@{TAG}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{main_8c_afc3d101f633a076cc1ca84b85b6224b2} 
+\+\#define TAG~FREERDP\+\_\+\+TAG("{}p9wl.\+main"{})}
+
+
+
+\label{main_8c_doc-func-members}
+\Hypertarget{main_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8c_a0ddf1224851353fc92bfbff6f499fa97}\index{main.c@{main.c}!main@{main}}
+\index{main@{main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{main_8c_a0ddf1224851353fc92bfbff6f499fa97} 
+int main (\begin{DoxyParamCaption}\item[{int}]{argc}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{argv}{\+[$\,$]\+}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{main_8c_a0ddf1224851353fc92bfbff6f499fa97_cgraph}
+\end{center}
+\end{figure}

@@ -1,0 +1,118 @@
+\doxysection{draw/\+send.c File Reference}
+\hypertarget{send_8c}{}\label{send_8c}\index{draw/send.c@{draw/send.c}}
+{\ttfamily \+\#include $<$stdio.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \+\#include $<$string.\+h$>$}\newline
+{\ttfamily \+\#include $<$errno.\+h$>$}\newline
+{\ttfamily \+\#include $<$time.\+h$>$}\newline
+{\ttfamily \+\#include $<$math.\+h$>$}\newline
+{\ttfamily \+\#include $<$pthread.\+h$>$}\newline
+{\ttfamily \+\#include $<$stdatomic.\+h$>$}\newline
+{\ttfamily \+\#include $<$unistd.\+h$>$}\newline
+{\ttfamily \+\#include $<$wlr/\+util/\+log.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+freerdp.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+listener.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+peer.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+settings.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+crypto/\+certificate.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+crypto/\+privatekey.\+h$>$}\newline
+{\ttfamily \+\#include $<$winpr/\+wtsapi.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+primary.\+h$>$}\newline
+{\ttfamily \+\#include $<$freerdp/\+codec/\+rfx.\+h$>$}\newline
+{\ttfamily \+\#include "{}send.\+h"{}}\newline
+{\ttfamily \+\#include "{}compress.\+h"{}}\newline
+{\ttfamily \+\#include "{}scroll.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw/\+draw.\+h"{}}\newline
+{\ttfamily \+\#include "{}draw\+\_\+helpers.\+h"{}}\newline
+{\ttfamily \+\#include "{}types.\+h"{}}\newline
+{\ttfamily \+\#include "{}input/\+input.\+h"{}}\newline
+Include dependency graph for send.\+c:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{send_8c__incl}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \doxymbox{\hyperlink{structrdp__send__ctx}{rdp\+\_\+send\+\_\+ctx}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\+\#define \doxymbox{\hyperlink{send_8c_a369266c24eacffb87046522897a570d5}{\+\_\+\+GNU\+\_\+\+SOURCE}}
+\item 
+\+\#define \doxymbox{\hyperlink{send_8c_a3024ccd4a9af5109d24e6c57565d74a1}{\+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE}}~200809L
+\item 
+\+\#define \doxymbox{\hyperlink{send_8c_afc3d101f633a076cc1ca84b85b6224b2}{TAG}}~FREERDP\+\_\+\+TAG("{}p9wl.\+send"{})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \doxymbox{\hyperlink{send_8c_a010d80cb46096d4b44ecd46b66a5ba06}{send\+\_\+frame}} (struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}s)
+\item 
+int \doxymbox{\hyperlink{send_8c_ad74324eeb9e69199bf2a657c304845be}{send\+\_\+timer\+\_\+callback}} (void \texorpdfstring{$\ast$}{*}data)
+\item 
+void \texorpdfstring{$\ast$}{*} \doxymbox{\hyperlink{send_8c_a62b8b5109edef5d5d7e1c94333f69819}{send\+\_\+thread\+\_\+func}} (void \texorpdfstring{$\ast$}{*}arg)
+\end{DoxyCompactItemize}
+
+
+\label{send_8c_doc-define-members}
+\Hypertarget{send_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{send_8c_a369266c24eacffb87046522897a570d5}\index{send.c@{send.c}!\_GNU\_SOURCE@{\_GNU\_SOURCE}}
+\index{\_GNU\_SOURCE@{\_GNU\_SOURCE}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{\_GNU\_SOURCE}{\_GNU\_SOURCE}}
+{\footnotesize\ttfamily \label{send_8c_a369266c24eacffb87046522897a570d5} 
+\+\#define \+\_\+\+GNU\+\_\+\+SOURCE}
+
+\Hypertarget{send_8c_a3024ccd4a9af5109d24e6c57565d74a1}\index{send.c@{send.c}!\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}}
+\index{\_POSIX\_C\_SOURCE@{\_POSIX\_C\_SOURCE}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{\_POSIX\_C\_SOURCE}{\_POSIX\_C\_SOURCE}}
+{\footnotesize\ttfamily \label{send_8c_a3024ccd4a9af5109d24e6c57565d74a1} 
+\+\#define \+\_\+\+POSIX\+\_\+\+C\+\_\+\+SOURCE~200809L}
+
+\Hypertarget{send_8c_afc3d101f633a076cc1ca84b85b6224b2}\index{send.c@{send.c}!TAG@{TAG}}
+\index{TAG@{TAG}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily \label{send_8c_afc3d101f633a076cc1ca84b85b6224b2} 
+\+\#define TAG~FREERDP\+\_\+\+TAG("{}p9wl.\+send"{})}
+
+
+
+\label{send_8c_doc-func-members}
+\Hypertarget{send_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{send_8c_a010d80cb46096d4b44ecd46b66a5ba06}\index{send.c@{send.c}!send\_frame@{send\_frame}}
+\index{send\_frame@{send\_frame}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{send\_frame()}{send\_frame()}}
+{\footnotesize\ttfamily \label{send_8c_a010d80cb46096d4b44ecd46b66a5ba06} 
+void send\+\_\+frame (\begin{DoxyParamCaption}\item[{struct \doxymbox{\hyperlink{structserver}{server}} \texorpdfstring{$\ast$}{*}}]{s}{}\end{DoxyParamCaption})}
+
+\Hypertarget{send_8c_a62b8b5109edef5d5d7e1c94333f69819}\index{send.c@{send.c}!send\_thread\_func@{send\_thread\_func}}
+\index{send\_thread\_func@{send\_thread\_func}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{send\_thread\_func()}{send\_thread\_func()}}
+{\footnotesize\ttfamily \label{send_8c_a62b8b5109edef5d5d7e1c94333f69819} 
+void \texorpdfstring{$\ast$}{*} send\+\_\+thread\+\_\+func (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{arg}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{send_8c_a62b8b5109edef5d5d7e1c94333f69819_cgraph}
+\end{center}
+\end{figure}
+\Hypertarget{send_8c_ad74324eeb9e69199bf2a657c304845be}\index{send.c@{send.c}!send\_timer\_callback@{send\_timer\_callback}}
+\index{send\_timer\_callback@{send\_timer\_callback}!send.c@{send.c}}
+\doxysubsubsection{\texorpdfstring{send\_timer\_callback()}{send\_timer\_callback()}}
+{\footnotesize\ttfamily \label{send_8c_ad74324eeb9e69199bf2a657c304845be} 
+int send\+\_\+timer\+\_\+callback (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{data}{}\end{DoxyParamCaption})}
+
+Here is the call graph for this function:\+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=288pt]{send_8c_ad74324eeb9e69199bf2a657c304845be_cgraph}
+\end{center}
+\end{figure}

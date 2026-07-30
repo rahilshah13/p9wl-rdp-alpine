@@ -1,0 +1,185 @@
+\doxysection{send.\+h}
+\hypertarget{send_8h_source}{}\label{send_8h_source}\index{draw/send.h@{draw/send.h}}
+\doxymbox{\hyperlink{send_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ send.h\ -\/\ Frame\ sending\ and\ send\ thread\ (FreeRDP\ channel\ encoder\ backend)}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ Handles\ queuing\ frames\ from\ the\ compositor\ thread\ and\ sending\ them}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ over\ RDP\ surface\ updates\ using\ FreeRDP\ channel\ encoders.}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ Architecture\ Overview:}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ \ \ The\ send\ system\ uses\ a\ producer-\/consumer\ model\ with\ three\ threads:}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ \ \ \ \ Compositor\ Thread\ (producer):}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Renders\ frames\ to\ s-\/>framebuf}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Calls\ send\_frame()\ to\ queue\ for\ transmission}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Never\ blocks\ waiting\ for\ network\ I/O}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ \ \ \ \ Send\ Thread\ (consumer):}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Waits\ for\ frames\ via\ s-\/>send\_cond}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Detects\ changed\ tiles\ and\ scrolling}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Encodes\ surfaces\ via\ FreeRDP/RFX}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Batches\ commands\ and\ streams\ over\ RDP\ channels}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Updates\ s-\/>prev\_framebuf\ for\ reference}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ *\ \ \ \ \ Drain\ Thread\ (I/O\ helper):}}
+\DoxyCodeLine{00024\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Reads\ incoming\ RDP\ client\ channel\ events\ asynchronously}}
+\DoxyCodeLine{00025\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Allows\ pipelined\ writes\ without\ blocking}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Handles\ error\ detection\ and\ recovery}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ \ \ \ \ -\/\ Signals\ done\_cond\ after\ each\ completed\ response\ to\ wake}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ rdp\_drain\_throttle()\ and\ rdp\_drain\_pause()\ without\ polling}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *\ Double\ Buffering:}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ \ \ Uses\ two\ send\ buffers\ (s-\/>send\_buf[0],\ s-\/>send\_buf[1])\ to\ decouple}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *\ \ \ the\ compositor\ from\ network\ transmission:}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>pending\_buf:\ Buffer\ just\ queued,\ waiting\ for\ send\ thread}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>active\_buf:\ \ Buffer\ currently\ being\ transmitted}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ *\ \ \ send\_frame()\ finds\ a\ free\ buffer\ (neither\ pending\ nor\ active),}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ *\ \ \ swaps\ the\ framebuffer\ pointer\ with\ the\ free\ send\ buffer\ (zero-\/copy),}}
+\DoxyCodeLine{00040\ \textcolor{comment}{\ *\ \ \ copies\ the\ dirty\ tile\ bitmap\ from\ staging,\ and\ signals\ the\ send}}
+\DoxyCodeLine{00041\ \textcolor{comment}{\ *\ \ \ thread.\ All\ three\ buffers\ (framebuf,\ send\_buf[0],\ send\_buf[1])}}
+\DoxyCodeLine{00042\ \textcolor{comment}{\ *\ \ \ must\ be\ allocated\ at\ the\ padded\ size\ (TILE\_ALIGN\_UP\ of\ visible}}
+\DoxyCodeLine{00043\ \textcolor{comment}{\ *\ \ \ dimensions)\ since\ their\ pointers\ are\ swapped.}}
+\DoxyCodeLine{00044\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00045\ \textcolor{comment}{\ *\ Damage-\/Based\ Dirty\ Tile\ Tracking:}}
+\DoxyCodeLine{00046\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00047\ \textcolor{comment}{\ *\ \ \ To\ avoid\ scanning\ every\ tile\ for\ changes,\ the\ output\ thread}}
+\DoxyCodeLine{00048\ \textcolor{comment}{\ *\ \ \ extracts\ compositor\ damage\ into\ a\ per-\/tile\ bitmap:}}
+\DoxyCodeLine{00049\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00050\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>dirty\_staging:\ \ \ \ \ \ \ Written\ by\ output\ thread\ (no\ lock\ needed)}}
+\DoxyCodeLine{00051\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>dirty\_staging\_valid:\ Set\ when\ staging\ has\ valid\ damage\ data}}
+\DoxyCodeLine{00052\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>dirty\_tiles[N]:\ \ \ \ \ \ Per-\/send-\/buffer\ bitmap\ (copied\ under\ lock)}}
+\DoxyCodeLine{00053\ \textcolor{comment}{\ *\ \ \ \ \ s-\/>dirty\_valid[N]:\ \ \ \ \ \ Whether\ bitmap\ is\ valid\ for\ buffer\ N}}
+\DoxyCodeLine{00054\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00055\ \textcolor{comment}{\ *\ \ \ The\ bitmap\ size\ is\ tiles\_x\ ×\ tiles\_y\ where\ tiles\_x\ =\ width/TILE\_SIZE}}
+\DoxyCodeLine{00056\ \textcolor{comment}{\ *\ \ \ and\ tiles\_y\ =\ height/TILE\_SIZE,\ using\ the\ padded\ dimensions.}}
+\DoxyCodeLine{00057\ \textcolor{comment}{\ *\ \ \ Tiles\ in\ the\ padding\ region\ are\ never\ marked\ dirty\ by\ the\ compositor.}}
+\DoxyCodeLine{00058\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00059\ \textcolor{comment}{\ *\ Pipelined\ I/O:}}
+\DoxyCodeLine{00060\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00061\ \textcolor{comment}{\ *\ \ \ To\ maximize\ throughput,\ writes\ are\ pipelined\ through\ FreeRDP\ channel\ streams:}}
+\DoxyCodeLine{00062\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00063\ \textcolor{comment}{\ *\ \ \ \ \ 1.\ Send\ thread\ formats\ surface\ update\ commands}}
+\DoxyCodeLine{00064\ \textcolor{comment}{\ *\ \ \ \ \ 2.\ rdp\_drain\_notify()\ signals\ drain\ thread}}
+\DoxyCodeLine{00065\ \textcolor{comment}{\ *\ \ \ \ \ 3.\ Drain\ thread\ processes\ asynchronous\ channel\ events}}
+\DoxyCodeLine{00066\ \textcolor{comment}{\ *\ \ \ \ \ 4.\ Drain\ thread\ signals\ done\_cond\ after\ completions}}
+\DoxyCodeLine{00067\ \textcolor{comment}{\ *\ \ \ \ \ 5.\ Send\ thread\ continues\ with\ next\ batch}}
+\DoxyCodeLine{00068\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00069\ \textcolor{comment}{\ *\ Thread\ Safety:}}
+\DoxyCodeLine{00070\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00071\ \textcolor{comment}{\ *\ \ \ s-\/>send\_lock\ protects:}}
+\DoxyCodeLine{00072\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>pending\_buf,\ s-\/>active\_buf}}
+\DoxyCodeLine{00073\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>send\_full}}
+\DoxyCodeLine{00074\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>resize\_pending}}
+\DoxyCodeLine{00075\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>framebuf,\ s-\/>send\_buf[]\ pointer\ swaps}}
+\DoxyCodeLine{00076\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>dirty\_tiles[],\ s-\/>dirty\_valid[]\ (per-\/buffer\ bitmaps)}}
+\DoxyCodeLine{00077\ \textcolor{comment}{\ *\ \ \ \ \ -\/\ s-\/>dirty\_staging\_valid\ (read\ and\ cleared\ by\ send\_frame)}}
+\DoxyCodeLine{00078\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\#ifndef\ SEND\_H}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#define\ SEND\_H}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ \textcolor{comment}{/*\ Forward\ declarations\ */}}
+\DoxyCodeLine{00086\ \textcolor{keyword}{struct\ }\doxymbox{\hyperlink{structserver}{server}};}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{comment}{/*\ Tile\ size\ for\ change\ detection\ and\ compression\ */}}
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\#ifndef\ TILE\_SIZE}}
+\DoxyCodeLine{00090\ \textcolor{preprocessor}{\#define\ TILE\_SIZE\ 16}}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{comment}{/*\ ==============\ Frame\ Queueing\ ==============\ */}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00096\ \textcolor{comment}{\ *\ Queue\ a\ frame\ for\ sending.}}
+\DoxyCodeLine{00097\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00098\ \textcolor{comment}{\ *\ Swaps\ the\ current\ framebuffer\ pointer\ (s-\/>framebuf)\ with\ a\ free\ send}}
+\DoxyCodeLine{00099\ \textcolor{comment}{\ *\ buffer\ and\ signals\ the\ send\ thread.\ This\ is\ a\ zero-\/copy\ handoff:\ the}}
+\DoxyCodeLine{00100\ \textcolor{comment}{\ *\ send\ thread\ gets\ the\ just-\/rendered\ frame\ and\ the\ compositor\ gets\ a}}
+\DoxyCodeLine{00101\ \textcolor{comment}{\ *\ recycled\ buffer\ for\ the\ next\ frame.\ Also\ copies\ the\ dirty\ tile\ bitmap}}
+\DoxyCodeLine{00102\ \textcolor{comment}{\ *\ from\ staging\ (s-\/>dirty\_staging)\ into\ the\ per-\/buffer\ slot\ so\ the\ send}}
+\DoxyCodeLine{00103\ \textcolor{comment}{\ *\ thread\ knows\ which\ tiles\ changed\ without\ pixel\ scanning.}}
+\DoxyCodeLine{00104\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00105\ \textcolor{comment}{\ *\ Buffer\ selection:}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ *\ \ \ -\/\ Finds\ a\ buffer\ that\ is\ neither\ pending\ nor\ active}}
+\DoxyCodeLine{00107\ \textcolor{comment}{\ *\ \ \ -\/\ If\ no\ buffer\ is\ free,\ the\ frame\ is\ dropped\ (throttling)}}
+\DoxyCodeLine{00108\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00109\ \textcolor{comment}{\ *\ Flags\ copied:}}
+\DoxyCodeLine{00110\ \textcolor{comment}{\ *\ \ \ -\/\ If\ s-\/>force\_full\_frame\ is\ set,\ s-\/>send\_full\ is\ set}}
+\DoxyCodeLine{00111\ \textcolor{comment}{\ *\ \ \ -\/\ If\ s-\/>dirty\_staging\_valid\ is\ set,\ dirty\_tiles[buf]\ is\ populated}}
+\DoxyCodeLine{00112\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00113\ \textcolor{comment}{\ *\ This\ function\ returns\ immediately\ after\ the\ swap;\ actual\ transmission}}
+\DoxyCodeLine{00114\ \textcolor{comment}{\ *\ happens\ asynchronously\ in\ the\ send\ thread.}}
+\DoxyCodeLine{00115\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00116\ \textcolor{comment}{\ *\ Thread-\/safe:\ acquires\ s-\/>send\_lock\ internally.}}
+\DoxyCodeLine{00117\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00118\ \textcolor{comment}{\ *\ s:\ server\ state\ containing\ framebuffer\ and\ send\ thread\ context}}
+\DoxyCodeLine{00119\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00120\ \textcolor{comment}{\ *\ Preconditions:}}
+\DoxyCodeLine{00121\ \textcolor{comment}{\ *\ \ \ -\/\ s-\/>framebuf\ must\ be\ valid}}
+\DoxyCodeLine{00122\ \textcolor{comment}{\ *\ \ \ -\/\ framebuf\ and\ send\_buf[]\ must\ be\ allocated\ at\ the\ same\ padded\ size}}
+\DoxyCodeLine{00123\ \textcolor{comment}{\ *\ \ \ \ \ (width\ ×\ height\ ×\ 4\ bytes)\ since\ their\ pointers\ are\ swapped}}
+\DoxyCodeLine{00124\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00125\ \textcolor{keywordtype}{void}\ \doxymbox{\hyperlink{send_8h_a010d80cb46096d4b44ecd46b66a5ba06}{send\_frame}}(\textcolor{keyword}{struct}\ \doxymbox{\hyperlink{structserver}{server}}\ *s);}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \textcolor{comment}{/*\ ==============\ Timer\ Integration\ ==============\ */}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00130\ \textcolor{comment}{\ *\ Timer\ callback\ for\ throttled\ frame\ sending.}}
+\DoxyCodeLine{00131\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00132\ \textcolor{comment}{\ *\ Called\ by\ the\ Wayland\ event\ loop\ at\ the\ configured\ frame\ rate}}
+\DoxyCodeLine{00133\ \textcolor{comment}{\ *\ (typically\ 30-\/60\ Hz).\ Checks\ if\ there\ are\ pending\ changes\ and}}
+\DoxyCodeLine{00134\ \textcolor{comment}{\ *\ triggers\ send\_frame()\ if\ so.}}
+\DoxyCodeLine{00135\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00136\ \textcolor{comment}{\ *\ This\ provides\ frame\ rate\ limiting\ -\/\ even\ if\ the\ compositor\ renders}}
+\DoxyCodeLine{00137\ \textcolor{comment}{\ *\ faster,\ frames\ are\ only\ sent\ at\ the\ timer\ rate.}}
+\DoxyCodeLine{00138\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00139\ \textcolor{comment}{\ *\ data:\ pointer\ to\ struct\ server}}
+\DoxyCodeLine{00140\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00141\ \textcolor{comment}{\ *\ Returns\ 0\ (Wayland\ event\ loop\ convention\ for\ success).}}
+\DoxyCodeLine{00142\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{int}\ \doxymbox{\hyperlink{send_8h_ad74324eeb9e69199bf2a657c304845be}{send\_timer\_callback}}(\textcolor{keywordtype}{void}\ *data);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \textcolor{comment}{/*\ ==============\ Send\ Thread\ ==============\ */}}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00148\ \textcolor{comment}{\ *\ Send\ thread\ main\ function.}}
+\DoxyCodeLine{00149\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00150\ \textcolor{comment}{\ *\ Runs\ in\ a\ dedicated\ thread,\ processing\ queued\ frames.\ Starts\ the}}
+\DoxyCodeLine{00151\ \textcolor{comment}{\ *\ RDP\ channel\ drain\ thread\ for\ asynchronous\ I/O\ and\ initializes}}
+\DoxyCodeLine{00152\ \textcolor{comment}{\ *\ the\ FreeRDP\ Surface/RFX\ context.}}
+\DoxyCodeLine{00153\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00154\ \textcolor{comment}{\ *\ Main\ loop\ behavior:}}
+\DoxyCodeLine{00155\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00156\ \textcolor{comment}{\ *\ \ \ 1.\ Wait\ for\ frame\ via\ pthread\_cond\_wait\ on\ s-\/>send\_cond}}
+\DoxyCodeLine{00157\ \textcolor{comment}{\ *\ \ \ \ \ \ (signaled\ by\ send\_frame\ and\ input\ events\ on\ resize)}}
+\DoxyCodeLine{00158\ \textcolor{comment}{\ *\ \ \ 2.\ Handle\ errors\ and\ window\ changes}}
+\DoxyCodeLine{00159\ \textcolor{comment}{\ *\ \ \ 3.\ Detect\ and\ apply\ scroll\ transformations}}
+\DoxyCodeLine{00160\ \textcolor{comment}{\ *\ \ \ 4.\ Identify\ changed\ tiles\ by\ comparing\ with\ prev\_framebuf}}
+\DoxyCodeLine{00161\ \textcolor{comment}{\ *\ \ \ 5.\ Encode\ tiles\ via\ FreeRDP/RFX\ surface\ update\ routines}}
+\DoxyCodeLine{00162\ \textcolor{comment}{\ *\ \ \ 6.\ Stream\ surface\ updates\ over\ the\ RDP\ channel}}
+\DoxyCodeLine{00163\ \textcolor{comment}{\ *\ \ \ 7.\ Update\ prev\_framebuf\ for\ next\ frame}}
+\DoxyCodeLine{00164\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00165\ \textcolor{comment}{\ *\ Exit\ conditions:}}
+\DoxyCodeLine{00166\ \textcolor{comment}{\ *\ \ \ -\/\ s-\/>running\ becomes\ false}}
+\DoxyCodeLine{00167\ \textcolor{comment}{\ *\ \ \ -\/\ Fatal\ RDP\ connection\ disconnection}}
+\DoxyCodeLine{00168\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00169\ \textcolor{comment}{\ *\ Cleanup\ on\ exit:}}
+\DoxyCodeLine{00170\ \textcolor{comment}{\ *\ \ \ -\/\ Stops\ RDP\ drain\ thread}}
+\DoxyCodeLine{00171\ \textcolor{comment}{\ *\ \ \ -\/\ Frees\ work\ arrays\ and\ buffers}}
+\DoxyCodeLine{00172\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00173\ \textcolor{comment}{\ *\ arg:\ pointer\ to\ struct\ server}}
+\DoxyCodeLine{00174\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00175\ \textcolor{comment}{\ *\ Returns\ NULL\ on\ thread\ exit.}}
+\DoxyCodeLine{00176\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00177\ \textcolor{keywordtype}{void}\ *\doxymbox{\hyperlink{send_8h_a62b8b5109edef5d5d7e1c94333f69819}{send\_thread\_func}}(\textcolor{keywordtype}{void}\ *arg);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ SEND\_H\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}
