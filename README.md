@@ -19,6 +19,3 @@ Doxyfile
 doxygen Doxyfile
 ```
 ![](graphviz.png)
-
-
-![](subsurface_struct.png)
