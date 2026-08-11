@@ -1,10 +1,3 @@
-/*
- * send.c - Frame sending and send thread (FreeRDP channel encoder backend)
- *
- * Handles queuing frames, the send thread main loop,
- * RDP surface command encoding, and pipelined stream writes.
- */
-
 #define _GNU_SOURCE
 #define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
@@ -31,8 +24,6 @@
 #include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.send")
-
-/* ============== RDP Encoder / Drain Context ============== */
 
 struct rdp_send_ctx {
     freerdp *instance;
@@ -181,8 +172,6 @@ static void rdp_drain_throttle(int max_pending) {
     pthread_mutex_unlock(&rdp_ctx.lock);
 }
 
-/* ============== Peer Acceptance Callback ============== */
-
 static BOOL p9wl_peer_context_new(freerdp_peer *peer, rdpContext *context) {
     (void)peer;
     (void)context;
@@ -217,9 +206,9 @@ static BOOL rdp_peer_accepted_callback(freerdp_listener *listener, freerdp_peer 
     rdpSettings *settings = peer->context->settings;
     if (settings) {
         freerdp_settings_set_bool(settings, FreeRDP_NlaSecurity, FALSE);
-        freerdp_settings_set_bool(settings, FreeRDP_TlsSecurity, FALSE);
-        freerdp_settings_set_bool(settings, FreeRDP_RdpSecurity, TRUE);
-        freerdp_settings_set_bool(settings, FreeRDP_UseRdpSecurityLayer, TRUE);
+        freerdp_settings_set_bool(settings, FreeRDP_TlsSecurity, TRUE);
+        freerdp_settings_set_bool(settings, FreeRDP_RdpSecurity, FALSE);
+        freerdp_settings_set_bool(settings, FreeRDP_UseRdpSecurityLayer, FALSE);
 
         rdpCertificate *cert = freerdp_certificate_new_from_file("/app/server.crt");
         if (cert) {
@@ -242,8 +231,15 @@ static BOOL rdp_peer_accepted_callback(freerdp_listener *listener, freerdp_peer 
     rdp_ctx.context = peer->context;
     rdp_ctx.peer = peer;
 
+    if (rdp_drain_start(rdp_ctx.instance, rdp_ctx.context, peer) < 0) {
+        wlr_log(WLR_ERROR, "Failed to start RDP drain thread during peer acceptance");
+        freerdp_peer_context_free(peer);
+        return FALSE;
+    }
+
     if (!peer->Initialize(peer)) {
         wlr_log(WLR_ERROR, "Failed to initialize RDP peer");
+        rdp_drain_stop();
         freerdp_peer_context_free(peer);
         return FALSE;
     }
@@ -251,8 +247,6 @@ static BOOL rdp_peer_accepted_callback(freerdp_listener *listener, freerdp_peer 
     wlr_log(WLR_INFO, "RDP client socket accepted, initializing handshake...");
     return TRUE;
 }
-
-/* ============== Frame Sending via FreeRDP Encoder ============== */
 
 void send_frame(struct server *s) {
     pthread_mutex_lock(&s->send_lock);
@@ -356,10 +350,6 @@ void *send_thread_func(void *arg) {
 
     if (scroll_disabled(s)) {
         wlr_log(WLR_INFO, "Scroll optimization disabled (fractional scale: %.2f)", s->scale);
-    }
-    
-    if (rdp_drain_start(rdp_ctx.instance, rdp_ctx.instance->context, rdp_ctx.peer) < 0) {
-        return NULL;
     }
     
     int max_tiles = (4096 / TILE_SIZE) * (4096 / TILE_SIZE);
