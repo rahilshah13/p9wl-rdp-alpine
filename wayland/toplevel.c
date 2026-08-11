@@ -19,9 +19,8 @@
 #include <wlr/types/wlr_subcompositor.h>
 #include <wlr/util/log.h>
 
-#include "toplevel.h"
 #include "types.h"
-#include "draw/draw_helpers.h"
+#include "types.h"
 #include "draw/draw.h"
 #include "p9/p9.h"
 

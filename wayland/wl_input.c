@@ -24,11 +24,9 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/util/log.h>
-#include "input/input.h"
+#include "types.h"
 
-#include "wl_input.h"
 #include "../types.h"
-#include "../input/input.h"
 #include "../input/clipboard.h"
 
 /* ============== Button Mapping Tables ============== */

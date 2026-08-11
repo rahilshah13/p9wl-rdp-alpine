@@ -16,7 +16,7 @@
 #include <fftw3.h>
 #include <freerdp/log.h>
 
-#include "phase_correlate.h"
+#include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.phase_correlate")
 

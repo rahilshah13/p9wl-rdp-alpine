@@ -13,7 +13,7 @@
 #include <wlr/types/wlr_output.h>
 #include <wlr/util/log.h>
 
-#include "popup.h"
+#include "types.h"
 #include "../types.h"
 
 static void popup_destroy(struct wl_listener *l, void *d) {

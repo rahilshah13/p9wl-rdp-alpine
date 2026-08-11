@@ -14,9 +14,8 @@
 #include <errno.h>
 
 #include <freerdp/log.h>
-#include <freerdp/input.h>
+#include "types.h"
 
-#include "input.h"
 
 #define TAG FREERDP_TAG("p9wl.input")
 

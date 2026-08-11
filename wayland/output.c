@@ -22,7 +22,7 @@
 #include "../draw/draw.h"
 #include "output.h"
 #include "../draw/send.h"
-#include "../draw/draw_cmd.h"
+#include "types.h"
 #include "../p9/p9.h"
 
 #ifndef CHAN_XRGB32

@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "draw_cmd.h"
+#include "types.h"
 
 int cmd_copy(uint8_t *cmd, uint32_t dstid, uint32_t srcid,
              int r_minx, int r_miny, int r_maxx, int r_maxy,

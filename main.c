@@ -53,11 +53,9 @@
 #include <freerdp/listener.h>
 
 #include "types.h"
-#include "input/input.h"
 #include "input/clipboard.h"
 #include "draw/draw.h"
 #include "draw/send.h"
-#include "wayland/wayland.h"
 
 #define TAG FREERDP_TAG("p9wl.main")
 

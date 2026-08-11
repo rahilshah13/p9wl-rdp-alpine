@@ -30,11 +30,9 @@
 #include <freerdp/codec/rfx.h>
 #include "send.h"
 #include "compress.h"
-#include "scroll.h"
-#include "draw/draw.h"
-#include "draw_helpers.h"
 #include "types.h"
-#include "input/input.h"
+#include "draw/draw.h"
+#include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.send")
 

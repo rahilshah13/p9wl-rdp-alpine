@@ -12,7 +12,7 @@
 #include <openssl/sha.h>
 #include <wlr/util/log.h>
 #include <freerdp/log.h>
-#include "tls.h"
+#include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.tls")
 

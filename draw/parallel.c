@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "parallel.h"
+#include "types.h"
 
 #define MAX_WORKERS 8
 

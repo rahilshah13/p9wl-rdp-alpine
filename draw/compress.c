@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "compress.h"
-#include "parallel.h"
+#include "types.h"
 
 /* Hash table for fast match finding — uses generation counter to avoid
  * per-tile memset.  Each compression thread gets its own copy via

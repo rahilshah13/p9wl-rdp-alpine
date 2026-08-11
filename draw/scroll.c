@@ -9,14 +9,11 @@
 #include <time.h>
 #include <freerdp/log.h>
 
-#include "scroll.h"
+#include "types.h"
 #include "send.h"
 #include "compress.h"
-#include "parallel.h"
-#include "phase_correlate.h"
 #include "types.h"
 #include "draw/draw.h"
-#include "draw/draw_helpers.h"
 
 #define TAG FREERDP_TAG("p9wl.scroll")
 
