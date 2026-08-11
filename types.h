@@ -1,412 +1,444 @@
+#ifndef P9WL_TYPES_H
+#define P9WL_TYPES_H
 
-    /*
-    * types.h - Shared type definitions for p9wl
-    *
-    * This is the AUTHORITATIVE source for:
-    *   - TILE_SIZE constant (used by compression, scroll detection, rendering)
-    *   - MAX_SCROLL_REGIONS constant
-    *   - Core structs: server, draw_state, toplevel, input_queue, etc.
-    *   - Time utility functions: now_ms(), now_us()
-    *
-    * Include this header (directly or indirectly) before any draw/compress headers.
-    *
-    * Dependency Notes:
-    *
-    *   - This header includes p9.h and focus_manager.h
-    *   - Do not include input.h from here (would create circular dependency)
-    *   - Input-related code should include input.h which includes this file
-    *
-    * Usage:
-    *
-    *   Most source files should include this header indirectly through
-    *   other headers (e.g., wayland/wayland.h). Direct inclusion is
-    *   appropriate for core infrastructure code.
-    */
+#include <stdint.h>
+#include <stdbool.h>
+#include <pthread.h>
+#include <time.h>
+#include <wayland-server-core.h>
+#include <wlr/types/wlr_keyboard.h>
+#include <wlr/types/wlr_scene.h>
+#include <wlr/types/wlr_keyboard_shortcuts_inhibit_v1.h>
+#include <wlr/util/log.h>
+#include <openssl/ssl.h>
+#include <openssl/x509.h>
 
-    #ifndef P9WL_TYPES_H
-    #define P9WL_TYPES_H
+#include "wayland/focus_manager.h"
 
-    #include <stdint.h>
-    #include <stdbool.h>
-    #include <pthread.h>
-    #include <time.h>   /* Required for clock_gettime, struct timespec in now_ms/now_us */
-    #include <wayland-server-core.h>
-    #include <wlr/types/wlr_keyboard.h>
-    #include <wlr/types/wlr_scene.h>
-    #include <wlr/types/wlr_keyboard_shortcuts_inhibit_v1.h>
-    #include <wlr/util/log.h>
+#define TILE_SIZE           16
+#define MAX_SCROLL_REGIONS  128
+#define MAX_SCREEN_DIM      8192
+#define FRAME_INTERVAL_MS   0
+#define INPUT_QUEUE_SIZE    256
+#define SCROLL_REGION_SIZE  512
+#define MAX_WORKERS         8
+#define FFT_SIZE            256
+#define MAX_SCROLL_DETECT   (FFT_SIZE / 2)
+#define MIN_SCROLL_PIXELS   1
+#define TLS_PORT            10001
 
-    /* Include p9.h for struct p9conn definition (with TLS support) */
-    #include "p9/p9.h"
+struct server;
+struct draw_state;
+struct toplevel;
 
-    /* Include focus_manager for unified focus state machine */
-    #include "wayland/focus_manager.h"
+enum input_type {
+    INPUT_MOUSE,
+    INPUT_KEY,
+    INPUT_WAKEUP
+};
 
-    /* ============== Configuration Constants ============== */
-
-    /*
-    * TILE_SIZE - Tile dimension for compression and change detection.
-    *
-    * This is the ONLY definition. Do not redefine elsewhere.
-    * Value of 16 balances compression efficiency with granularity:
-    *   - Smaller values = finer change detection but more overhead
-    *   - Larger values = coarser detection but less metadata
-    */
-    #define TILE_SIZE           16
-
-    /*
-    * MAX_SCROLL_REGIONS - Maximum number of scroll detection regions.
-    *
-    * Screen is divided into a grid; each cell is a scroll region.
-    * This caps memory usage for the scroll_regions array in struct server.
-    */
-    #define MAX_SCROLL_REGIONS  128
-
-    /*
-    * MAX_SCREEN_DIM - Maximum supported screen dimension.
-    *
-    * Limits framebuffer allocation. 8K resolution should be sufficient
-    * for current and near-future displays.
-    */
-    #define MAX_SCREEN_DIM      8192
-
-    /*
-    * FRAME_INTERVAL_MS - Minimum milliseconds between frames.
-    *
-    * Set to 0 to disable throttling (render every frame).
-    * Non-zero values can reduce CPU usage at cost of latency.
-    */
-    #define FRAME_INTERVAL_MS   0
-
-    /*
-    * INPUT_QUEUE_SIZE - Maximum pending input events.
-    *
-    * Ring buffer size for mouse/keyboard events from input threads.
-    * Should be large enough to handle bursts without dropping.
-    */
-    #define INPUT_QUEUE_SIZE    256
-
-    /*
-    * SCROLL_REGION_SIZE - Dimension of each scroll detection region.
-    *
-    * Used to divide the screen into a grid for regional scroll detection.
-    */
-    #define SCROLL_REGION_SIZE  512
-
-    /* ============== Forward Declarations ============== */
-
-    struct server;
-    struct draw_state;
-    struct toplevel;
-    /* Note: struct popup_data is defined in focus_manager.h */
-
-    /* ============== Input Event Types ============== */
-
-    /*
-    * Input event types for the cross-thread input queue.
-    */
-    enum input_type {
-        INPUT_MOUSE,    /* Mouse movement or button event */
-        INPUT_KEY,      /* Keyboard press or release */
-        INPUT_WAKEUP    /* Wake main loop and schedule a frame (resize, etc.) */
-    };
-
-    /*
-    * Input event structure for cross-thread communication.
-    *
-    * Pushed by mouse_thread and kbd_thread, popped by main loop.
-    */
-    struct input_event {
-        int type;       /* INPUT_MOUSE, INPUT_KEY, or INPUT_WAKEUP */
-        union {
-            struct {
-                int x, y;       /* Absolute position in window coordinates */
-                int buttons;    /* Button mask: bit 0=left, 1=middle, 2=right */
-            } mouse;
-            struct {
-                int rune;       /* Plan 9 rune (Unicode codepoint or Kxxx) */
-                int pressed;    /* 1 = key press, 0 = key release */
-            } key;
-        };
-    };
-
-    /*
-    * Thread-safe input queue.
-    *
-    * Uses a ring buffer with mutex protection. The pipe_fd is used
-    * to wake the main Wayland event loop when events are available.
-    */
-    struct input_queue {
-        struct input_event events[INPUT_QUEUE_SIZE];
-        int head, tail;         /* Ring buffer indices */
-        pthread_mutex_t lock;   /* Protects head/tail */
-        int pipe_fd[2];         /* [0]=read, [1]=write; for waking handle_input_events */
-    };
-
-    /* ============== Draw State ============== */
-
-    /*
-    * Draw state for Plan 9 /dev/draw operations.
-    *
-    * Tracks all the file descriptors and image IDs needed to render
-    * frames to a Plan 9 window.
-    */
-    struct draw_state {
-        struct p9conn *p9;          /* 9P connection for draw operations */
-        struct p9conn *p9_relookup; /* Separate 9P connection for relookup */
-        uint32_t draw_fid;          /* fid for /dev/draw directory */
-        uint32_t drawnew_fid;       /* fid for /dev/draw/new */
-        uint32_t drawdata_fid;      /* fid for /dev/draw/N/data */
-        uint32_t drawctl_fid;       /* fid for /dev/draw/N/ctl */
-        uint32_t winname_fid;       /* fid for /dev/winname (kept open for resize) */
-        /* Relookup fids — on p9_relookup connection, isolated from send/drain */
-        uint32_t relookup_draw_fid;    /* fid for /dev/draw on relookup conn */
-        uint32_t relookup_data_fid;    /* fid for /dev/draw/N/data on relookup conn */
-        uint32_t relookup_ctl_fid;     /* fid for /dev/draw/N/ctl on relookup conn */
-        uint32_t relookup_winname_fid; /* fid for /dev/winname on relookup conn */
-        int client_id;              /* Draw client ID (from /dev/draw/new) */
-        int screen_id;              /* Screen image ID */
-        int image_id;               /* Our offscreen buffer (accumulates via XOR) */
-        int opaque_id;              /* 1x1 white replicated image for mask */
-        int delta_id;               /* Temp image for receiving XOR deltas */
-        int width, height;          /* Padded buffer dimensions (TILE_ALIGN_UP) */
-        int visible_width;          /* Actual window width (what compositor renders) */
-        int visible_height;         /* Actual window height (what compositor renders) */
-        int win_minx, win_miny;     /* Window origin for coordinate translation */
-
-        /*
-        * Logical (Wayland) dimensions and scale factor.
-        *
-        * Wayland clients operate in logical coordinates; the framebuffer
-        * uses physical pixels. These track the draw-side view of the
-        * HiDPI state so that coordinate conversion during rendering
-        * doesn't need to reach back into struct server.
-        *
-        * Kept in sync with server.scale by output resize handling.
-        * width/height above are physical; logical = physical / scale.
-        */
-        int logical_width;          /* width / scale (for Wayland configure) */
-        int logical_height;         /* height / scale (for Wayland configure) */
-        float scale;                /* Copy of server.scale for draw operations */
-
-        char winname[64];           /* Window name for re-querying geometry */
-        int winimage_id;            /* Image ID assigned to the window */
-        int xor_enabled;            /* Whether XOR delta mode is active */
-        uint32_t iounit;            /* Maximum I/O size for this connection */
-    };
-
-    /* ============== Surface Tracking ============== */
-
-    /*
-    * Subsurface tracking for Wayland subsurfaces.
-    *
-    * Wayland subsurfaces are child surfaces that move with their parent.
-    * We track them to ensure proper rendering and cleanup.
-    */
-    struct subsurface_track {
-        struct wl_list link;            /* Link in toplevel->subsurfaces list */
-        struct wlr_subsurface *subsurface;
-        struct wl_listener destroy;     /* Cleanup when subsurface destroyed */
-        struct wl_listener commit;      /* Track content changes and map/unmap */
-        struct server *server;
-        struct toplevel *toplevel;      /* Parent toplevel */
-        bool mapped;                    /* Track mapped state */
-    };
-
-    /*
-    * Toplevel window tracking.
-    *
-    * Represents a top-level application window (xdg_toplevel in Wayland).
-    */
-    struct toplevel {
-        struct wl_list link;            /* Link in server->toplevels list */
-        struct wlr_xdg_toplevel *xdg;   /* The wlroots toplevel object */
-        struct wlr_scene_tree *scene_tree;
-        struct wlr_surface *surface;    /* Stored for focus cleanup in destroy */
-        struct wl_listener commit;      /* Handle surface commits */
-        struct wl_listener destroy;     /* Cleanup on xdg_surface destroy */
-        struct wl_listener xdg_destroy; /* Cleanup on xdg_toplevel destroy (fires first) */
-        struct wl_listener request_fullscreen;  /* Fullscreen state toggle */
-        struct wl_listener request_maximize;    /* Maximize state toggle */
-        struct wl_listener request_minimize;    /* Minimize blocked (no restore path) */
-        struct wl_list subsurfaces;     /* List of subsurface_track */
-        struct server *server;
-        bool configured;                /* Have we sent initial configure? */
-        bool mapped;                    /* Is surface currently mapped? */
-        int commit_count;               /* Per-toplevel commit counter */
-    };
-
-    /* ============== Main Server State ============== */
-
-    /*
-    * Main compositor server state.
-    *
-    * This is the central structure containing all state for the p9wl
-    * compositor, including Wayland objects, 9P connections, rendering
-    * state, and input handling.
-    */
-    struct server {
-        /* ---- Wayland/wlroots core ---- */
-        struct wl_display *display;
-        struct wlr_backend *backend;
-        struct wlr_renderer *renderer;
-        struct wlr_allocator *allocator;
-        struct wlr_scene *scene;
-        struct wlr_scene_output *scene_output;
-        struct wlr_output_layout *output_layout;
-        struct wlr_output *output;
-        struct wlr_xdg_shell *xdg_shell;
-        struct wlr_xdg_decoration_manager_v1 *decoration_mgr;
-        struct wl_listener new_decoration;
-        struct wlr_keyboard_shortcuts_inhibit_manager_v1 *kb_shortcuts_inhibit;
-        struct wl_listener new_kb_shortcut_inhibitor;
-        struct wl_listener kb_inhibitor_destroy;
-        struct wlr_keyboard_shortcuts_inhibitor_v1 *active_kb_inhibitor;
-        struct wlr_scene_rect *background;  /* Gray background, resized with window */
-        struct wlr_seat *seat;
-        struct wlr_cursor *cursor;
-        struct wlr_keyboard virtual_kb;
-
-        /* ---- Event listeners ---- */
-        struct wl_listener new_output, output_frame, output_destroy;
-        struct wl_listener new_xdg_toplevel;
-        struct wl_listener new_xdg_popup;
-        struct wl_listener new_input;
-        struct wl_list toplevels;           /* List of struct toplevel */
-
-        /*
-        * Unified focus state machine.
-        *
-        * Consolidates: popup stack, pointer/keyboard focus, deferred focus.
-        * See focus_manager.h for API.
-        */
-        struct focus_manager focus;
-
-        /* ---- 9P connections ---- */
-        struct p9conn p9_draw;      /* For /dev/draw rendering */
-        struct p9conn p9_relookup;  /* For relookup_window (isolated from send/drain) */
-        struct p9conn p9_mouse;     /* For /dev/mouse input */
-        struct p9conn p9_kbd;       /* For /dev/cons keyboard input */
-        struct p9conn p9_wctl;      /* For /dev/wctl window monitoring */
-        struct p9conn p9_snarf;     /* For /dev/snarf clipboard */
-
-        struct draw_state draw;
-
-        /* ---- Window change detection ---- */
-        volatile int window_changed;    /* Set by wctl thread on geometry change */
-        volatile int resize_pending;    /* Need to resize wlroots output */
-        volatile int pending_width, pending_height;
-        volatile int pending_visible_width, pending_visible_height;
-        volatile int pending_minx, pending_miny;
-        char pending_winname[64];
-
-        /* ---- Framebuffers ---- */
-        int width, height;              /* Padded buffer dimensions (TILE_ALIGN_UP) */
-        int visible_width, visible_height;  /* Actual window dimensions */
-        uint32_t *framebuf;             /* Current frame */
-        uint32_t *prev_framebuf;        /* Previous frame (for delta detection) */
-
-        /* ---- Tile-based rendering ---- */
-        int tiles_x, tiles_y;           /* Number of tiles in each dimension */
-        int force_full_frame;           /* Force complete redraw */
-        int scene_dirty;                /* Scene content changed, needs render */
-        int frame_dirty;                /* Frame has changes to send */
-        int timer_armed;                /* Send timer is active */
-        uint32_t last_frame_ms;         /* Timestamp of last frame */
-        struct wl_event_source *send_timer;
-
-        /* ---- Send thread (double buffered) ---- */
-        pthread_t send_thread;
-        pthread_mutex_t send_lock;
-        pthread_cond_t send_cond;
-        uint32_t *send_buf[2];          /* Double buffer for send thread */
-        int pending_buf;                /* Buffer with new data (-1 = none) */
-        int active_buf;                 /* Buffer send thread is using */
-        int send_full;                  /* Force full frame flag */
-
-
-        /* ---- Damage-based dirty tile tracking ---- */
-        uint8_t *dirty_staging;          /* Tile bitmap written by output thread */
-        int dirty_staging_valid;         /* 1 if dirty_staging has valid data */
-        uint8_t *dirty_tiles[2];         /* Per-send-buffer tile bitmaps */
-        int dirty_valid[2];              /* Whether bitmap is valid per buffer */
-
-
-        /* ---- Per-region scroll detection ---- */
+struct input_event {
+    int type;
+    union {
         struct {
-            int x1, y1, x2, y2;         /* Region bounds */
-            int detected;               /* Scroll detected? */
-            int dx, dy;                 /* Scroll vector */
-        } scroll_regions[MAX_SCROLL_REGIONS];
-        int num_scroll_regions;
-        int scroll_regions_x, scroll_regions_y;  /* Grid dimensions */
-
-        /* ---- Input handling ---- */
-        struct input_queue input_queue;
-        struct wl_event_source *input_event;
-        pthread_t mouse_thread;
-        pthread_t kbd_thread;
-        volatile int running;           /* False to signal threads to exit */
-
-        /* ---- Clipboard/snarf integration ---- */
-        struct wl_listener wayland_to_snarf;
-        struct wl_listener wayland_to_snarf_primary;
-
-        /* ---- Toplevel tracking ---- */
-        int has_toplevel;               /* Currently have any toplevel? */
-        int had_toplevel;               /* Ever had a toplevel? (for exit logic) */
-
-        /* ---- Connection settings ---- */
-        const char *host;               /* 9P server hostname */
-        int port;                       /* 9P server port */
-        int use_tls;                    /* TLS mode enabled */
-        char *tls_cert_file;            /* Path to certificate (-c option) */
-        char *tls_fingerprint;          /* SHA256 fingerprint (-f option) */
-        int tls_insecure;               /* Skip cert verification (-k option) */
-        float scale;                    /* Output scale for HiDPI (default: 1.0) */
-        enum wlr_log_importance log_level;
+            int x, y;
+            int buttons;
+        } mouse;
+        struct {
+            int rune;
+            int pressed;
+        } key;
     };
+};
 
-    /* ============== Utility Functions ============== */
+struct input_queue {
+    struct input_event events[INPUT_QUEUE_SIZE];
+    int head, tail;
+    pthread_mutex_t lock;
+    int pipe_fd[2];
+};
 
-    /*
-    * Get current time in milliseconds (monotonic clock).
-    *
-    * Uses CLOCK_MONOTONIC for consistent timing unaffected by
-    * system time changes.
-    *
-    * Returns milliseconds since arbitrary epoch.
-    */
-    static inline uint32_t now_ms(void) {
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        return (uint32_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+struct draw_state {
+    int client_id;
+    int screen_id;
+    int image_id;
+    int opaque_id;
+    int delta_id;
+    int width, height;
+    int visible_width;
+    int visible_height;
+    int win_minx, win_miny;
+    int logical_width;
+    int logical_height;
+    float scale;
+    char winname[64];
+    int winimage_id;
+    int xor_enabled;
+    uint32_t iounit;
+};
+
+struct subsurface_track {
+    struct wl_list link;
+    struct wlr_subsurface *subsurface;
+    struct wl_listener destroy;
+    struct wl_listener commit;
+    struct server *server;
+    struct toplevel *toplevel;
+    bool mapped;
+};
+
+struct toplevel {
+    struct wl_list link;
+    struct wlr_xdg_toplevel *xdg;
+    struct wlr_scene_tree *scene_tree;
+    struct wlr_surface *surface;
+    struct wl_listener commit;
+    struct wl_listener destroy;
+    struct wl_listener xdg_destroy;
+    struct wl_listener request_fullscreen;
+    struct wl_listener request_maximize;
+    struct wl_listener request_minimize;
+    struct wl_list subsurfaces;
+    struct server *server;
+    bool configured;
+    bool mapped;
+    int commit_count;
+};
+
+struct server {
+    struct wl_display *display;
+    struct wlr_backend *backend;
+    struct wlr_renderer *renderer;
+    struct wlr_allocator *allocator;
+    struct wlr_scene *scene;
+    struct wlr_scene_output *scene_output;
+    struct wlr_output_layout *output_layout;
+    struct wlr_output *output;
+    struct wlr_xdg_shell *xdg_shell;
+    struct wlr_xdg_decoration_manager_v1 *decoration_mgr;
+    struct wl_listener new_decoration;
+    struct wlr_keyboard_shortcuts_inhibit_manager_v1 *kb_shortcuts_inhibit;
+    struct wl_listener new_kb_shortcut_inhibitor;
+    struct wl_listener kb_inhibitor_destroy;
+    struct wlr_keyboard_shortcuts_inhibitor_v1 *active_kb_inhibitor;
+    struct wlr_scene_rect *background;
+    struct wlr_seat *seat;
+    struct wlr_cursor *cursor;
+    struct wlr_keyboard virtual_kb;
+
+    struct wl_listener new_output, output_frame, output_destroy;
+    struct wl_listener new_xdg_toplevel;
+    struct wl_listener new_xdg_popup;
+    struct wl_listener new_input;
+    struct wl_list toplevels;
+
+    struct focus_manager focus;
+
+    struct draw_state draw;
+
+    volatile int window_changed;
+    volatile int resize_pending;
+    volatile int pending_width, pending_height;
+    volatile int pending_visible_width, pending_visible_height;
+    volatile int pending_minx, pending_miny;
+    char pending_winname[64];
+
+    int width, height;
+    int visible_width, visible_height;
+    uint32_t *framebuf;
+    uint32_t *prev_framebuf;
+
+    int tiles_x, tiles_y;
+    int force_full_frame;
+    int scene_dirty;
+    int frame_dirty;
+    int timer_armed;
+    uint32_t last_frame_ms;
+    struct wl_event_source *send_timer;
+
+    pthread_t send_thread;
+    pthread_mutex_t send_lock;
+    pthread_cond_t send_cond;
+    uint32_t *send_buf[2];
+    int pending_buf;
+    int active_buf;
+    int send_full;
+
+    uint8_t *dirty_staging;
+    int dirty_staging_valid;
+    uint8_t *dirty_tiles[2];
+    int dirty_valid[2];
+
+    struct {
+        int x1, y1, x2, y2;
+        int detected;
+        int dx, dy;
+    } scroll_regions[MAX_SCROLL_REGIONS];
+    int num_scroll_regions;
+    int scroll_regions_x, scroll_regions_y;
+
+    struct input_queue input_queue;
+    struct wl_event_source *input_event;
+    pthread_t mouse_thread;
+    pthread_t kbd_thread;
+    volatile int running;
+
+    struct wl_listener wayland_to_snarf;
+    struct wl_listener wayland_to_snarf_primary;
+
+    int has_toplevel;
+    int had_toplevel;
+
+    const char *host;
+    int port;
+    int use_tls;
+    char *tls_cert_file;
+    char *tls_fingerprint;
+    int tls_insecure;
+    float scale;
+    enum wlr_log_importance log_level;
+};
+
+static inline uint32_t now_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint32_t)(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+}
+
+static inline uint64_t now_us(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+}
+
+#define server_popup_stack(s)         ((s)->focus.popup_stack)
+#define server_needs_focus_recheck(s) ((s)->focus.pointer_focus_deferred)
+
+typedef void (*parallel_fn)(void *ctx, int idx);
+void parallel_for(int count, parallel_fn fn, void *ctx);
+void parallel_cleanup(void);
+
+struct phase_result {
+    int dx;
+    int dy;
+    int valid;
+};
+struct phase_result phase_correlate_detect(
+    uint32_t *curr_buf, uint32_t *prev_buf, int buf_width,
+    int rx1, int ry1, int rx2, int ry2,
+    int max_shift
+);
+void phase_correlate_cleanup(void);
+
+void detect_scroll(struct server *s, uint32_t *send_buf);
+int apply_scroll_to_prevbuf(struct server *s);
+int write_scroll_commands(struct server *s, uint8_t *batch, size_t max_size);
+struct scroll_timing {
+    double total_us;
+    int regions_processed;
+    int regions_detected;
+};
+const struct scroll_timing *scroll_get_timing(void);
+void scroll_init(void);
+void scroll_cleanup(void);
+
+#ifndef PUT32
+#define PUT32(p, v) do { \
+    uint32_t _v = (v); \
+    (p)[0] = (uint8_t)(_v); \
+    (p)[1] = (uint8_t)(_v >> 8); \
+    (p)[2] = (uint8_t)(_v >> 16); \
+    (p)[3] = (uint8_t)(_v >> 24); \
+} while(0)
+#endif
+
+#ifndef PUT16
+#define PUT16(p, v) do { \
+    uint16_t _v = (v); \
+    (p)[0] = (uint8_t)(_v); \
+    (p)[1] = (uint8_t)(_v >> 8); \
+} while(0)
+#endif
+
+int cmd_copy(uint8_t *cmd, uint32_t dstid, uint32_t srcid,
+             int r_minx, int r_miny, int r_maxx, int r_maxy,
+             int dx, int dy);
+
+static inline int rdp_cmd_draw(uint8_t *buf,
+                               uint32_t surface_id, uint32_t codec_id,
+                               int dx1, int dy1, int dx2, int dy2) {
+    if (!buf) return 24;
+    PUT32(buf + 0, surface_id);
+    PUT32(buf + 4, codec_id);
+    PUT16(buf + 8, (uint16_t)dx1);
+    PUT16(buf + 10, (uint16_t)dy1);
+    PUT16(buf + 12, (uint16_t)(dx2 - dx1));
+    PUT16(buf + 14, (uint16_t)(dy2 - dy1));
+    return 24;
+}
+
+static inline int rdp_cmd_copy(uint8_t *buf,
+                               uint32_t surface_id, uint32_t codec_id,
+                               int dx1, int dy1, int dx2, int dy2,
+                               int sx, int sy) {
+    (void)sx;
+    (void)sy;
+    return rdp_cmd_draw(buf, surface_id, codec_id, dx1, dy1, dx2, dy2);
+}
+
+static inline int rdp_cmd_fill(uint8_t *buf,
+                               uint32_t surface_id, uint32_t codec_id,
+                               int x1, int y1, int x2, int y2) {
+    return rdp_cmd_draw(buf, surface_id, codec_id, x1, y1, x2, y2);
+}
+
+static inline int rdp_cmd_load_hdr(uint8_t *buf, uint32_t surface_id,
+                                   int x1, int y1, int x2, int y2) {
+    if (!buf) return 20;
+    PUT32(buf + 0, surface_id);
+    PUT16(buf + 4, (uint16_t)x1);
+    PUT16(buf + 6, (uint16_t)y1);
+    PUT16(buf + 8, (uint16_t)(x2 - x1));
+    PUT16(buf + 10, (uint16_t)(y2 - y1));
+    return 20;
+}
+
+static inline int rdp_cmd_loadraw_hdr(uint8_t *buf, uint32_t surface_id,
+                                      int x1, int y1, int x2, int y2) {
+    return rdp_cmd_load_hdr(buf, surface_id, x1, y1, x2, y2);
+}
+
+static inline int rdp_cmd_flush(uint8_t *buf) {
+    if (buf) buf[0] = 0;
+    return 1;
+}
+
+static inline void tile_bounds(int tx, int ty, int frame_w, int frame_h,
+                               int *x1, int *y1, int *w, int *h) {
+    *x1 = tx * TILE_SIZE;
+    *y1 = ty * TILE_SIZE;
+    int x2 = *x1 + TILE_SIZE;
+    int y2 = *y1 + TILE_SIZE;
+    if (x2 > frame_w) x2 = frame_w;
+    if (y2 > frame_h) y2 = frame_h;
+    *w = x2 - *x1;
+    *h = y2 - *y1;
+}
+
+static inline int tile_changed(uint32_t *curr, uint32_t *prev, int stride,
+                               int x1, int y1, int w, int h) {
+    if (!curr || !prev) return 1;
+    for (int y = 0; y < h; y++) {
+        if (memcmp(&curr[(y1 + y) * stride + x1],
+                   &prev[(y1 + y) * stride + x1], w * sizeof(uint32_t)) != 0) {
+            return 1;
+        }
     }
+    return 0;
+}
 
-    /*
-    * Get current time in microseconds (monotonic clock).
-    *
-    * Higher precision version of now_ms() for timing-sensitive code.
-    *
-    * Returns microseconds since arbitrary epoch.
-    */
-    static inline uint64_t now_us(void) {
-        struct timespec ts;
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        return (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+struct scroll_rects {
+    int src_x1, src_y1, src_x2, src_y2;  
+    int dst_x1, dst_y1, dst_x2, dst_y2;  
+    int exp_x1, exp_y1, exp_x2, exp_y2;  
+    int valid;  
+};
+
+static inline void compute_scroll_rects(int rx1, int ry1, int rx2, int ry2,
+                                        int dx, int dy, struct scroll_rects *r) {
+    if (!r) return;
+    int rw = rx2 - rx1;
+    int rh = ry2 - ry1;
+    int abs_dx = dx < 0 ? -dx : dx;
+    int abs_dy = dy < 0 ? -dy : dy;
+    
+    if (rw < 16 || rh < 16 || abs_dx >= rw || abs_dy >= rh) {
+        r->valid = 0;
+        return;
     }
+    r->valid = 1;
+    
+    r->dst_x1 = rx1;
+    r->dst_x2 = rx2;
+    r->dst_y1 = ry1;
+    r->dst_y2 = ry2;
+    
+    r->src_x1 = rx1;
+    r->src_x2 = rx2;
+    r->src_y1 = ry1;
+    r->src_y2 = ry2;
+    
+    if (dy < 0) {
+        r->src_y1 = ry1 + abs_dy;
+        r->dst_y2 = ry2 - abs_dy;
+    } else if (dy > 0) {
+        r->src_y2 = ry2 - abs_dy;
+        r->dst_y1 = ry1 + abs_dy;
+    }
+    
+    if (dx < 0) {
+        r->src_x1 = rx1 + abs_dx;
+        r->dst_x2 = rx2 - abs_dx;
+    } else if (dx > 0) {
+        r->src_x2 = rx2 - abs_dx;
+        r->dst_x1 = rx1 + abs_dx;
+    }
+    
+    r->exp_x1 = r->exp_x2 = 0;
+    r->exp_y1 = r->exp_y2 = 0;
+    
+    if (dy < 0) {
+        r->exp_y1 = (r->dst_y2 / TILE_SIZE) * TILE_SIZE;
+        r->exp_y2 = ry2;
+    } else if (dy > 0) {
+        r->exp_y1 = ry1;
+        r->exp_y2 = ((r->dst_y1 + TILE_SIZE - 1) / TILE_SIZE) * TILE_SIZE;
+    }
+    
+    if (dx < 0) {
+        r->exp_x1 = (r->dst_x2 / TILE_SIZE) * TILE_SIZE;
+        r->exp_x2 = rx2;
+    } else if (dx > 0) {
+        r->exp_x1 = rx1;
+        r->exp_x2 = ((r->dst_x1 + TILE_SIZE - 1) / TILE_SIZE) * TILE_SIZE;
+    }
+}
 
-    /* ============== Legacy Compatibility ============== */
+struct tls_config {
+    char *cert_file;
+    char *cert_fingerprint;
+    int insecure;
+};
 
-    /*
-    * Legacy compatibility macros.
-    *
-    * These allow existing code to compile during migration to the
-    * focus_manager API. Remove after migration is complete.
-    *
-    * TODO: grep for usage — these may be dead code now.
-    */
-    #define server_popup_stack(s)         ((s)->focus.popup_stack)
-    #define server_needs_focus_recheck(s) ((s)->focus.pointer_focus_deferred)
+int tls_init(void);
+void tls_cleanup(void);
+int tls_connect(int fd, SSL **ssl_out, struct tls_config *cfg);
+void tls_disconnect(SSL *ssl);
+int tls_verify_pinned(SSL *ssl, struct tls_config *cfg);
+int tls_read_full(SSL *ssl, uint8_t *buf, int n);
+int tls_write_full(SSL *ssl, const uint8_t *buf, int len);
+int tls_cert_file_fingerprint(const char *path, char *out, int outlen);
 
-    #endif /* P9WL_TYPES_H */
+void input_queue_init(struct input_queue *q);
+void input_queue_push(struct input_queue *q, struct input_event *ev);
+int input_queue_pop(struct input_queue *q, struct input_event *ev);
+void rdp_handle_mouse(struct server *s, uint16_t flags, uint16_t x, uint16_t y);
+void rdp_handle_keyboard(struct server *s, uint16_t flags, uint8_t keycode);
+
+struct key_map {
+    uint32_t keycode;
+    uint8_t shift;
+    uint8_t ctrl;
+};
+
+uint32_t keymapmod(uint32_t rune);
+const struct key_map *keymap_lookup(uint32_t rune);
+
+void new_popup(struct wl_listener *l, void *d);
+void new_toplevel(struct wl_listener *l, void *d);
+
+void handle_key(struct server *s, uint32_t rune, int pressed);
+void handle_mouse(struct server *s, int mx, int my, int buttons);
+int handle_input_events(int fd, uint32_t mask, void *data);
+
+#endif
