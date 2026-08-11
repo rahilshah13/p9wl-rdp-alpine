@@ -30,6 +30,7 @@ struct rdp_send_ctx {
     rdpContext *context;
     freerdp_peer *peer;
     RFX_CONTEXT *rfx_context;
+    wStream *encode_stream;
     atomic_int pending;
     atomic_int errors;
     atomic_int running;
@@ -39,7 +40,6 @@ struct rdp_send_ctx {
     pthread_mutex_t lock;
     pthread_cond_t cond;
     pthread_cond_t done_cond;
-    uint8_t *stream_buf;
 };
 
 static struct rdp_send_ctx rdp_ctx;
@@ -121,8 +121,17 @@ static int rdp_drain_start(freerdp *instance, rdpContext *context, freerdp_peer 
     if (!rdp_ctx.rfx_context) return -1;
     rfx_context_set_pixel_format(rdp_ctx.rfx_context, PIXEL_FORMAT_BGRX32);
 
-    if (pthread_create(&rdp_ctx.thread, NULL, rdp_drain_thread_func, NULL) != 0) {
+    rdp_ctx.encode_stream = Stream_New(NULL, 65536);
+    if (!rdp_ctx.encode_stream) {
         rfx_context_free(rdp_ctx.rfx_context);
+        return -1;
+    }
+
+    if (pthread_create(&rdp_ctx.thread, NULL, rdp_drain_thread_func, NULL) != 0) {
+        Stream_Free(rdp_ctx.encode_stream, TRUE);
+        rdp_ctx.encode_stream = NULL;
+        rfx_context_free(rdp_ctx.rfx_context);
+        rdp_ctx.rfx_context = NULL;
         return -1;
     }
     return 0;
@@ -132,6 +141,11 @@ static void rdp_drain_stop(void) {
     atomic_store(&rdp_ctx.running, 0);
     rdp_drain_wake();
     pthread_join(rdp_ctx.thread, NULL);
+    
+    if (rdp_ctx.encode_stream) {
+        Stream_Free(rdp_ctx.encode_stream, TRUE);
+        rdp_ctx.encode_stream = NULL;
+    }
     
     if (rdp_ctx.rfx_context) {
         rfx_context_free(rdp_ctx.rfx_context);
@@ -496,7 +510,33 @@ void *send_thread_func(void *arg) {
             int x1 = tw->x1, y1 = tw->y1;
             int w = tw->w, h = tw->h;
             
-            if (rdp_ctx.rfx_context) {
+            if (rdp_ctx.rfx_context && rdp_ctx.encode_stream && rdp_ctx.context) {
+                rdpUpdate *update = rdp_ctx.context->update;
+                SURFACE_BITS_COMMAND cmd = { 0 };
+                RFX_RECT rfx_rect = { .x = 0, .y = 0, .width = w, .height = h };
+                
+                Stream_SetPosition(rdp_ctx.encode_stream, 0);
+                
+                uint32_t *tile_pixels = &send_buf[y1 * s->width + x1];
+                
+                rfx_context_set_pixel_format(rdp_ctx.rfx_context, PIXEL_FORMAT_BGRX32);
+                if (rfx_compose_message(rdp_ctx.rfx_context, rdp_ctx.encode_stream, &rfx_rect, 1,
+                                        (BYTE *)tile_pixels, w, h, s->width * sizeof(uint32_t))) {
+                    cmd.destLeft = x1;
+                    cmd.destTop = y1;
+                    cmd.destRight = x1 + w;
+                    cmd.destBottom = y1 + h;
+                    cmd.bmp.bpp = 32;
+                    cmd.bmp.codecID = (UINT16)freerdp_settings_get_uint32(rdp_ctx.context->settings, FreeRDP_RemoteFxCodecId);
+                    cmd.bmp.width = w;
+                    cmd.bmp.height = h;
+                    cmd.bmp.bitmapDataLength = Stream_GetPosition(rdp_ctx.encode_stream);
+                    cmd.bmp.bitmapData = Stream_Buffer(rdp_ctx.encode_stream);
+                    
+                    if (update && update->SurfaceBits) {
+                        update->SurfaceBits(update->context, &cmd);
+                    }
+                }
                 rdp_drain_notify();
             }
             
