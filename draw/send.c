@@ -28,10 +28,6 @@
 #include <winpr/wtsapi.h>
 #include <freerdp/primary.h>
 #include <freerdp/codec/rfx.h>
-#include "send.h"
-#include "compress.h"
-#include "types.h"
-#include "draw/draw.h"
 #include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.send")

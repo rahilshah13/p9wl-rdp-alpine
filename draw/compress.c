@@ -1,11 +1,5 @@
-/*
- * compress.c - Tile compression for Plan 9 draw protocol
- * Modified for p9wl-rdp-alpine (musl compatibility & strict alignment)
- */
-
 #include <string.h>
 #include <stdlib.h>
-#include "compress.h"
 #include "types.h"
 
 /* Hash table for fast match finding — uses generation counter to avoid

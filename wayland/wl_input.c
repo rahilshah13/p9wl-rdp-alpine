@@ -26,9 +26,6 @@
 #include <wlr/util/log.h>
 #include "types.h"
 
-#include "../types.h"
-#include "../input/clipboard.h"
-
 /* ============== Button Mapping Tables ============== */
 
 /* Mouse button mapping: bitmask -> Linux button code */

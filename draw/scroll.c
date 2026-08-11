@@ -8,12 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <freerdp/log.h>
-
 #include "types.h"
-#include "send.h"
-#include "compress.h"
-#include "types.h"
-#include "draw/draw.h"
 
 #define TAG FREERDP_TAG("p9wl.scroll")
 

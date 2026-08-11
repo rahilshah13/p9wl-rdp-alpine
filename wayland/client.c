@@ -17,11 +17,7 @@
 #include <wlr/types/wlr_keyboard_shortcuts_inhibit_v1.h>
 #include <wlr/interfaces/wlr_keyboard.h>
 #include <wlr/util/log.h>
-
-#include "client.h"
-#include "../draw/draw.h"
-#include "../p9/p9.h"
-
+#include "types.h"
 /* ============== Decoration Handling ============== */
 
 struct decoration_data {
@@ -166,12 +162,6 @@ void server_cleanup(struct server *s) {
     
     pthread_mutex_destroy(&s->send_lock);
     pthread_cond_destroy(&s->send_cond);
-    
-    p9_disconnect(&s->p9_draw);
-    p9_disconnect(&s->p9_mouse);
-    p9_disconnect(&s->p9_kbd);
-    p9_disconnect(&s->p9_wctl);
-    p9_disconnect(&s->p9_snarf);
     
     close(s->input_queue.pipe_fd[0]);
     close(s->input_queue.pipe_fd[1]);

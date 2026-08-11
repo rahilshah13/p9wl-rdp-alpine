@@ -8,7 +8,6 @@
  *
  * See toplevel.h for lifecycle description and subsurface tracking design.
  */
-
 #include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_xdg_shell.h>
@@ -18,11 +17,8 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_subcompositor.h>
 #include <wlr/util/log.h>
+#include "types.h"
 
-#include "types.h"
-#include "types.h"
-#include "draw/draw.h"
-#include "p9/p9.h"
 
 /* Forward declaration */
 static void check_new_subsurfaces(struct toplevel *tl);
@@ -280,8 +276,6 @@ static void toplevel_destroy(struct wl_listener *l, void *d) {
         // delete_rio_window(&s->p9_draw);
         
         wlr_log(WLR_INFO, "Disconnecting from 9P server...");
-        p9_disconnect(&s->p9_draw);
-        
         wlr_log(WLR_INFO, "Shutdown complete");
         exit(0);
     }

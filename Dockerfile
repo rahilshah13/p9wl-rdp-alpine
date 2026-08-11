@@ -44,7 +44,7 @@ RUN apk add --no-cache \
     firefox
 
 WORKDIR /app
-COPY --from=builder /app/p9wl /app/p9wl
+COPY --from=builder /app/p9wl-rdp-alpine /app/p9wl-rdp-alpine
 COPY --from=builder /app/server.crt /app/server.crt
 COPY --from=builder /app/server.key /app/server.key
 

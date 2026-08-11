@@ -14,12 +14,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-
 #include <freerdp/log.h>
 #include <freerdp/channels/cliprdr.h>
-
-#include "clipboard.h"
-#include "../types.h"
+#include "types.h"
 
 #define TAG FREERDP_TAG("p9wl.clipboard")
 

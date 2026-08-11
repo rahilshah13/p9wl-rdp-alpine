@@ -12,8 +12,8 @@
 #include <wlr/util/log.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
-
-#include "wayland/focus_manager.h"
+#include <freerdp/freerdp.h>
+#include <freerdp/input.h>
 
 #define TILE_SIZE           16
 #define MAX_SCROLL_REGIONS  128
@@ -27,9 +27,28 @@
 #define MIN_SCROLL_PIXELS   1
 #define TLS_PORT            10001
 
+#define ALPHA_DELTA_OVERHEAD 45
+
+#ifndef P9WL_ALIGN
+#define P9WL_ALIGN 64
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#define P9WL_ALIGNED_STRUCT __attribute__((aligned(P9WL_ALIGN)))
+#define P9WL_API __attribute__((visibility("default")))
+#else
+#define P9WL_ALIGNED_STRUCT
+#define P9WL_API
+#endif
+
+/* Forward declarations */
 struct server;
 struct draw_state;
 struct toplevel;
+struct wlr_surface;
+struct wlr_scene_node;
+struct wlr_scene_tree;
+struct wlr_xdg_popup;
 
 enum input_type {
     INPUT_MOUSE,
@@ -104,6 +123,65 @@ struct toplevel {
     bool mapped;
     int commit_count;
 };
+
+/* ============== Focus Manager Data Structures ============== */
+
+struct popup_data {
+    struct wlr_xdg_popup *popup;
+    struct wlr_surface *surface;
+    struct wlr_scene_tree *scene_tree;
+    struct server *server;
+
+    /* Lifecycle state */
+    int configured;             /* Initial configure sent */
+    int commit_count;           /* Number of commits received */
+    bool mapped;                /* Surface has buffer and is visible */
+    bool has_grab;              /* Popup requested keyboard grab */
+
+    /* Wayland listeners */
+    struct wl_listener commit;
+    struct wl_listener destroy;
+    struct wl_listener grab;
+
+    /* Link in focus_manager.popup_stack (most recent first) */
+    struct wl_list link;
+};
+
+enum focus_reason {
+    FOCUS_REASON_NONE,
+    FOCUS_REASON_POINTER_MOTION,    /* Cursor moved over new surface */
+    FOCUS_REASON_POINTER_CLICK,     /* User clicked on surface */
+    FOCUS_REASON_SURFACE_MAP,       /* Surface became visible */
+    FOCUS_REASON_SURFACE_UNMAP,     /* Surface became invisible */
+    FOCUS_REASON_SURFACE_DESTROY,   /* Surface is being destroyed */
+    FOCUS_REASON_POPUP_GRAB,        /* Popup requested keyboard grab */
+    FOCUS_REASON_POPUP_DISMISS,     /* Popup was dismissed */
+    FOCUS_REASON_EXPLICIT,          /* Programmatic focus change */
+};
+
+struct focus_manager {
+    struct server *server;
+
+    /* Current focus targets (may lag seat state during transitions) */
+    struct wlr_surface *pointer_focus;
+    struct wlr_surface *keyboard_focus;
+
+    /* Popup grab stack: head is most recent (topmost) popup */
+    struct wl_list popup_stack;
+
+    /* Deferred pointer focus (while buttons held) */
+    bool pointer_focus_deferred;
+    struct wlr_surface *deferred_pointer_target;
+    double deferred_sx, deferred_sy;
+
+    /* Cached keyboard modifier state */
+    uint32_t modifier_state;
+
+    /* Debug statistics */
+    int focus_change_count;
+};
+
+/* ============== Server Data Structure ============== */
 
 struct server {
     struct wl_display *display;
@@ -214,6 +292,47 @@ static inline uint64_t now_us(void) {
 #define server_popup_stack(s)         ((s)->focus.popup_stack)
 #define server_needs_focus_recheck(s) ((s)->focus.pointer_focus_deferred)
 
+/* ============== Compress Types ============== */
+
+struct P9WL_ALIGNED_STRUCT tile_result {
+    uint8_t data[TILE_SIZE * TILE_SIZE * 4 + 256];
+    int size;
+    int is_delta;
+};
+
+struct tile_work {
+    uint32_t *pixels;
+    int stride;
+    uint32_t *prev_pixels;
+    int prev_stride;
+    int x1, y1, w, h;
+};
+
+P9WL_API int compress_tile_data(uint8_t *dst, int dst_max, 
+                                uint8_t *raw, int bytes_per_row, int h);
+P9WL_API int compress_tile_direct(uint8_t *dst, int dst_max, 
+                                  uint32_t *pixels, int stride, 
+                                  int x1, int y1, int w, int h);
+P9WL_API int compress_tile_alpha_delta(uint8_t *dst, int dst_max,
+                                       uint32_t *pixels, int stride,
+                                       uint32_t *prev_pixels, int prev_stride,
+                                       int x1, int y1, int w, int h);
+P9WL_API int compress_tile_adaptive(uint8_t *dst, int dst_max,
+                                    uint32_t *pixels, int stride,
+                                    uint32_t *prev_pixels, int prev_stride,
+                                    int x1, int y1, int w, int h);
+P9WL_API int compress_pool_init(int nthreads);
+P9WL_API void compress_pool_shutdown(void);
+P9WL_API int compress_tiles_parallel(struct tile_work *tiles, 
+                                     struct tile_result *results, 
+                                     int count);
+
+/* ============== Draw / RDP API ============== */
+
+int init_draw(struct server *s);
+int relookup_window(struct server *s);
+void delete_rio_window(void *p9);
+
 typedef void (*parallel_fn)(void *ctx, int idx);
 void parallel_for(int count, parallel_fn fn, void *ctx);
 void parallel_cleanup(void);
@@ -260,9 +379,9 @@ void scroll_cleanup(void);
 } while(0)
 #endif
 
-int cmd_copy(uint8_t *cmd, uint32_t dstid, uint32_t srcid,
-             int r_minx, int r_miny, int r_maxx, int r_maxy,
-             int dx, int dy);
+int cmd_copy(uint8_t *dst, uint32_t dst_id, uint32_t src_id, uint32_t clip_id, 
+             int dst_x1, int dst_y1, int dst_x2, int dst_y2, 
+             int src_x1, int src_y1);
 
 static inline int rdp_cmd_draw(uint8_t *buf,
                                uint32_t surface_id, uint32_t codec_id,
@@ -419,6 +538,8 @@ int tls_read_full(SSL *ssl, uint8_t *buf, int n);
 int tls_write_full(SSL *ssl, const uint8_t *buf, int len);
 int tls_cert_file_fingerprint(const char *path, char *out, int outlen);
 
+/* ============== Input Handlers ============== */
+
 void input_queue_init(struct input_queue *q);
 void input_queue_push(struct input_queue *q, struct input_event *ev);
 int input_queue_pop(struct input_queue *q, struct input_event *ev);
@@ -441,4 +562,85 @@ void handle_key(struct server *s, uint32_t rune, int pressed);
 void handle_mouse(struct server *s, int mx, int my, int buttons);
 int handle_input_events(int fd, uint32_t mask, void *data);
 
-#endif
+/* ============== Client / Cleanup API ============== */
+
+void handle_new_decoration(struct wl_listener *l, void *d);
+void handle_new_kb_inhibitor(struct wl_listener *l, void *d);
+void server_cleanup(struct server *s);
+
+/* ============== Output / Input Attachment ============== */
+
+void new_output(struct wl_listener *l, void *d);
+void new_input(struct wl_listener *l, void *d);
+
+/* ============== Render / Send Pipeline ============== */
+
+void send_frame(struct server *s);
+int send_timer_callback(void *data);
+void *send_thread_func(void *arg);
+
+/* ============== Clipboard Interop ============== */
+
+int clipboard_init(struct server *s);
+void rdp_to_snarf_write(struct server *s, const void *data, size_t size);
+void clipboard_cleanup(struct server *s);
+
+/* ============== Focus Manager API ============== */
+
+void focus_manager_init(struct focus_manager *fm, struct server *server);
+void focus_manager_cleanup(struct focus_manager *fm);
+struct wlr_surface *focus_surface_at_cursor(
+    struct focus_manager *fm, double *out_sx, double *out_sy);
+struct toplevel *focus_toplevel_from_surface(
+    struct focus_manager *fm, struct wlr_surface *surface);
+struct toplevel *focus_toplevel_at_cursor(struct focus_manager *fm);
+
+void focus_pointer_set(
+    struct focus_manager *fm, struct wlr_surface *surface,
+    double sx, double sy, enum focus_reason reason);
+void focus_pointer_motion(
+    struct focus_manager *fm, double sx, double sy, uint32_t time_msec);
+void focus_pointer_recheck(struct focus_manager *fm);
+void focus_pointer_button_pressed(struct focus_manager *fm);
+void focus_pointer_button_released(struct focus_manager *fm);
+
+void focus_keyboard_set(
+    struct focus_manager *fm, struct wlr_surface *surface, enum focus_reason reason);
+void focus_keyboard_set_modifiers(
+    struct focus_manager *fm, uint32_t modifiers);
+uint32_t focus_keyboard_get_modifiers(struct focus_manager *fm);
+
+void focus_toplevel(
+    struct focus_manager *fm, struct toplevel *tl, enum focus_reason reason);
+struct toplevel *focus_get_focused_toplevel(struct focus_manager *fm);
+
+void focus_popup_register(struct focus_manager *fm, struct popup_data *pd);
+void focus_popup_unregister(struct focus_manager *fm, struct popup_data *pd);
+void focus_popup_mapped(struct focus_manager *fm, struct popup_data *pd);
+void focus_popup_unmapped(struct focus_manager *fm, struct popup_data *pd);
+struct popup_data *focus_popup_get_topmost(struct focus_manager *fm);
+struct popup_data *focus_popup_from_surface(
+    struct focus_manager *fm, struct wlr_surface *surface);
+void focus_popup_dismiss_all(struct focus_manager *fm);
+bool focus_popup_dismiss_topmost_grabbed(struct focus_manager *fm);
+bool focus_popup_stack_empty(struct focus_manager *fm);
+
+void focus_on_surface_map(
+    struct focus_manager *fm, struct wlr_surface *surface, bool is_toplevel);
+void focus_on_surface_unmap(
+    struct focus_manager *fm, struct wlr_surface *surface);
+void focus_on_surface_destroy(
+    struct focus_manager *fm, struct wlr_surface *surface);
+
+struct wlr_surface *focus_handle_click(
+    struct focus_manager *fm, struct wlr_surface *clicked_surface,
+    double sx, double sy, uint32_t button);
+
+static inline int focus_phys_to_logical(int phys, float scale) {
+    return (int)(phys / scale + 0.5f);
+}
+static inline int focus_logical_to_phys(int logical, float scale) {
+    return (int)(logical * scale + 0.5f);
+}
+
+#endif /* P9WL_TYPES_H */

@@ -1,17 +1,19 @@
 #include <stdint.h>
 #include "types.h"
 
-int cmd_copy(uint8_t *cmd, uint32_t dstid, uint32_t srcid,
-             int r_minx, int r_miny, int r_maxx, int r_maxy,
-             int dx, int dy) {
-    cmd[0] = 'c';
-    *(uint32_t *)(cmd + 1) = dstid;
-    *(uint32_t *)(cmd + 5) = srcid;
-    *(uint32_t *)(cmd + 9)  = (uint32_t)r_minx;
-    *(uint32_t *)(cmd + 13) = (uint32_t)r_miny;
-    *(uint32_t *)(cmd + 17) = (uint32_t)r_maxx;
-    *(uint32_t *)(cmd + 21) = (uint32_t)r_maxy;
-    *(uint32_t *)(cmd + 25) = (uint32_t)dx;
-    *(uint32_t *)(cmd + 29) = (uint32_t)dy;
-    return 33;
+int cmd_copy(uint8_t *dst, uint32_t dst_id, uint32_t src_id, uint32_t clip_id,
+             int dst_x1, int dst_y1, int dst_x2, int dst_y2,
+             int src_x1, int src_y1) {
+    (void)clip_id;
+    if (!dst) return 36;
+    PUT32(dst + 0, dst_id);
+    PUT32(dst + 4, src_id);
+    PUT32(dst + 8, clip_id);
+    PUT16(dst + 12, (uint16_t)dst_x1);
+    PUT16(dst + 14, (uint16_t)dst_y1);
+    PUT16(dst + 16, (uint16_t)(dst_x2 - dst_x1));
+    PUT16(dst + 18, (uint16_t)(dst_y2 - dst_y1));
+    PUT16(dst + 20, (uint16_t)src_x1);
+    PUT16(dst + 22, (uint16_t)src_y1);
+    return 24;
 }

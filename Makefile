@@ -9,7 +9,6 @@ CFLAGS += -g -O0
 LDFLAGS = $(shell pkg-config --libs wlroots-0.19 wayland-server xkbcommon pixman-1 freerdp3 winpr3)
 LDFLAGS += -lpthread -lm -lssl -lcrypto -lfftw3f
 
-### Source files (Plan 9 / 9P2000 dependencies removed)
 SRCS = main.c \
        input/input.c \
        input/keymap.c \
@@ -29,27 +28,7 @@ SRCS = main.c \
        draw/parallel.c
 
 OBJS = $(SRCS:.c=.o)
-
-### Headers (Plan 9 / 9P2000 dependencies removed)
-HDRS = types.h \
-       input/input.h \
-       input/keymap.h \
-       draw/draw.h \
-       draw/draw_cmd.h \
-       draw/compress.h \
-       draw/scroll.h \
-       draw/send.h \
-       input/clipboard.h \
-       wayland/focus_manager.h \
-       wayland/popup.h \
-       wayland/toplevel.h \
-       wayland/wl_input.h \
-       wayland/output.h \
-       wayland/client.h \
-       wayland/wayland.h \
-       draw/phase_correlate.h \
-       draw/parallel.h
-
+HDRS = types.h
 TARGET = p9wl-rdp-alpine
 
 .PHONY: all clean

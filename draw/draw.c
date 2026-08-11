@@ -14,11 +14,8 @@
 #include <errno.h>
 #include <time.h>
 #include <pthread.h>
-
 #include <wlr/util/log.h>
-
-#include "draw.h"
-#include "send.h"  /* For TILE_SIZE */
+#include "types.h"
 
 #define DRAW_SCALE 1.0f
 

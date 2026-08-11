@@ -48,14 +48,9 @@
 #include <wlr/types/wlr_presentation_time.h>
 #include <wlr/util/log.h>
 #include <xkbcommon/xkbcommon.h>
-
 #include <freerdp/freerdp.h>
 #include <freerdp/listener.h>
-
 #include "types.h"
-#include "input/clipboard.h"
-#include "draw/draw.h"
-#include "draw/send.h"
 
 #define TAG FREERDP_TAG("p9wl.main")
 

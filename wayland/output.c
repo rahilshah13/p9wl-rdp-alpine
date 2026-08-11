@@ -1,7 +1,7 @@
 /*
  * output.c - Output creation, frame rendering, and resize handling
  *
- * Creates the headless wlroots output sized to match the Plan 9 window,
+ * Creates the headless wlroots output sized to match the window,
  * runs the frame loop that renders the scene graph into a framebuffer
  * for the send thread, and handles dynamic window resizes.
  *
@@ -19,44 +19,13 @@
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
-#include "../draw/draw.h"
-#include "output.h"
-#include "../draw/send.h"
 #include "types.h"
-#include "../p9/p9.h"
 
 #ifndef CHAN_XRGB32
 #define CHAN_XRGB32 1
 #endif
 #ifndef CHAN_ARGB32
 #define CHAN_ARGB32 2
-#endif
-
-#ifndef free_image_cmd
-static inline int free_image_cmd(uint8_t *cmd, uint32_t id) {
-    cmd[0] = 'f';
-    cmd[1] = id & 0xff;
-    cmd[2] = (id >> 8) & 0xff;
-    cmd[3] = (id >> 16) & 0xff;
-    cmd[4] = (id >> 24) & 0xff;
-    return 5;
-}
-#endif
-
-#ifndef alloc_image_cmd
-static inline int alloc_image_cmd(uint8_t *cmd, uint32_t id, uint32_t chan, int repl,
-                                  int x0, int y0, int x1, int y1, uint32_t col) {
-    cmd[0] = 'b';
-    *(uint32_t *)(cmd + 1) = id;
-    *(uint32_t *)(cmd + 5) = chan;
-    cmd[9] = (uint8_t)repl;
-    *(uint32_t *)(cmd + 10) = (uint32_t)x0;
-    *(uint32_t *)(cmd + 14) = (uint32_t)y0;
-    *(uint32_t *)(cmd + 18) = (uint32_t)x1;
-    *(uint32_t *)(cmd + 22) = (uint32_t)y1;
-    *(uint32_t *)(cmd + 26) = col;
-    return 30;
-}
 #endif
 
 static void output_destroy(struct wl_listener *listener, void *data) {
@@ -67,30 +36,12 @@ static void output_destroy(struct wl_listener *listener, void *data) {
 }
 
 /*
- * Reallocate Plan 9 draw images after resize.
- * Uses alloc_image_cmd helper instead of manual byte construction.
+ * Reallocate draw images after resize.
  */
 static void reallocate_draw_images(struct draw_state *draw, int new_w, int new_h) {
-    struct p9conn *p9 = draw->p9;
-    uint8_t cmd[64];
-    int off;
-    
-    /* Free old images */
-    off = free_image_cmd(cmd, draw->image_id);
-    p9_write(p9, draw->drawdata_fid, 0, cmd, off);
-    
-    off = free_image_cmd(cmd, draw->delta_id);
-    p9_write(p9, draw->drawdata_fid, 0, cmd, off);
-    
-    /* Reallocate framebuffer image (XRGB32) */
-    off = alloc_image_cmd(cmd, draw->image_id, CHAN_XRGB32, 0,
-                          0, 0, new_w, new_h, 0x00000000);
-    p9_write(p9, draw->drawdata_fid, 0, cmd, off);
-    
-    /* Reallocate delta image (ARGB32 for alpha compositing) */
-    off = alloc_image_cmd(cmd, draw->delta_id, CHAN_ARGB32, 0,
-                          0, 0, new_w, new_h, 0x00000000);
-    p9_write(p9, draw->drawdata_fid, 0, cmd, off);
+    (void)draw;
+    (void)new_w;
+    (void)new_h;
 }
 
 static void output_frame(struct wl_listener *listener, void *data) {
@@ -194,7 +145,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
                 s->dirty_staging = ntiles > 0 ? calloc(1, ntiles) : NULL;
                 s->dirty_staging_valid = 0;
                 
-                /* Reallocate Plan 9 images using helper */
+                /* Reallocate draw state images */
                 reallocate_draw_images(draw, new_w, new_h);
                 
                 /* Resize wlroots output to VISIBLE dimensions.

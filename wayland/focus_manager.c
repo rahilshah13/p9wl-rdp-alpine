@@ -20,7 +20,6 @@
 #include <wlr/types/wlr_keyboard.h>
 #include <wlr/types/wlr_subcompositor.h>
 #include <wlr/util/log.h>
-
 #include "types.h"
 
 #define SEAT(fm)         ((fm)->server->seat)
