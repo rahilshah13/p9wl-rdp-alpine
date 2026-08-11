@@ -74,4 +74,4 @@ ENV XDG_RUNTIME_DIR=/tmp/xdg \
     MOZ_DISABLE_CONTENT_SANDBOX=1
 
 EXPOSE 3389
-ENTRYPOINT ["/app/p9wl", "-d"]
+ENTRYPOINT ["/app/p9wl-rdp-alpine", "-d"]
