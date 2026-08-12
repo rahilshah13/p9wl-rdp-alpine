@@ -468,6 +468,14 @@ void *send_thread_func(void *arg) {
         if (send_buf && !initial_dump_done) {
             dump_framebuffer_ppm("/app/compositor_frame.ppm", send_buf, s->width, s->height);
             wlr_log(WLR_INFO, "SCREENSHOT_DEBUG: Framebuffer successfully captured and written to /app/compositor_frame.ppm");
+            
+            uint32_t log_t = now_ms();
+            FILE *log_f = fopen("/app/send_events.log", "a");
+            if (log_f) {
+                fprintf(log_f, "[%u] FRAME_CAPTURE: width=%d height=%d\n", log_t, s->width, s->height);
+                fclose(log_f);
+            }
+
             initial_dump_done = 1;
         }
 
