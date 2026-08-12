@@ -57,7 +57,17 @@
 #define DEFAULT_WIDTH 1280
 #define DEFAULT_HEIGHT 800
 
+static int output_poll_timer(void *data) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: output_poll_timer called");
+    struct server *s = data;
+    if (s->output) {
+        wlr_output_schedule_frame(s->output);
+    }
+    return 1;
+}
+
 static void print_usage(const char *prog) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: print_usage called");
     fprintf(stderr, "Usage: %s [options] [command [args...]]\n", prog);
     fprintf(stderr, "\nDisplay options:\n");
     fprintf(stderr, "  -w <width>     Output screen width (default: %d)\n", DEFAULT_WIDTH);
@@ -72,6 +82,7 @@ static void print_usage(const char *prog) {
 static int parse_args(int argc, char *argv[], int *width, int *height,
                       float *scale, enum wlr_log_importance *log_level,
                       char ***exec_argv, int *exec_argc) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: parse_args called");
     *width = DEFAULT_WIDTH;
     *height = DEFAULT_HEIGHT;
     *scale = 1.0f;
@@ -83,27 +94,36 @@ static int parse_args(int argc, char *argv[], int *width, int *height,
         if (strcmp(argv[i], "-w") == 0 && i + 1 < argc) {
             *width = atoi(argv[++i]);
             if (*width < 640) *width = 640;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -w width=%d", *width);
         } else if (strcmp(argv[i], "-h") == 0 && i + 1 < argc) {
             *height = atoi(argv[++i]);
             if (*height < 480) *height = 480;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -h height=%d", *height);
         } else if (strcmp(argv[i], "-S") == 0 && i + 1 < argc) {
             *scale = strtof(argv[++i], NULL);
             if (*scale < 1.0f) *scale = 1.0f;
             if (*scale > 4.0f) *scale = 4.0f;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -S scale=%.2f", *scale);
         } else if (strcmp(argv[i], "-q") == 0) {
             *log_level = WLR_ERROR;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -q (Quiet mode)");
         } else if (strcmp(argv[i], "-v") == 0) {
             *log_level = WLR_INFO;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -v (Verbose mode)");
         } else if (strcmp(argv[i], "-d") == 0) {
             *log_level = WLR_DEBUG;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed option -d (Debug mode)");
         } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-help") == 0) {
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed help flag");
             return -1;
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            wlr_log(WLR_ERROR, "MAIN_DEBUG: Encountered unknown option: %s", argv[i]);
             return -1;
         } else {
             *exec_argv = &argv[i];
             *exec_argc = argc - i;
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Parsed command execution target: %s (argc=%d)", argv[i], *exec_argc);
             break;
         }
     }
@@ -111,6 +131,7 @@ static int parse_args(int argc, char *argv[], int *width, int *height,
 }
 
 static int init_wayland(struct server *s) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: init_wayland called");
     setenv("WLR_RENDERER", "pixman", 1);
     setenv("WLR_SCENE_DISABLE_DIRECT_SCANOUT", "1", 1);
 
@@ -194,6 +215,7 @@ static int init_wayland(struct server *s) {
 }
 
 static const char *setup_socket(struct server *s) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: setup_socket called");
     const char *sock = wl_display_add_socket_auto(s->display);
     if (!sock)
         return NULL;
@@ -207,6 +229,7 @@ static const char *setup_socket(struct server *s) {
 }
 
 int main(int argc, char *argv[]) {
+    wlr_log(WLR_INFO, "MAIN_DEBUG: main called");
     const char *runtime_dir = "/tmp/xdg";
     struct stat st = {0};
     if (stat(runtime_dir, &st) == -1) {
@@ -265,6 +288,7 @@ int main(int argc, char *argv[]) {
     input_queue_init(&s.input_queue);
 
     /* Start FreeRDP streaming thread */
+    wlr_log(WLR_INFO, "MAIN_DEBUG: Starting FreeRDP send thread");
     pthread_create(&s.send_thread, NULL, send_thread_func, &s);
 
     if (init_wayland(&s) < 0)
@@ -276,12 +300,14 @@ int main(int argc, char *argv[]) {
         goto cleanup;
 
     if (exec_argc > 0) {
+        wlr_log(WLR_INFO, "MAIN_DEBUG: About to fork child process for executable: %s", exec_argv[0]);
         pid_t pid = fork();
         if (pid < 0) {
             wlr_log(WLR_ERROR, "fork: %s", strerror(errno));
             WLog_ERR(TAG, "fork: %s", strerror(errno));
             goto cleanup;
         } else if (pid == 0) {
+            wlr_log(WLR_INFO, "MAIN_DEBUG: Child process running execvp for: %s", exec_argv[0]);
             execvp(exec_argv[0], exec_argv);
             fprintf(stderr, "exec %s: %s\n", exec_argv[0], strerror(errno));
             _exit(1);
@@ -296,11 +322,17 @@ int main(int argc, char *argv[]) {
                                           handle_input_events, &s);
     s.send_timer = wl_event_loop_add_timer(wl_display_get_event_loop(s.display),
                                             send_timer_callback, &s);
+    wl_event_loop_add_timer(wl_display_get_event_loop(s.display),
+                            output_poll_timer, &s);
 
     if (!wlr_backend_start(s.backend)) {
         wlr_log(WLR_ERROR, "Backend start failed");
         WLog_ERR(TAG, "Backend start failed");
         goto cleanup;
+    }
+
+    if (s.output) {
+        wlr_output_schedule_frame(s.output);
     }
 
     wlr_log(WLR_INFO, "Running Standalone Wayland-to-RDP Compositor");
@@ -309,6 +341,7 @@ int main(int argc, char *argv[]) {
     ret = 0;
 
 cleanup:
+    wlr_log(WLR_INFO, "MAIN_DEBUG: Entering server cleanup sequence");
     if (s.display) {
         clipboard_cleanup(&s);
         wl_display_destroy(s.display);
