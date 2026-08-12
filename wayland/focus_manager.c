@@ -27,17 +27,20 @@
 #define BUTTONS_HELD(fm) (SEAT(fm)->pointer_state.button_count > 0)
 
 void focus_manager_init(struct focus_manager *fm, struct server *server) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_manager_init called");
     memset(fm, 0, sizeof(*fm));
     fm->server = server;
     wl_list_init(&fm->popup_stack);
 }
 
 void focus_manager_cleanup(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_manager_cleanup called");
     wlr_log(WLR_INFO, "Focus: %d changes", fm->focus_change_count);
 }
 
 /* Walk subsurface parents to find root surface. */
 static struct wlr_surface *root_surface(struct wlr_surface *surface) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: root_surface called");
     while (surface) {
         struct wlr_subsurface *sub = wlr_subsurface_try_from_wlr_surface(surface);
         if (!sub) break;
@@ -49,6 +52,7 @@ static struct wlr_surface *root_surface(struct wlr_surface *surface) {
 /* Find any mapped surface to give focus to, skipping `skip`. */
 static struct wlr_surface *fallback_surface(struct focus_manager *fm,
                                              struct wlr_surface *skip) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: fallback_surface called");
     struct popup_data *pd;
     wl_list_for_each(pd, &fm->popup_stack, link) {
         if (pd->mapped && pd->surface != skip)
@@ -66,6 +70,7 @@ static struct wlr_surface *fallback_surface(struct focus_manager *fm,
 
 struct wlr_surface *focus_surface_at_cursor(struct focus_manager *fm,
                                             double *sx, double *sy) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_surface_at_cursor called");
     struct wlr_scene_node *node = wlr_scene_node_at(
         &fm->server->scene->tree.node, CURSOR(fm)->x, CURSOR(fm)->y, sx, sy);
 
@@ -90,6 +95,7 @@ struct wlr_surface *focus_surface_at_cursor(struct focus_manager *fm,
 
 struct toplevel *focus_toplevel_from_surface(struct focus_manager *fm,
                                              struct wlr_surface *surface) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_toplevel_from_surface called");
     if (!surface) return NULL;
     struct wlr_surface *root = root_surface(surface);
     struct toplevel *tl;
@@ -100,6 +106,7 @@ struct toplevel *focus_toplevel_from_surface(struct focus_manager *fm,
 }
 
 struct toplevel *focus_toplevel_at_cursor(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_toplevel_at_cursor called");
     double sx, sy;
     struct wlr_surface *s = focus_surface_at_cursor(fm, &sx, &sy);
     return s ? focus_toplevel_from_surface(fm, s) : NULL;
@@ -109,6 +116,7 @@ struct toplevel *focus_toplevel_at_cursor(struct focus_manager *fm) {
 
 void focus_pointer_set(struct focus_manager *fm, struct wlr_surface *surface,
                        double sx, double sy, enum focus_reason reason) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_pointer_set called");
     if (surface == SEAT(fm)->pointer_state.focused_surface)
         return;
 
@@ -134,6 +142,7 @@ void focus_pointer_set(struct focus_manager *fm, struct wlr_surface *surface,
 
 void focus_pointer_motion(struct focus_manager *fm, double sx, double sy,
                           uint32_t time_msec) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_pointer_motion called");
     wlr_seat_pointer_notify_motion(SEAT(fm), time_msec, sx, sy);
 }
 
@@ -144,6 +153,7 @@ void focus_pointer_motion(struct focus_manager *fm, double sx, double sy,
  * a stale/NULL deferred_pointer_target caused the hit test to be skipped.
  */
 void focus_pointer_recheck(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_pointer_recheck called");
     if (BUTTONS_HELD(fm))
         return;
 
@@ -157,10 +167,12 @@ void focus_pointer_recheck(struct focus_manager *fm) {
 }
 
 void focus_pointer_button_pressed(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_pointer_button_pressed called");
     (void)fm;
 }
 
 void focus_pointer_button_released(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_pointer_button_released called");
     if (fm->pointer_focus_deferred && !BUTTONS_HELD(fm))
         focus_pointer_recheck(fm);
 }
@@ -169,6 +181,7 @@ void focus_pointer_button_released(struct focus_manager *fm) {
 
 void focus_keyboard_set(struct focus_manager *fm, struct wlr_surface *surface,
                         enum focus_reason reason) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_keyboard_set called");
     (void)reason;
     if (surface == SEAT(fm)->keyboard_state.focused_surface)
         return;
@@ -195,12 +208,14 @@ void focus_keyboard_set(struct focus_manager *fm, struct wlr_surface *surface,
 }
 
 void focus_keyboard_set_modifiers(struct focus_manager *fm, uint32_t modifiers) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_keyboard_set_modifiers called");
     fm->modifier_state = modifiers;
     struct wlr_keyboard_modifiers mods = { .depressed = modifiers };
     wlr_seat_keyboard_notify_modifiers(SEAT(fm), &mods);
 }
 
 uint32_t focus_keyboard_get_modifiers(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_keyboard_get_modifiers called");
     return fm->modifier_state;
 }
 
@@ -208,6 +223,7 @@ uint32_t focus_keyboard_get_modifiers(struct focus_manager *fm) {
 
 void focus_toplevel(struct focus_manager *fm, struct toplevel *tl,
                     enum focus_reason reason) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_toplevel called");
     if (!tl || !tl->xdg) return;
     if (tl->surface == SEAT(fm)->keyboard_state.focused_surface) return;
 
@@ -225,6 +241,7 @@ void focus_toplevel(struct focus_manager *fm, struct toplevel *tl,
 }
 
 struct toplevel *focus_get_focused_toplevel(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_get_focused_toplevel called");
     struct wlr_surface *s = SEAT(fm)->keyboard_state.focused_surface;
     return s ? focus_toplevel_from_surface(fm, s) : NULL;
 }
@@ -232,16 +249,19 @@ struct toplevel *focus_get_focused_toplevel(struct focus_manager *fm) {
 /* ============== Popup Management ============== */
 
 void focus_popup_register(struct focus_manager *fm, struct popup_data *pd) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_register called");
     wl_list_insert(&fm->popup_stack, &pd->link);
 }
 
 void focus_popup_mapped(struct focus_manager *fm, struct popup_data *pd) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_mapped called");
     if (pd->has_grab)
         focus_keyboard_set(fm, pd->surface, FOCUS_REASON_POPUP_GRAB);
     focus_pointer_recheck(fm);
 }
 
 void focus_popup_unmapped(struct focus_manager *fm, struct popup_data *pd) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_unmapped called");
     if (SEAT(fm)->pointer_state.focused_surface != pd->surface)
         return;
 
@@ -259,6 +279,7 @@ void focus_popup_unmapped(struct focus_manager *fm, struct popup_data *pd) {
  * fm->pointer_focus stays in sync and deferral logic is respected.
  */
 void focus_popup_unregister(struct focus_manager *fm, struct popup_data *pd) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_unregister called");
     bool had_grab = pd->has_grab;
     struct wlr_surface *pd_surface = pd->surface;
 
@@ -292,6 +313,7 @@ void focus_popup_unregister(struct focus_manager *fm, struct popup_data *pd) {
 }
 
 struct popup_data *focus_popup_get_topmost(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_get_topmost called");
     if (wl_list_empty(&fm->popup_stack)) return NULL;
     struct popup_data *pd;
     return wl_container_of(fm->popup_stack.next, pd, link);
@@ -299,6 +321,7 @@ struct popup_data *focus_popup_get_topmost(struct focus_manager *fm) {
 
 struct popup_data *focus_popup_from_surface(struct focus_manager *fm,
                                              struct wlr_surface *surface) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_from_surface called");
     struct wlr_surface *root = root_surface(surface);
     struct popup_data *pd;
     wl_list_for_each(pd, &fm->popup_stack, link) {
@@ -309,6 +332,7 @@ struct popup_data *focus_popup_from_surface(struct focus_manager *fm,
 }
 
 void focus_popup_dismiss_all(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_dismiss_all called");
     struct popup_data *pd, *tmp;
     wl_list_for_each_safe(pd, tmp, &fm->popup_stack, link) {
         wlr_xdg_popup_destroy(pd->popup);
@@ -316,6 +340,7 @@ void focus_popup_dismiss_all(struct focus_manager *fm) {
 }
 
 bool focus_popup_dismiss_topmost_grabbed(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_dismiss_topmost_grabbed called");
     if (wl_list_empty(&fm->popup_stack)) return false;
     struct popup_data *pd;
     pd = wl_container_of(fm->popup_stack.next, pd, link);
@@ -325,6 +350,7 @@ bool focus_popup_dismiss_topmost_grabbed(struct focus_manager *fm) {
 }
 
 bool focus_popup_stack_empty(struct focus_manager *fm) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_popup_stack_empty called");
     return wl_list_empty(&fm->popup_stack);
 }
 
@@ -332,6 +358,7 @@ bool focus_popup_stack_empty(struct focus_manager *fm) {
 
 void focus_on_surface_map(struct focus_manager *fm, struct wlr_surface *surface,
                           bool is_toplevel) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_on_surface_map called");
     if (is_toplevel) {
         struct toplevel *tl = focus_toplevel_from_surface(fm, surface);
         if (tl) focus_toplevel(fm, tl, FOCUS_REASON_SURFACE_MAP);
@@ -344,6 +371,7 @@ void focus_on_surface_map(struct focus_manager *fm, struct wlr_surface *surface,
 }
 
 void focus_on_surface_unmap(struct focus_manager *fm, struct wlr_surface *surface) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_on_surface_unmap called");
     struct wlr_surface *ptr_focused = SEAT(fm)->pointer_state.focused_surface;
     struct wlr_surface *kbd_focused = SEAT(fm)->keyboard_state.focused_surface;
 
@@ -365,6 +393,7 @@ void focus_on_surface_unmap(struct focus_manager *fm, struct wlr_surface *surfac
 }
 
 void focus_on_surface_destroy(struct focus_manager *fm, struct wlr_surface *surface) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_on_surface_destroy called");
     focus_on_surface_unmap(fm, surface);
 
     if (fm->deferred_pointer_target == surface) {
@@ -379,6 +408,7 @@ struct wlr_surface *focus_handle_click(struct focus_manager *fm,
                                         struct wlr_surface *clicked,
                                         double sx, double sy,
                                         uint32_t button) {
+    wlr_log(WLR_INFO, "FOCUS_DEBUG: focus_handle_click called");
     (void)button;
 
     /* Click on popup — keep it focused */
