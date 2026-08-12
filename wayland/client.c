@@ -18,7 +18,6 @@
 #include <wlr/interfaces/wlr_keyboard.h>
 #include <wlr/util/log.h>
 #include "types.h"
-
 /* ============== Decoration Handling ============== */
 
 struct decoration_data {
@@ -30,7 +29,6 @@ struct decoration_data {
 };
 
 static void decoration_handle_destroy(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: decoration_handle_destroy called");
     struct decoration_data *dd = wl_container_of(listener, dd, destroy);
     (void)data;
     wl_list_remove(&dd->destroy.link);
@@ -42,7 +40,6 @@ static void decoration_handle_destroy(struct wl_listener *listener, void *data) 
 }
 
 static void decoration_set_mode_if_ready(struct decoration_data *dd) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: decoration_set_mode_if_ready called");
     struct wlr_xdg_toplevel *toplevel = dd->decoration->toplevel;
     
     if (!toplevel || !toplevel->base || !toplevel->base->initialized) {
@@ -66,14 +63,12 @@ static void decoration_set_mode_if_ready(struct decoration_data *dd) {
 }
 
 static void decoration_handle_surface_commit(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: decoration_handle_surface_commit called");
     struct decoration_data *dd = wl_container_of(listener, dd, surface_commit);
     (void)data;
     decoration_set_mode_if_ready(dd);
 }
 
 static void decoration_handle_request_mode(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: decoration_handle_request_mode called");
     struct decoration_data *dd = wl_container_of(listener, dd, request_mode);
     (void)data;
     
@@ -90,7 +85,6 @@ static void decoration_handle_request_mode(struct wl_listener *listener, void *d
 }
 
 void handle_new_decoration(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: handle_new_decoration called");
     struct server *s = wl_container_of(listener, s, new_decoration);
     struct wlr_xdg_toplevel_decoration_v1 *decoration = data;
     (void)s;
@@ -117,7 +111,6 @@ void handle_new_decoration(struct wl_listener *listener, void *data) {
 /* ============== Keyboard Shortcuts Inhibit ============== */
 
 static void kb_inhibitor_destroy(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: kb_inhibitor_destroy called");
     struct server *s = wl_container_of(listener, s, kb_inhibitor_destroy);
     (void)data;
     
@@ -127,7 +120,6 @@ static void kb_inhibitor_destroy(struct wl_listener *listener, void *data) {
 }
 
 void handle_new_kb_inhibitor(struct wl_listener *listener, void *data) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: handle_new_kb_inhibitor called");
     struct server *s = wl_container_of(listener, s, new_kb_shortcut_inhibitor);
     struct wlr_keyboard_shortcuts_inhibitor_v1 *inhibitor = data;
     
@@ -148,7 +140,6 @@ void handle_new_kb_inhibitor(struct wl_listener *listener, void *data) {
 /* ============== Server Cleanup ============== */
 
 void server_cleanup(struct server *s) {
-    wlr_log(WLR_INFO, "CLIENT_DEBUG: server_cleanup called");
     s->running = 0;
     
     pthread_mutex_lock(&s->send_lock);
