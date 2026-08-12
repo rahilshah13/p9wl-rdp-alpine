@@ -13,6 +13,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
@@ -322,7 +323,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
             
             wlr_buffer_end_data_ptr_access(buffer);
 
-            /* Dump every 10th rendered frame buffer to a PPM file */
+            /* Dump every 10th rendered frame buffer to a PPM file (retaining the last 100) */
             if (frame_count % 10 == 0 && valid_fb) {
                 char filename[128];
                 snprintf(filename, sizeof(filename), "/app/frame_%d.ppm", frame_count);
@@ -330,6 +331,15 @@ static void output_frame(struct wl_listener *listener, void *data) {
                 dump_framebuffer_ppm(filename, s->framebuf, s->width, s->height);
                 pthread_mutex_unlock(&s->send_lock);
                 wlr_log(WLR_INFO, "Dumped frame %d to %s", frame_count, filename);
+
+                /* Remove the oldest frame dump that exceeds the 100-file rolling window */
+                if (frame_count >= 1010) {
+                    char old_filename[128];
+                    snprintf(old_filename, sizeof(old_filename), "/app/frame_%d.ppm", frame_count - 1000);
+                    if (unlink(old_filename) == 0) {
+                        wlr_log(WLR_DEBUG, "Pruned old frame dump: %s", old_filename);
+                    }
+                }
             }
         } else {
             if (frame_count <= 10 || frame_count % 60 == 0)

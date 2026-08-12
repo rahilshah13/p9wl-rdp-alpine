@@ -1,6 +1,5 @@
 # --- Build Stage ---
 FROM alpine:latest AS builder
-
 RUN apk add --no-cache \
     build-base \
     pkgconf \
@@ -29,7 +28,6 @@ RUN make
 
 # --- Runtime Stage ---
 FROM alpine:latest
-
 RUN apk add --no-cache \
     wlroots0.19 \
     wayland \
@@ -41,7 +39,10 @@ RUN apk add --no-cache \
     lz4 \
     zlib \
     xkeyboard-config \
-    firefox
+    firefox \
+    ttf-dejavu \
+    ttf-liberation \
+    fontconfig
 
 WORKDIR /app
 COPY --from=builder /app/p9wl-rdp-alpine /app/p9wl-rdp-alpine
