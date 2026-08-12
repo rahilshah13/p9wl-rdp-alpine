@@ -12,6 +12,7 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include <errno.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
@@ -42,6 +43,25 @@ static void reallocate_draw_images(struct draw_state *draw, int new_w, int new_h
     (void)draw;
     (void)new_w;
     (void)new_h;
+}
+
+static void dump_framebuffer_ppm(const char *filename, uint32_t *pixels, int width, int height) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) {
+        wlr_log(WLR_ERROR, "Failed to open %s for framebuffer dump: %s", filename, strerror(errno));
+        return;
+    }
+    fprintf(f, "P6\n%d %d\n255\n", width, height);
+    for (int i = 0; i < width * height; i++) {
+        uint32_t p = pixels[i];
+        uint8_t b = (p >> 0) & 0xFF;
+        uint8_t g = (p >> 8) & 0xFF;
+        uint8_t r = (p >> 16) & 0xFF;
+        fputc(r, f);
+        fputc(g, f);
+        fputc(b, f);
+    }
+    fclose(f);
 }
 
 static void output_frame(struct wl_listener *listener, void *data) {
@@ -301,6 +321,16 @@ static void output_frame(struct wl_listener *listener, void *data) {
             }
             
             wlr_buffer_end_data_ptr_access(buffer);
+
+            /* Dump every 10th rendered frame buffer to a PPM file */
+            if (frame_count % 10 == 0 && valid_fb) {
+                char filename[128];
+                snprintf(filename, sizeof(filename), "/app/frame_%d.ppm", frame_count);
+                pthread_mutex_lock(&s->send_lock);
+                dump_framebuffer_ppm(filename, s->framebuf, s->width, s->height);
+                pthread_mutex_unlock(&s->send_lock);
+                wlr_log(WLR_INFO, "Dumped frame %d to %s", frame_count, filename);
+            }
         } else {
             if (frame_count <= 10 || frame_count % 60 == 0)
                 wlr_log(WLR_ERROR, "Frame %d: buffer access failed", frame_count);
