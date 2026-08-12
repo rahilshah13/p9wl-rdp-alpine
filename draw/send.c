@@ -49,6 +49,29 @@ struct rdp_send_ctx {
 
 static struct rdp_send_ctx rdp_ctx;
 
+// Forward declaration of send_frame so it can be called from post_connect
+void send_frame(struct server *s);
+
+static void dump_framebuffer_ppm(const char *filename, uint32_t *pixels, int width, int height) {
+    FILE *f = fopen(filename, "wb");
+    if (!f) {
+        wlr_log(WLR_ERROR, "Failed to open %s for framebuffer dump: %s", filename, strerror(errno));
+        return;
+    }
+    fprintf(f, "P6\n%d %d\n255\n", width, height);
+    for (int i = 0; i < width * height; i++) {
+        uint32_t p = pixels[i];
+        uint8_t b = (p >> 0) & 0xFF;
+        uint8_t g = (p >> 8) & 0xFF;
+        uint8_t r = (p >> 16) & 0xFF;
+        fputc(r, f);
+        fputc(g, f);
+        fputc(b, f);
+    }
+    fclose(f);
+    wlr_log(WLR_INFO, "Successfully dumped framebuffer to %s (%dx%d)", filename, width, height);
+}
+
 static inline void rdp_drain_wake(void) {
     pthread_mutex_lock(&rdp_ctx.lock);
     pthread_cond_signal(&rdp_ctx.cond);
@@ -223,8 +246,11 @@ static BOOL p9wl_peer_post_connect(freerdp_peer *peer) {
         pthread_mutex_lock(&rdp_ctx.server->send_lock);
         rdp_ctx.server->force_full_frame = 1;
         rdp_ctx.server->frame_dirty = 1;
-        pthread_cond_signal(&rdp_ctx.server->send_cond);
         pthread_mutex_unlock(&rdp_ctx.server->send_lock);
+
+        // Queue a frame so the send thread immediately wakes up and processes it
+        send_frame(rdp_ctx.server);
+
         if (rdp_ctx.server->output) {
             wlr_output_schedule_frame(rdp_ctx.server->output);
         }
@@ -416,6 +442,8 @@ void *send_thread_func(void *arg) {
         return NULL;
     }
     
+    int initial_dump_done = 0;
+
     while (s->running) {
         pthread_mutex_lock(&s->send_lock);
         while (s->pending_buf < 0 && !s->window_changed && s->running) {
@@ -437,6 +465,12 @@ void *send_thread_func(void *arg) {
         
         uint32_t *send_buf = got_frame ? s->send_buf[current_buf] : NULL;
         
+        if (send_buf && !initial_dump_done) {
+            dump_framebuffer_ppm("/app/compositor_frame.ppm", send_buf, s->width, s->height);
+            wlr_log(WLR_INFO, "SCREENSHOT_DEBUG: Framebuffer successfully captured and written to /app/compositor_frame.ppm");
+            initial_dump_done = 1;
+        }
+
         if (send_buf &&
             (s->visible_width < s->width || s->visible_height < s->height)) {
             if (s->visible_width < s->width) {

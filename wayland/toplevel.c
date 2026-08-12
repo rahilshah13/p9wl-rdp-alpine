@@ -1,13 +1,3 @@
-
-/*
- * toplevel.c - XDG toplevel and subsurface lifecycle
- *
- * Handles creation, commit, and destruction of toplevel windows and
- * their subsurfaces. Coordinates with focus_manager for focus transitions
- * on map/unmap/destroy events.
- *
- * See toplevel.h for lifecycle description and subsurface tracking design.
- */
 #include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_xdg_shell.h>
@@ -19,24 +9,14 @@
 #include <wlr/util/log.h>
 #include "types.h"
 
-
-/* Forward declaration */
 static void check_new_subsurfaces(struct toplevel *tl);
 
-/* ============== Subsurface Iteration Macro ============== */
-
-/*
- * Iterate over both below and above subsurface lists.
- * Usage: FOR_EACH_SUBSURFACE(surface, sub) { ... }
- */
 #define FOR_EACH_SUBSURFACE(surface, sub) \
     for (int _list_idx = 0; _list_idx < 2; _list_idx++) \
         wl_list_for_each(sub, \
             (_list_idx == 0) ? &(surface)->current.subsurfaces_below \
                              : &(surface)->current.subsurfaces_above, \
             current.link)
-
-/* ============== Subsurface Tracking ============== */
 
 static void subsurface_commit(struct wl_listener *l, void *d) {
     struct subsurface_track *st = wl_container_of(l, st, commit);
@@ -109,16 +89,12 @@ static void check_new_subsurfaces(struct toplevel *tl) {
     }
 }
 
-/* ============== Toplevel Handlers ============== */
-
 static void toplevel_request_fullscreen(struct wl_listener *l, void *d) {
     struct toplevel *tl = wl_container_of(l, tl, request_fullscreen);
     (void)d;
     
     if (!tl->xdg->base->initialized) return;
     
-    /* Already filling the whole window — just acknowledge the state change
-     * so the Fullscreen API promise resolves in the browser. */
     wlr_xdg_toplevel_set_fullscreen(tl->xdg, tl->xdg->requested.fullscreen);
     wlr_xdg_surface_schedule_configure(tl->xdg->base);
     wlr_log(WLR_INFO, "Fullscreen %s",
@@ -131,7 +107,6 @@ static void toplevel_request_maximize(struct wl_listener *l, void *d) {
     
     if (!tl->xdg->base->initialized) return;
     
-    /* Already maximized — acknowledge so client state stays in sync. */
     wlr_xdg_toplevel_set_maximized(tl->xdg, true);
     wlr_xdg_surface_schedule_configure(tl->xdg->base);
     wlr_log(WLR_INFO, "Maximize acknowledged");
@@ -143,27 +118,12 @@ static void toplevel_request_minimize(struct wl_listener *l, void *d) {
     
     if (!tl->xdg || !tl->xdg->base->initialized) return;
     
-    /* Headless compositor has no taskbar — minimize is unrecoverable.
-     * Re-assert activated + maximized state and schedule a configure
-     * so the client knows we refused and keeps rendering. Without this,
-     * clients (Firefox, Chromium, etc.) throttle frame commits after
-     * calling set_minimized, causing a visible hang until something
-     * else (e.g., resize) triggers a new configure. */
     wlr_xdg_toplevel_set_activated(tl->xdg, true);
     wlr_xdg_toplevel_set_maximized(tl->xdg, true);
     wlr_xdg_surface_schedule_configure(tl->xdg->base);
     wlr_log(WLR_INFO, "Minimize request denied — re-asserted active state");
 }
 
-/*
- * Handle xdg_toplevel destruction.
- *
- * wlroots destroys the xdg_toplevel BEFORE the xdg_surface, and asserts
- * that all toplevel event listener lists are empty. Our main
- * toplevel_destroy listens on xdg_surface destroy (too late). This
- * handler fires on xdg_toplevel destroy to remove toplevel-specific
- * listeners before the assertion.
- */
 static void toplevel_xdg_destroy(struct wl_listener *l, void *d) {
     struct toplevel *tl = wl_container_of(l, tl, xdg_destroy);
     (void)d;
@@ -205,13 +165,10 @@ static void toplevel_commit(struct wl_listener *l, void *d) {
     tl->commit_count++;
     bool has_buffer = wlr_surface_has_buffer(surface);
     
-    /* Track map/unmap state changes */
     if (has_buffer && !tl->mapped) {
         tl->mapped = true;
         wlr_log(WLR_INFO, "Toplevel MAPPED!");
-        
         focus_on_surface_map(&s->focus, surface, true);
-        
     } else if (!has_buffer && tl->mapped) {
         tl->mapped = false;
         focus_on_surface_unmap(&s->focus, surface);
@@ -232,7 +189,6 @@ static void toplevel_destroy(struct wl_listener *l, void *d) {
     
     focus_on_surface_destroy(&s->focus, tl->surface);
     
-    /* Clean up subsurface tracking */
     struct subsurface_track *st, *tmp;
     wl_list_for_each_safe(st, tmp, &tl->subsurfaces, link) {
         wl_list_remove(&st->destroy.link);
@@ -244,9 +200,6 @@ static void toplevel_destroy(struct wl_listener *l, void *d) {
     wl_list_remove(&tl->commit.link);
     wl_list_remove(&tl->destroy.link);
     
-    /* xdg_destroy handler may have already removed these; if xdg is
-     * still set it means the toplevel outlived its xdg_toplevel destroy
-     * signal (shouldn't happen, but be safe). */
     if (tl->xdg) {
         wl_list_remove(&tl->request_fullscreen.link);
         wl_list_remove(&tl->request_maximize.link);
@@ -257,7 +210,6 @@ static void toplevel_destroy(struct wl_listener *l, void *d) {
     wl_list_remove(&tl->link);
     free(tl);
     
-    /* Exit when last toplevel is destroyed */
     if (s->had_toplevel && wl_list_empty(&s->toplevels)) {
         wlr_log(WLR_INFO, "Last toplevel destroyed - initiating shutdown");
         
@@ -271,11 +223,6 @@ static void toplevel_destroy(struct wl_listener *l, void *d) {
             s->send_thread = 0;
         }
 
-	/* Don't delete the rio window on exit */ 
-        // wlr_log(WLR_INFO, "Deleting rio window...");
-        // delete_rio_window(&s->p9_draw);
-        
-        wlr_log(WLR_INFO, "Disconnecting from 9P server...");
         wlr_log(WLR_INFO, "Shutdown complete");
         exit(0);
     }

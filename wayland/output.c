@@ -194,6 +194,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         wlr_scene_output_send_frame_done(so, &ts);
+        wlr_output_schedule_frame(s->output);
         return;
     }
 #endif
@@ -213,6 +214,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         wlr_scene_output_send_frame_done(so, &ts);
+        wlr_output_schedule_frame(s->output);
         return;
     }
     s->scene_dirty = 0;
@@ -229,6 +231,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
         wlr_scene_output_send_frame_done(so, &ts);
+        wlr_output_schedule_frame(s->output);
         return;
     }
     
@@ -313,6 +316,7 @@ static void output_frame(struct wl_listener *listener, void *data) {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     wlr_scene_output_send_frame_done(so, &ts);
+    wlr_output_schedule_frame(s->output);
     
     if (s->force_full_frame || has_dirty || !s->dirty_staging_valid) {
         send_frame(s);
@@ -344,6 +348,10 @@ void new_output(struct wl_listener *l, void *d) {
     s->output_destroy.notify = output_destroy;
     wl_signal_add(&out->events.destroy, &s->output_destroy);
     
+    s->force_full_frame = 1;
+    s->scene_dirty = 1;
+    wlr_output_schedule_frame(out);
+
     if (s->scale > 1.0f) {
         int logical_w = (int)(s->visible_width / s->scale + 0.5f);
         int logical_h = (int)(s->visible_height / s->scale + 0.5f);
