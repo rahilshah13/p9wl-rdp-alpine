@@ -1,4 +1,3 @@
-# --- Build Stage ---
 FROM alpine:latest AS builder
 
 RUN apk add --no-cache \
@@ -16,7 +15,9 @@ RUN apk add --no-cache \
     zlib-dev \
     xkeyboard-config \
     linux-headers \
-    openssl
+    openssl \
+    libxcb-dev \
+    xcb-util-renderutil-dev
 
 WORKDIR /app
 COPY . .
@@ -41,6 +42,9 @@ RUN apk add --no-cache \
     lz4 \
     zlib \
     xkeyboard-config \
+    xwayland \
+    libxcb \
+    xcb-util-renderutil \
     firefox
 
 WORKDIR /app
@@ -67,7 +71,6 @@ ENV OPENSSL_CONF=/app/openssl.cnf
 # Optional: Set WinPR/FreeRDP logging to trace if handshake diagnostics are needed
 ENV WLOG_LEVEL=TRACE
 RUN mkdir -p /tmp/xdg
-# RUN mkdir -p /tmp/xdg /var/lib/dbus && dbus-uuidgen > /var/lib/dbus/machine-id
 ENV XDG_RUNTIME_DIR=/tmp/xdg \
     WAYLAND_DISPLAY=wayland-0 \
     MOZ_ENABLE_WAYLAND=1 \
