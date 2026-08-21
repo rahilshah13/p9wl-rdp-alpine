@@ -9,6 +9,7 @@
 #include <wlr/types/wlr_keyboard.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_keyboard_shortcuts_inhibit_v1.h>
+#include <wlr/types/wlr_xwayland.h>
 #include <wlr/util/log.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
@@ -193,6 +194,7 @@ struct server {
     struct wlr_output_layout *output_layout;
     struct wlr_output *output;
     struct wlr_xdg_shell *xdg_shell;
+    struct wlr_xwayland *xwayland;
     struct wlr_xdg_decoration_manager_v1 *decoration_mgr;
     struct wl_listener new_decoration;
     struct wlr_keyboard_shortcuts_inhibit_manager_v1 *kb_shortcuts_inhibit;
@@ -207,6 +209,7 @@ struct server {
     struct wl_listener new_output, output_frame, output_destroy;
     struct wl_listener new_xdg_toplevel;
     struct wl_listener new_xdg_popup;
+    struct wl_listener new_xwayland_surface;
     struct wl_listener new_input;
     struct wl_list toplevels;
 
