@@ -37,6 +37,7 @@
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
+#include <wlr/types/wlr_xwayland.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_cursor.h>
@@ -110,6 +111,15 @@ static int parse_args(int argc, char *argv[], int *width, int *height,
     return 0;
 }
 
+static void handle_xwayland_surface(struct wl_listener *listener, void *data) {
+    struct server *s = wl_container_of(listener, s, new_xwayland_surface);
+    struct wlr_xwayland_surface *surface = data;
+
+    wlr_log(WLR_INFO, "New Xwayland surface: title='%s', class='%s'",
+            surface->title ? surface->title : "",
+            surface->class ? surface->class : "");
+}
+
 static int init_wayland(struct server *s) {
     setenv("WLR_RENDERER", "pixman", 1);
     setenv("WLR_SCENE_DISABLE_DIRECT_SCANOUT", "1", 1);
@@ -131,7 +141,7 @@ static int init_wayland(struct server *s) {
     if (!s->allocator)
         return -1;
 
-    wlr_compositor_create(s->display, 5, s->renderer);
+    struct wlr_compositor *compositor = wlr_compositor_create(s->display, 5, s->renderer);
     wlr_subcompositor_create(s->display);
     wlr_data_device_manager_create(s->display);
     wlr_viewporter_create(s->display);
@@ -189,6 +199,19 @@ static int init_wayland(struct server *s) {
     wl_signal_add(&s->backend->events.new_input, &s->new_input);
 
     wlr_headless_add_output(s->backend, s->visible_width, s->visible_height);
+
+    /* Initialize Xwayland with lazy/on-demand startup enabled */
+    s->xwayland = wlr_xwayland_create(s->display, compositor, true);
+    if (s->xwayland) {
+        s->new_xwayland_surface.notify = handle_xwayland_surface;
+        wl_signal_add(&s->xwayland->events.new_surface, &s->new_xwayland_surface);
+
+        setenv("DISPLAY", s->xwayland->display_name, 1);
+        wlr_log(WLR_INFO, "Xwayland initialized on DISPLAY=%s", s->xwayland->display_name);
+        fprintf(stdout, "DISPLAY=%s\n", s->xwayland->display_name);
+    } else {
+        wlr_log(WLR_ERROR, "Failed to start Xwayland (is the 'xwayland' binary installed?)");
+    }
 
     return 0;
 }
@@ -309,6 +332,9 @@ int main(int argc, char *argv[]) {
     ret = 0;
 
 cleanup:
+    if (s.xwayland) {
+        wlr_xwayland_destroy(s.xwayland);
+    }
     if (s.display) {
         clipboard_cleanup(&s);
         wl_display_destroy(s.display);
